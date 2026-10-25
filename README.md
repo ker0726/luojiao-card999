@@ -26,10 +26,10 @@
 
 | 部署方式 | 公网链接 | 状态 |
 | --- | --- | --- |
-| GitHub Pages | `https://<GitHub用户名>.github.io/luojiao-card/` | 待部署后补全 |
-| Vercel | `https://luojiao-card.vercel.app` | 待部署后补全 |
+| GitHub Pages | https://ker0726.github.io/luojiao-card999/ | 已推送，待开启 Pages |
+| Vercel | https://luojiao-card999.vercel.app | 待导入仓库后生效 |
 
-> 部署完成后，把上面两个占位链接替换为真实地址即可。操作步骤见 [DEPLOY.md](./DEPLOY.md)。
+> 仓库地址：https://github.com/ker0726/luojiao-card999
 
 ## 本地预览
 

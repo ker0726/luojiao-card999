@@ -4,10 +4,10 @@
 
 | 平台 | 最终公网链接 |
 | --- | --- |
-| GitHub Pages | `https://<GitHub用户名>.github.io/luojiao-card/`（待补全） |
-| Vercel | `https://luojiao-card.vercel.app`（待补全） |
+| GitHub Pages | https://ker0726.github.io/luojiao-card999/ |
+| Vercel | https://luojiao-card999.vercel.app |
 
-> 下文命令中 `<GitHub用户名>` 统一替换为你自己的 GitHub 用户名；仓库名建议 `luojiao-card`（也可用 `personal-card`，两处保持一致的即可）。
+> 代码已推送至 https://github.com/ker0726/luojiao-card999 （提交 09fb959）。
 
 ---
 
