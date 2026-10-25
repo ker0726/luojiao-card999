@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<!-- 部署状态：v2.0
+主站部署平台：待部署至 Vercel / GitHub Pages
+作品一正式地址：待部署后替换
+作品二正式地址：待部署后替换
+作品三正式地址：待部署后替换
+如某个作品已上线正式地址，请将下方对应 <a> 标签中的 href 替换为真实链接即可。
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ===== 真实信息锁定区：标题与描述 ===== -->
+  <title>罗娇 | 武汉理工大学 · 数字经济2502 — 数字名片与作品集</title>
+  <!-- 检索信息：已移除临时平台相关描述，面向正式作品集定位 -->
+  <meta name="description" content="武汉理工大学数字经济2502班罗娇的个人作品集与数字名片，收录 e次元账本、像素小恐龙闯关、智学伴侣三个数智编程实践作品，长期稳定部署于专业云端平台。用数智编码创意，以过程定义成长。" />
+  <meta name="keywords" content="罗娇,武汉理工大学,数字经济2502,个人作品集,数字名片,数智编程,数字孪生,像素游戏,学习工具,Python,数据分析,SQL,Power BI,数据可视化" />
+  <meta name="author" content="罗娇" />
+  <meta name="theme-color" content="#0b1020" />
+
+  <!-- favicon：SVG data URI 渐变方块，无外链图片 -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Crect x='8' y='8' width='48' height='48' rx='12' fill='url(%23g)' opacity='0.9'/%3E%3Ctext x='32' y='42' font-size='26' text-anchor='middle' fill='%230b1020' font-family='sans-serif' font-weight='bold'%3E%E6%95%B0%3C/text%3E%3C/svg%3E" />
+
+  <style>
+    /* ============================================================
+       0. 设计变量与基础重置
+       主色 #5eead4（青）/ 辅助 #a78bfa（紫）/ 点缀 #fbbf24（暖橙）
+       ============================================================ */
+    :root {
+      --bg: #0b1020;                 /* 主背景：数字宇宙深蓝黑 */
+      --text: #e2e8f0;               /* 正文浅色 */
+      --text-dim: #94a3b8;           /* 次级文字 */
+      --text-mute: #64748b;          /* 弱化文字 */
+      --c1: #5eead4;                 /* 主强调色：青 */
+      --c2: #a78bfa;                 /* 辅助色：紫 */
+      --c3: #fbbf24;                 /* 点缀色：暖橙 */
+      --glass: rgba(148, 163, 184, 0.07);          /* 玻璃态底色 */
+      --glass-strong: rgba(13, 20, 40, 0.62);      /* 模态框玻璃底色 */
+      --border: rgba(148, 163, 184, 0.16);         /* 半透明浅色边框 */
+      --border-glow: rgba(94, 234, 212, 0.35);
+      --radius: 16px;                /* 卡片圆角 16px */
+      --font: "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --maxw: 1120px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; } /* CTA 平滑滚动的基础 */
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 多层径向渐变光斑：青 → 紫 → 暖橙微妙交替，营造数字宇宙感 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(640px 420px at 12% 8%,  rgba(94, 234, 212, 0.10), transparent 62%),
+        radial-gradient(760px 520px at 88% 18%, rgba(167, 139, 250, 0.12), transparent 62%),
+        radial-gradient(600px 480px at 82% 88%, rgba(251, 191, 36, 0.07), transparent 60%),
+        radial-gradient(560px 440px at 8% 92%,  rgba(94, 234, 212, 0.06), transparent 60%);
+    }
+
+    /* 极细网格线：覆盖全页的数字宇宙坐标感 */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 30%, transparent 90%);
+              mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 30%, transparent 90%);
+    }
+
+    h1, h2, h3, h4, p, figure { margin: 0; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    svg { display: block; max-width: 100%; }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--c1);
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* 渐变文字：标题与主题句共用 */
+    .grad-text {
+      background: linear-gradient(92deg, var(--c1) 0%, var(--c2) 52%, var(--c3) 100%);
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
+    }
+
+    /* 玻璃拟态卡片基类：毛玻璃 blur + 半透明边框 + 内外柔和阴影 */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow:
+        0 18px 46px -18px rgba(2, 6, 23, 0.85),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    /* 通用按钮：hover 光效过渡 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 26px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      color: var(--text);
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid var(--border);
+      transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease),
+                  border-color 0.28s var(--ease), background 0.28s var(--ease);
+      will-change: transform;
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-glow);
+      box-shadow: 0 10px 28px -10px rgba(94, 234, 212, 0.45);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(94, 234, 212, 0.16), rgba(167, 139, 250, 0.16));
+      border-color: rgba(94, 234, 212, 0.45);
+      color: #d9fff7;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 12px 32px -10px rgba(94, 234, 212, 0.55),
+                  0 0 0 1px rgba(167, 139, 250, 0.25);
+    }
+
+    .section { padding: 104px 0; position: relative; }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 48px;
+    }
+    .section-head .num {
+      font-size: 0.85rem;
+      color: var(--c1);
+      letter-spacing: 0.14em;
+      font-weight: 600;
+    }
+    .section-head h2 {
+      font-size: clamp(1.5rem, 3.2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .section-head .line {
+      flex: 1;
+      height: 1px;
+      margin-left: 10px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ============================================================
+       顶部导航：极简玻璃条
+       ============================================================ */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(11, 16, 32, 0.55);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 1.02rem;
+      letter-spacing: 0.04em;
+    }
+    .nav-logo em {
+      font-style: normal;
+      color: var(--text-mute);
+      font-weight: 500;
+      font-size: 0.78rem;
+      margin-left: 8px;
+      letter-spacing: 0.08em;
+    }
+    .nav-links { display: flex; gap: 26px; }
+    .nav-links a {
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      padding: 4px 2px;
+      border-bottom: 1px solid transparent;
+      transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+    .nav-links a:hover { color: var(--c1); border-bottom-color: var(--c1); }
+
+    /* ============================================================
+       板块一：Hero
+       ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 120px 0 80px;
+    }
+    #fx-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 140px;
+      background: linear-gradient(to bottom, transparent, var(--bg));
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .hero-inner { position: relative; z-index: 3; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      color: var(--c1);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(94, 234, 212, 0.3);
+      background: rgba(94, 234, 212, 0.06);
+      margin-bottom: 28px;
+    }
+    .hero-badge .pulse {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--c1);
+      box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.6);
+      animation: pulse 2.4s infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.55); }
+      70%  { box-shadow: 0 0 0 9px rgba(94, 234, 212, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(94, 234, 212, 0); }
+    }
+
+    /* ===== 真实信息锁定区：姓名「罗娇」 ===== */
+    .hero h1 {
+      font-size: clamp(2.8rem, 9vw, 5rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      text-shadow: 0 0 60px rgba(94, 234, 212, 0.25);
+    }
+    /* ===== 真实信息锁定区：学校与专业班级（已更新为2502） ===== */
+    .hero-school {
+      font-size: clamp(0.98rem, 2.4vw, 1.2rem);
+      color: var(--text-dim);
+      letter-spacing: 0.14em;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    /* ===== 真实信息锁定区：学号 1025007580（醒目位置新增） ===== */
+    .hero-stuid {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      color: var(--c3);
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 8px;
+      padding: 5px 14px;
+      margin-bottom: 30px;
+      font-family: "Inter", monospace;
+    }
+    .hero-stuid svg { color: var(--c3); }
+    /* ===== 真实信息锁定区：主题句，须原样展示并加渐变强调 ===== */
+    .hero-motto {
+      font-size: clamp(1.25rem, 3.6vw, 1.9rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin-bottom: 44px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .enter {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: enterUp 0.9s var(--ease) forwards;
+    }
+    .enter-1 { animation-delay: 0.10s; }
+    .enter-2 { animation-delay: 0.26s; }
+    .enter-3 { animation-delay: 0.42s; }
+    .enter-4 { animation-delay: 0.58s; }
+    @keyframes enterUp { to { opacity: 1; transform: none; } }
+
+    .scroll-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      color: var(--text-mute);
+      transition: color 0.25s var(--ease);
+    }
+    .scroll-hint:hover { color: var(--c1); }
+    .scroll-hint .bar {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, var(--c1), transparent);
+      animation: drop 2.2s ease-in-out infinite;
+    }
+    @keyframes drop {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.7); }
+      50%      { opacity: 1;   transform: scaleY(1); }
+    }
+
+    /* ============================================================
+       板块二：教育背景与课程启发
+       ============================================================ */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .about-card {
+      padding: 34px 32px;
+      transition: transform 0.32s var(--ease), border-color 0.32s var(--ease),
+                  box-shadow 0.32s var(--ease);
+    }
+    .about-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-glow);
+      box-shadow: 0 24px 50px -20px rgba(2, 6, 23, 0.95),
+                  0 0 40px -18px rgba(94, 234, 212, 0.35);
+    }
+
+    .about-card .card-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--c1);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edu-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(94,234,212,0.16), rgba(167,139,250,0.16));
+      border: 1px solid rgba(94, 234, 212, 0.3);
+      color: var(--c1);
+    }
+    /* ===== 真实信息锁定区：教育经历（已更新为数字经济 2502） ===== */
+    .edu-school { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .edu-major {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .edu-status {
+      display: inline-block;
+      font-size: 0.78rem;
+      color: var(--c3);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.08);
+      border-radius: 999px;
+      padding: 3px 12px;
+      margin-top: 10px;
+    }
+    .edu-desc {
+      margin-top: 18px;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+
+    .insight-text p { color: var(--text-dim); font-size: 0.96rem; margin-bottom: 16px; }
+    .insight-text p:last-child { margin-bottom: 0; }
+    .insight-text b { color: var(--text); font-weight: 600; }
+    .insight-text .hl {
+      background: linear-gradient(92deg, var(--c1), var(--c2));
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       板块三：作品集（3 个真实作品，封面来自 og:image 或风格化 SVG）
+       ============================================================ */
+    .build-notice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      margin: -18px 0 36px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+    }
+    .build-notice svg { flex: none; color: var(--c3); }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 桌面三列 */
+      gap: 24px;
+    }
+
+    .work-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.34s var(--ease), box-shadow 0.34s var(--ease),
+                  border-color 0.34s var(--ease);
+    }
+    .work-card:hover,
+    .work-card:focus-within {
+      transform: translateY(-10px);
+      border-color: var(--border-glow);
+      box-shadow: 0 28px 56px -22px rgba(2, 6, 23, 0.95),
+                  0 0 44px -16px rgba(94, 234, 212, 0.35);
+    }
+
+    /* 封面：真实 og:image 或 SVG，圆角 16px，比例统一 */
+    .work-cover {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: #0b1020;
+    }
+    .work-cover img,
+    .work-cover svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s var(--ease);
+    }
+    .work-card:hover .work-cover img,
+    .work-card:hover .work-cover svg { transform: scale(1.06); }
+
+    /* 封面光晕流动动画（叠加层，不影响图片性能） */
+    .work-cover::after {
+      content: "";
+      position: absolute;
+      inset: -45%;
+      z-index: 1;
+      background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.14), transparent 46%);
+      animation: coverFlow 9s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes coverFlow {
+      from { transform: translate(-7%, -5%) rotate(-2deg); }
+      to   { transform: translate(7%, 6%) rotate(2deg); }
+    }
+
+    /* 封面角标：课程作业 · 持续建设 */
+    .work-tag-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 3;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      color: #fde68a;
+      background: rgba(11, 16, 32, 0.62);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      border-radius: 999px;
+      padding: 3px 11px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .work-index {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      z-index: 3;
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      color: rgba(226, 232, 240, 0.85);
+      background: rgba(11, 16, 32, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 2px 8px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .work-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 24px 24px 22px;
+    }
+    .work-body h3 {
+      font-size: 1.06rem;
+      font-weight: 700;
+      margin-bottom: 9px;
+      line-height: 1.5;
+      transition: color 0.25s var(--ease);
+    }
+    .work-card:hover .work-body h3 { color: var(--c1); }
+    .work-body > p {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+    .tags li {
+      font-size: 0.7rem;
+      letter-spacing: 0.03em;
+      color: var(--c1);
+      background: rgba(94, 234, 212, 0.08);
+      border: 1px solid rgba(94, 234, 212, 0.2);
+      border-radius: 6px;
+      padding: 4px 10px;
+    }
+
+    .work-actions { display: flex; gap: 12px; }
+    .work-actions .btn { flex: 1; padding: 11px 12px; font-size: 0.85rem; }
+
+    /* 访问按钮下方的小字说明：正式部署地址尚未启用 */
+    .link-note {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      color: var(--text-mute);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .link-note::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--c3);
+      opacity: 0.7;
+      flex: none;
+    }
+    .work-card:hover .link-note { color: var(--text-dim); }
+
+    /* ============================================================
+       作品详情模态框：玻璃态 + 封面大图 + 弹出动画
+       ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(2, 6, 23, 0.62);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.32s var(--ease), visibility 0.32s var(--ease);
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal {
+      width: 100%;
+      max-width: 620px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 0 0 32px;
+      position: relative;
+      background: var(--glass-strong);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.9),
+                  0 0 60px -20px rgba(94, 234, 212, 0.3),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      transform: translateY(28px) scale(0.96);
+      opacity: 0;
+      transition: transform 0.38s var(--ease), opacity 0.38s var(--ease);
+    }
+    .modal-overlay.open .modal { transform: none; opacity: 1; }
+
+    /* 模态框封面大图 */
+    .modal-cover {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: #0b1020;
+    }
+    .modal-cover img,
+    .modal-cover svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-body { padding: 28px 32px 0; }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 5;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(11, 16, 32, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 1.15rem;
+      cursor: pointer;
+      transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
+                  background 0.25s var(--ease), transform 0.25s var(--ease);
+    }
+    .modal-close:hover {
+      color: var(--c1);
+      border-color: var(--border-glow);
+      transform: rotate(90deg);
+    }
+
+    .modal-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 999px;
+      padding: 4px 13px;
+      margin-bottom: 14px;
+    }
+    .modal h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      padding-right: 34px;
+    }
+    .modal .modal-desc {
+      font-size: 0.93rem;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+    .modal .tags { margin-bottom: 24px; }
+    .modal .modal-note {
+      font-size: 0.75rem;
+      color: var(--text-mute);
+      margin-top: 14px;
+    }
+
+    body.locked { overflow: hidden; }
+
+    /* ============================================================
+       板块四：技能标签云
+       ============================================================ */
+    .skills-intro {
+      font-size: clamp(1rem, 2.4vw, 1.2rem);
+      font-weight: 600;
+      max-width: 40em;
+      margin: -22px 0 42px;
+      color: var(--text-dim);
+    }
+    .skills-intro .hl {
+      background: linear-gradient(92deg, var(--c1), var(--c2));
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
+    }
+
+    .skill-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px 15px;
+      align-items: center;
+    }
+    .skill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border-radius: 12px;
+      cursor: default;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.26s var(--ease), border-color 0.26s var(--ease),
+                  box-shadow 0.26s var(--ease);
+    }
+    .skill:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-glow);
+      box-shadow: 0 12px 26px -14px rgba(94, 234, 212, 0.5);
+    }
+    .skill i {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.8;
+      flex: none;
+    }
+    .s1 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #d9fff7;
+      padding: 13px 24px;
+      background: rgba(94, 234, 212, 0.13);
+      border-color: rgba(94, 234, 212, 0.4);
+    }
+    .s2 {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--c1);
+      padding: 11px 20px;
+      background: rgba(94, 234, 212, 0.07);
+      border-color: rgba(94, 234, 212, 0.22);
+    }
+    .s3 {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #c4b5fd;
+      padding: 10px 18px;
+      background: rgba(167, 139, 250, 0.08);
+      border-color: rgba(167, 139, 250, 0.22);
+    }
+    .s4 {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      padding: 8px 15px;
+      background: rgba(148, 163, 184, 0.05);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 24px;
+      margin-top: 36px;
+      font-size: 0.75rem;
+      color: var(--text-mute);
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .legend s { display: inline-block; width: 10px; height: 10px; border-radius: 50%; text-decoration: none; }
+    .legend .l1 { background: var(--c1); }
+    .legend .l2 { background: rgba(94, 234, 212, 0.45); }
+    .legend .l3 { background: rgba(167, 139, 250, 0.55); }
+    .legend .l4 { background: rgba(148, 163, 184, 0.4); }
+
+    /* ============================================================
+       板块五：联系转化区 + 页脚
+       ============================================================ */
+    .contact-wrap { text-align: center; }
+    .contact-title {
+      font-size: clamp(1.7rem, 4.4vw, 2.4rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .contact-sub {
+      color: var(--text-dim);
+      max-width: 36em;
+      margin: 0 auto 40px;
+      font-size: 0.98rem;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 52px;
+    }
+
+    .contact-card {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 30px;
+      align-items: center;
+      text-align: left;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 34px;
+    }
+
+    .contact-meta { display: grid; gap: 20px; }
+    .contact-meta .label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      margin-bottom: 4px;
+    }
+    .contact-meta .value {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+      transition: color 0.25s var(--ease);
+    }
+    a.value:hover { color: var(--c1); }
+    .contact-meta svg { flex: none; color: var(--c1); }
+
+    .qr-box {
+      text-align: center;
+      padding-left: 30px;
+      border-left: 1px solid var(--border);
+    }
+    .qr-frame {
+      width: 132px;
+      height: 132px;
+      padding: 9px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.8);
+      transition: transform 0.3s var(--ease);
+    }
+    .qr-box:hover .qr-frame { transform: scale(1.05); }
+    .qr-caption {
+      margin-top: 10px;
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .socials { display: flex; flex-direction: column; gap: 12px; }
+    .socials a {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(148, 163, 184, 0.06);
+      color: var(--text-dim);
+      transition: transform 0.25s var(--ease), color 0.25s var(--ease),
+                  border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    }
+    .socials a:hover {
+      transform: translateY(-3px);
+      color: var(--c1);
+      border-color: var(--border-glow);
+      box-shadow: 0 10px 24px -12px rgba(94, 234, 212, 0.5);
+    }
+
+    .footer {
+      margin-top: 64px;
+      padding: 26px 0 34px;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-mute);
+    }
+    .footer .motto-line {
+      margin-top: 6px;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      color: rgba(100, 116, 139, 0.7);
+    }
+    /* 页脚托管说明：强调长期可访问性 */
+    .footer .platform-line {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: rgba(148, 163, 184, 0.55);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 36px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 200;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      color: #d9fff7;
+      background: rgba(13, 20, 40, 0.9);
+      border: 1px solid rgba(94, 234, 212, 0.4);
+      box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0.3s var(--ease);
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%); }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+    }
+    .reveal.in { opacity: 1; transform: none; }
+    .stagger > .reveal:nth-child(1) { transition-delay: 0s; }
+    .stagger > .reveal:nth-child(2) { transition-delay: 0.1s; }
+    .stagger > .reveal:nth-child(3) { transition-delay: 0.2s; }
+    .stagger > .reveal:nth-child(4) { transition-delay: 0.3s; }
+
+    /* ============================================================
+       响应式适配
+       ============================================================ */
+    @media (max-width: 1024px) {
+      .works-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .about-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 0 18px; }
+      .section { padding: 72px 0; }
+      .nav-links { display: none; }
+      .hero { padding: 110px 0 72px; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .works-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .work-actions { flex-direction: column; }
+      .about-card { padding: 26px 22px; }
+      .build-notice { font-size: 0.82rem; padding: 12px 16px; }
+      .modal-body { padding: 22px 20px 0; }
+      .contact-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 26px 22px;
+        gap: 24px;
+      }
+      .contact-meta { justify-items: center; }
+      .contact-meta > div { text-align: center; }
+      .qr-box {
+        padding-left: 0;
+        padding-top: 24px;
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        justify-self: center;
+      }
+      .socials { flex-direction: row; justify-content: center; }
+      .scroll-hint { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .reveal, .enter { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav" aria-label="页面导航">
+    <div class="container nav-inner">
+      <a class="nav-logo" href="#top">罗娇<em>LUO JIAO</em></a>
+      <div class="nav-links">
+        <a href="#about">关于</a>
+        <a href="#portfolio">作品</a>
+        <a href="#skills">技能</a>
+        <a href="#contact">联系</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       板块一：个人身份区 Hero
+       ============================================================ -->
+  <header class="hero" id="top">
+    <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+    <div class="container hero-inner">
+      <p class="hero-badge enter enter-1">
+        <span class="pulse" aria-hidden="true"></span>
+        数智编程 · 结课作业 · 数字名片
+      </p>
+
+      <h1 class="enter enter-2">罗娇</h1>
+
+      <!-- ===== 真实信息锁定区：学校与专业班级（2502） ===== -->
+      <p class="hero-school enter enter-2">武汉理工大学 · 数字经济2502</p>
+
+      <!-- ===== 真实信息锁定区：学号（醒目位置新增） ===== -->
+      <p class="hero-stuid enter enter-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18" /><path d="M8 4v4" /><path d="M16 4v4" />
+        </svg>
+        学号：1025007580
+      </p>
+
+      <!-- ===== 真实信息锁定区：主题句 ===== -->
+      <p class="hero-motto enter enter-3"><span class="grad-text">“用数智编码创意，以过程定义成长。”</span></p>
+
+      <div class="hero-actions enter enter-4">
+        <a class="btn btn-primary" href="#portfolio">
+          进入作品集
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
+        </a>
+        <a class="btn" href="#contact">联系我</a>
+      </div>
+    </div>
+
+    <a class="scroll-hint" href="#about" aria-label="向下滚动">
+      <span>SCROLL</span>
+      <span class="bar" aria-hidden="true"></span>
+    </a>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         板块二：教育背景与课程启发
+         ============================================================ -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="num">01.</span>
+          <h2 class="grad-text">关于我</h2>
+          <span class="line" aria-hidden="true"></span>
+        </div>
+
+        <div class="about-grid stagger">
+
+          <!-- 左卡：教育经历 ===== 真实信息锁定区（数字经济 2502） ===== -->
+          <article class="about-card glass reveal">
+            <p class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 10 12 5 2 10l10 5 10-5Z" /><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5" />
+              </svg>
+              教育背景 · EDUCATION
+            </p>
+            <div class="edu-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10 12 5 2 10l10 5 10-5Z" /><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5" /><path d="M22 10v6" />
+              </svg>
+            </div>
+            <h3 class="edu-school">武汉理工大学</h3>
+            <p class="edu-major grad-text">数字经济 2502</p>
+            <p class="edu-desc">
+              主修数字经济方向，系统学习数据分析、平台经济与数智技术基础，
+              正在探索「技术 + 商业」的交叉成长路径。
+            </p>
+            <span class="edu-status">本科在读</span>
+          </article>
+
+          <!-- 右卡：课程启发 -->
+          <article class="about-card glass reveal">
+            <p class="card-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2Z" /><path d="M9 21h6" />
+              </svg>
+              课程启发 · INSIGHT
+            </p>
+            <div class="insight-text">
+              <p>
+                在走进「数智编程」的课堂之前，我总觉得编程离经济学很远——它像是另一套语言，
+                属于机房和工程师。一个学期下来我逐渐明白：<b>代码不是目的，而是一种把创意变成现实的表达方式</b>。
+              </p>
+              <p>
+                这门课教给我的，不只是 Python 的语法或数据分析的方法，更是一种「从 0 到 1」的创造思维：
+                先有一个模糊的想法，再用数据去验证它、用代码去实现它，最后在一次次调试中看着它慢慢成型。
+                那种<span class="hl">「想法在自己手里活过来」</span>的感觉，让我第一次真切体会到用技术表达思想的力量。
+              </p>
+              <p>
+                这个网站本身就是最好的证明——从第一行 HTML 开始，到一张可以展示自我的数字名片。
+                我正在学习用数智的方式，<b>定义自己的成长</b>。
+              </p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         板块三：作品集（3 个真实作品，含真实链接与封面）
+         ============================================================ -->
+    <section class="section" id="portfolio">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="num">02.</span>
+          <h2 class="grad-text">我的作品集</h2>
+          <span class="line" aria-hidden="true"></span>
+        </div>
+
+          <!-- 迁移提示横幅：与深色玻璃态风格统一，不使用外部样式 -->
+          <div class="build-notice reveal" role="note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 9v4" /><path d="M12 17h.01" />
+              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+            </svg>
+            <span><strong>作品迁移中</strong>：以下作品正在迁移至正式部署平台，链接将于近期启用，敬请期待。</span>
+          </div>
+
+        <div class="works-grid stagger">
+
+          <!-- 作品一：e次元账本
+               正式部署占位地址（二选一，上线后替换为真实链接）：https://e-credit-ledger.vercel.app 或 https://e-credit-ledger.netlify.app
+               迁移记录（仅注释追溯，不对外展示）：原临时演示域名已弃用。 -->
+          <article class="work-card glass reveal">
+            <div class="work-cover" data-cover="w1">
+              <span class="work-tag-badge">课程作业 · 持续建设</span>
+              <span class="work-index" aria-hidden="true">WORK 01</span>
+              <!-- 封面来源：按作品真实品牌配色（工银红 #D2132A / 金 #F5B301 / 薄荷 #00C896）本地绘制，不依赖任何外部图床 -->
+              <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="e次元账本封面">
+                <defs>
+                  <linearGradient id="ecBg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#151d31" />
+                    <stop offset="100%" stop-color="#0b1020" />
+                  </linearGradient>
+                  <radialGradient id="ecGlow" cx="0.86" cy="0.04" r="0.78">
+                    <stop offset="0%" stop-color="#d2132a" stop-opacity="0.42" />
+                    <stop offset="100%" stop-color="#d2132a" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="ecRed" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#d2132a" />
+                    <stop offset="100%" stop-color="#a30d1e" />
+                  </linearGradient>
+                </defs>
+                <rect width="320" height="200" fill="url(#ecBg)" />
+                <rect width="320" height="200" fill="url(#ecGlow)" />
+                <circle cx="288" cy="180" r="56" fill="#00c896" opacity="0.10" />
+                <!-- 产品界面示意：卡片 + 指标 + 六维成长 -->
+                <rect x="38" y="24" width="244" height="152" rx="18" fill="#f5f6fa" />
+                <path d="M56 24h208a18 18 0 0 1 18 18v20H38V42a18 18 0 0 1 18-18Z" fill="url(#ecRed)" />
+                <text x="56" y="51" fill="#ffffff" font-size="12" font-weight="700" font-family="Inter,sans-serif">e 次元账本</text>
+                <text x="264" y="50" fill="#ffd6dc" font-size="6.5" font-family="Inter,sans-serif" text-anchor="end">数字孪生 · 财商教育</text>
+                <g font-family="Inter,sans-serif">
+                  <rect x="52" y="74" width="64" height="28" rx="8" fill="#ffffff" stroke="#e6eaf3" />
+                  <text x="60" y="85" fill="#8a94a6" font-size="5.5">数字分身等级</text>
+                  <text x="60" y="96" fill="#1f2430" font-size="9" font-weight="700">Lv.6</text>
+                  <rect x="124" y="74" width="64" height="28" rx="8" fill="#ffffff" stroke="#e6eaf3" />
+                  <text x="132" y="85" fill="#8a94a6" font-size="5.5">消费记录</text>
+                  <text x="132" y="96" fill="#1f2430" font-size="9" font-weight="700">1,286</text>
+                  <rect x="196" y="74" width="64" height="28" rx="8" fill="#ffffff" stroke="#e6eaf3" />
+                  <text x="204" y="85" fill="#8a94a6" font-size="5.5">成长指数</text>
+                  <text x="204" y="96" fill="#00a87d" font-size="9" font-weight="700">+18</text>
+                </g>
+                <!-- 消费结构圆环 -->
+                <circle cx="88" cy="146" r="25" fill="none" stroke="#e7eaf1" stroke-width="9" />
+                <circle cx="88" cy="146" r="25" fill="none" stroke="#00c896" stroke-width="9" stroke-linecap="round" stroke-dasharray="107 157" transform="rotate(-90 88 146)" />
+                <text x="88" y="149" fill="#1f2430" font-size="9" font-weight="700" font-family="Inter,sans-serif" text-anchor="middle">68%</text>
+                <text x="88" y="174" fill="#8a94a6" font-size="5.5" font-family="Inter,sans-serif" text-anchor="middle">理性消费占比</text>
+                <!-- 三维成长条 -->
+                <g font-family="Inter,sans-serif">
+                  <text x="140" y="122" fill="#64748b" font-size="5.5">消费</text>
+                  <rect x="140" y="126" width="122" height="7" rx="3.5" fill="#e7eaf1" />
+                  <rect x="140" y="126" width="92" height="7" rx="3.5" fill="#d2132a" />
+                  <text x="140" y="142" fill="#64748b" font-size="5.5">储蓄</text>
+                  <rect x="140" y="146" width="122" height="7" rx="3.5" fill="#e7eaf1" />
+                  <rect x="140" y="146" width="74" height="7" rx="3.5" fill="#f5b301" />
+                  <text x="140" y="162" fill="#64748b" font-size="5.5">成长</text>
+                  <rect x="140" y="166" width="122" height="7" rx="3.5" fill="#e7eaf1" />
+                  <rect x="140" y="166" width="104" height="7" rx="3.5" fill="#00c896" />
+                </g>
+              </svg>
+            </div>
+            <div class="work-body">
+              <h3>e次元账本</h3>
+              <p>数字孪生财商教育，虚拟分身随消费实时成长。</p>
+              <ul class="tags"><li>数字孪生</li><li>数据可视化</li><li>消费分析</li></ul>
+              <div class="work-actions">
+                <button class="btn js-detail" type="button" data-id="w1">查看详情</button>
+                <!-- 正式部署占位地址：https://e-credit-ledger.vercel.app（上线后替换为真实链接，勿使用临时域名） -->
+                <a class="btn btn-primary" href="https://e-credit-ledger.vercel.app" target="_blank" rel="noopener noreferrer">访问链接</a>
+              </div>
+              <p class="link-note">正式部署地址，建设中</p>
+            </div>
+          </article>
+
+          <!-- 作品二：像素小恐龙闯关
+               正式部署占位地址（二选一，上线后替换为真实链接）：https://pixel-dino.vercel.app 或 https://pixel-dino.netlify.app
+               迁移记录（仅注释追溯，不对外展示）：原临时演示域名已弃用。 -->
+          <article class="work-card glass reveal">
+            <div class="work-cover" data-cover="w2">
+              <span class="work-tag-badge">课程作业 · 持续建设</span>
+              <span class="work-index" aria-hidden="true">WORK 02</span>
+              <!-- 封面来源：按作品真实像素配色（#121212 / #FFB300 / #F4F0E8）本地绘制，不依赖任何外部图床 -->
+              <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="像素小恐龙闯关封面">
+                <defs>
+                  <linearGradient id="dnSky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1d1d1d" />
+                    <stop offset="100%" stop-color="#0f0f0f" />
+                  </linearGradient>
+                </defs>
+                <rect width="320" height="200" fill="url(#dnSky)" />
+                <!-- 像素星点 -->
+                <g fill="#F4F0E8" opacity="0.55">
+                  <rect x="36" y="34" width="2" height="2" /><rect x="88" y="20" width="2" height="2" />
+                  <rect x="148" y="30" width="2" height="2" /><rect x="222" y="16" width="2" height="2" />
+                  <rect x="292" y="38" width="2" height="2" /><rect x="176" y="54" width="2" height="2" />
+                </g>
+                <!-- 像素远山 -->
+                <path d="M0 150v-16h16v-12h16v12h18v-16h20v16h16v16Z" fill="#262626" />
+                <path d="M186 150v-14h14v-12h18v12h16v-16h18v16h18v14Z" fill="#262626" />
+                <!-- 地面 -->
+                <rect y="150" width="320" height="50" fill="#151515" />
+                <rect y="150" width="320" height="2" fill="#3d3d3d" />
+                <!-- 金币 -->
+                <g fill="#FFB300">
+                  <rect x="34" y="114" width="9" height="9" /><rect x="54" y="98" width="9" height="9" />
+                  <rect x="72" y="122" width="9" height="9" />
+                </g>
+                <g fill="#FFE08A">
+                  <rect x="36" y="116" width="5" height="5" /><rect x="56" y="100" width="5" height="5" />
+                  <rect x="74" y="124" width="5" height="5" />
+                </g>
+                <!-- 像素小恐龙：由块状矩形拼接，保持复古像素感 -->
+                <g fill="#FFB300">
+                  <rect x="160" y="94" width="63" height="45" />
+                  <rect x="214" y="76" width="45" height="36" />
+                  <rect x="250" y="103" width="18" height="9" />
+                  <rect x="137" y="103" width="27" height="18" />
+                  <rect x="128" y="121" width="18" height="18" />
+                  <rect x="205" y="121" width="18" height="9" />
+                  <rect x="169" y="139" width="18" height="27" />
+                  <rect x="160" y="166" width="18" height="9" />
+                  <rect x="196" y="139" width="18" height="36" />
+                  <rect x="188" y="175" width="18" height="9" />
+                </g>
+                <rect x="236" y="86" width="9" height="9" fill="#121212" />
+                <!-- HUD 文案 -->
+                <text x="16" y="34" fill="#FFB300" font-size="9" letter-spacing="1.6" font-family="'Courier New',monospace">DINO RUN</text>
+                <text x="304" y="34" fill="#F4F0E8" font-size="9" font-family="'Courier New',monospace" text-anchor="end">HI 01200</text>
+              </svg>
+            </div>
+            <div class="work-body">
+              <h3>像素小恐龙闯关</h3>
+              <p>四龙四关像素跑酷，连跳冲刺收集金币。</p>
+              <ul class="tags"><li>像素画风</li><li>游戏开发</li><li>物理引擎</li></ul>
+              <div class="work-actions">
+                <button class="btn js-detail" type="button" data-id="w2">查看详情</button>
+                <!-- 正式部署占位地址：https://pixel-dino.vercel.app（上线后替换为真实链接，勿使用临时域名） -->
+                <a class="btn btn-primary" href="https://pixel-dino.vercel.app" target="_blank" rel="noopener noreferrer">访问链接</a>
+              </div>
+              <p class="link-note">正式部署地址，建设中</p>
+            </div>
+          </article>
+
+          <!-- 作品三：智学伴侣
+               正式部署占位地址（二选一，上线后替换为真实链接）：https://study-companion.vercel.app 或 https://study-companion.netlify.app
+               迁移记录（仅注释追溯，不对外展示）：原临时演示域名已弃用。 -->
+          <article class="work-card glass reveal">
+            <div class="work-cover" data-cover="w3">
+              <span class="work-tag-badge">课程作业 · 持续建设</span>
+              <span class="work-index" aria-hidden="true">WORK 03</span>
+              <!-- 封面来源：本地内联 SVG 绘制（靛蓝 #4F46E5 移动端学习工具风格），不依赖任何外部图床 -->
+              <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="智学伴侣封面">
+                <defs>
+                  <linearGradient id="zxBg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#111827" />
+                    <stop offset="100%" stop-color="#1e1b4b" />
+                  </linearGradient>
+                  <linearGradient id="zxPhone" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4F46E5" />
+                    <stop offset="100%" stop-color="#7c3aed" />
+                  </linearGradient>
+                </defs>
+                <rect width="320" height="200" fill="url(#zxBg)" />
+                <!-- 背景光斑 -->
+                <circle cx="50" cy="40" r="60" fill="#4F46E5" opacity="0.18" />
+                <circle cx="270" cy="170" r="70" fill="#a78bfa" opacity="0.14" />
+                <!-- 手机壳 -->
+                <rect x="118" y="22" width="84" height="166" rx="16" fill="#0f172a" stroke="#4F46E5" stroke-width="1.5" />
+                <rect x="140" y="27" width="40" height="5" rx="2.5" fill="#1f2937" />
+                <!-- 状态栏 -->
+                <rect x="118" y="40" width="84" height="20" rx="0" fill="url(#zxPhone)" />
+                <text x="126" y="53" fill="#fff" font-size="7" font-family="Inter, sans-serif" font-weight="600">智学伴侣</text>
+                <text x="194" y="53" fill="#fff" font-size="6" font-family="Inter, sans-serif" text-anchor="end">16:43</text>
+                <!-- 内容卡片 -->
+                <rect x="124" y="68" width="72" height="108" rx="8" fill="#F5F6FA" />
+                <text x="160" y="84" fill="#1F2430" font-size="7" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">把厚教材，拆成</text>
+                <text x="160" y="93" fill="#1F2430" font-size="7" font-family="Inter, sans-serif" text-anchor="middle" font-weight="700">记得住的知识点</text>
+                <!-- 知识点卡片（模拟章节点） -->
+                <rect x="130" y="102" width="60" height="12" rx="4" fill="#EEF0FF" />
+                <rect x="130" y="105" width="20" height="6" rx="3" fill="#4F46E5" />
+                <rect x="130" y="118" width="60" height="12" rx="4" fill="#EEF0FF" />
+                <rect x="130" y="121" width="32" height="6" rx="3" fill="#10B981" />
+                <rect x="130" y="134" width="60" height="12" rx="4" fill="#EEF0FF" />
+                <rect x="130" y="137" width="44" height="6" rx="3" fill="#F59E0B" />
+                <!-- 复习进度条 -->
+                <rect x="130" y="152" width="60" height="5" rx="2.5" fill="#e5e7eb" />
+                <rect x="130" y="152" width="36" height="5" rx="2.5" fill="#4F46E5" />
+                <text x="160" y="170" fill="#6B7280" font-size="5.5" font-family="Inter, sans-serif" text-anchor="middle">1/2/4/7/15/30 天复习计划</text>
+                <!-- 右上角 AI 标识 -->
+                <circle cx="252" cy="52" r="14" fill="#4F46E5" opacity="0.9" />
+                <text x="252" y="57" fill="#fff" font-size="11" font-family="Inter, sans-serif" text-anchor="middle" font-weight="800">AI</text>
+              </svg>
+            </div>
+            <div class="work-body">
+              <h3>智学伴侣</h3>
+              <p>教材自动拆知识点，按遗忘曲线安排复习闯关。</p>
+              <ul class="tags"><li>学习工具</li><li>AI拆解</li><li>遗忘曲线</li></ul>
+              <div class="work-actions">
+                <button class="btn js-detail" type="button" data-id="w3">查看详情</button>
+                <!-- 正式部署占位地址：https://study-companion.vercel.app（上线后替换为真实链接，勿使用临时域名） -->
+                <a class="btn btn-primary" href="https://study-companion.vercel.app" target="_blank" rel="noopener noreferrer">访问链接</a>
+              </div>
+              <p class="link-note">正式部署地址，建设中</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         板块四：技能标签云
+         ============================================================ -->
+    <section class="section" id="skills">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="num">03.</span>
+          <h2 class="grad-text">技能图谱</h2>
+          <span class="line" aria-hidden="true"></span>
+        </div>
+
+        <p class="skills-intro reveal">
+          <span class="hl">“从数据中挖掘价值，用代码表达创意——我正在构建数字时代的核心竞争力。”</span>
+        </p>
+
+        <ul class="skill-cloud stagger">
+          <li class="skill s1 reveal"><i aria-hidden="true"></i>Python</li>
+          <li class="skill s1 reveal"><i aria-hidden="true"></i>数据分析</li>
+          <li class="skill s2 reveal"><i aria-hidden="true"></i>SQL</li>
+          <li class="skill s2 reveal"><i aria-hidden="true"></i>Excel</li>
+          <li class="skill s2 reveal"><i aria-hidden="true"></i>Power BI</li>
+          <li class="skill s3 reveal"><i aria-hidden="true"></i>数字营销</li>
+          <li class="skill s3 reveal"><i aria-hidden="true"></i>AIGC</li>
+          <li class="skill s3 reveal"><i aria-hidden="true"></i>数据可视化</li>
+          <li class="skill s3 reveal"><i aria-hidden="true"></i>Prompt Engineering</li>
+          <li class="skill s4 reveal"><i aria-hidden="true"></i>区块链</li>
+          <li class="skill s4 reveal"><i aria-hidden="true"></i>Tableau</li>
+        </ul>
+
+        <div class="legend reveal" aria-label="熟练度图例">
+          <span><s class="l1" aria-hidden="true"></s>核心能力</span>
+          <span><s class="l2" aria-hidden="true"></s>熟练</span>
+          <span><s class="l3" aria-hidden="true"></s>掌握</span>
+          <span><s class="l4" aria-hidden="true"></s>了解 / 探索中</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         板块五：联系转化区 + 页脚
+         ============================================================ -->
+    <section class="section" id="contact">
+      <div class="container contact-wrap">
+        <div class="section-head reveal">
+          <span class="num">04.</span>
+          <h2 class="grad-text">联系我</h2>
+          <span class="line" aria-hidden="true"></span>
+        </div>
+
+        <h2 class="contact-title reveal">很高兴认识你，<span class="grad-text">来聊聊吧</span></h2>
+        <p class="contact-sub reveal">
+          无论是课程交流、学习组队，还是对数字经济与编程的任何想法，都欢迎随时与我联系。
+        </p>
+
+        <div class="contact-actions reveal">
+          <button class="btn btn-primary" id="copyEmail" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            复制邮箱
+          </button>
+          <a class="btn" href="tel:15282558478">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.8.7a2 2 0 0 1 1.7 2Z" />
+            </svg>
+            拨打电话
+          </a>
+        </div>
+
+        <div class="contact-card glass reveal">
+
+          <div class="contact-meta">
+            <div>
+              <p class="label">邮箱 · Email</p>
+              <a class="value" href="mailto:2263989218@qq.com">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 7 10-7" />
+                </svg>
+                2263989218@qq.com
+              </a>
+            </div>
+            <div>
+              <p class="label">电话 · Tel</p>
+              <a class="value" href="tel:15282558478">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.8.7a2 2 0 0 1 1.7 2Z" />
+                </svg>
+                15282558478
+              </a>
+            </div>
+            <div>
+              <p class="label">学校 · School</p>
+              <span class="value">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 10 12 5 2 10l10 5 10-5Z" /><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5" />
+                </svg>
+                武汉理工大学 · 数字经济2502
+              </span>
+            </div>
+          </div>
+
+          <div class="qr-box">
+            <div class="qr-frame">
+              <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="微信二维码占位图">
+                <rect width="96" height="96" fill="#ffffff" />
+                <g fill="#0b1020">
+                  <rect x="6" y="6" width="24" height="24" rx="3" />
+                  <rect x="66" y="6" width="24" height="24" rx="3" />
+                  <rect x="6" y="66" width="24" height="24" rx="3" />
+                </g>
+                <g fill="#ffffff">
+                  <rect x="11" y="11" width="14" height="14" rx="2" />
+                  <rect x="71" y="11" width="14" height="14" rx="2" />
+                  <rect x="11" y="71" width="14" height="14" rx="2" />
+                </g>
+                <g fill="#0b1020">
+                  <rect x="15" y="15" width="6" height="6" />
+                  <rect x="75" y="15" width="6" height="6" />
+                  <rect x="15" y="75" width="6" height="6" />
+                </g>
+                <g fill="#0b1020" opacity="0.92">
+                  <rect x="36" y="6" width="6" height="6" /><rect x="46" y="6" width="6" height="6" />
+                  <rect x="6" y="36" width="6" height="6" /><rect x="6" y="46" width="6" height="6" />
+                  <rect x="18" y="36" width="6" height="6" /><rect x="24" y="42" width="6" height="6" />
+                  <rect x="36" y="24" width="6" height="6" /><rect x="48" y="18" width="6" height="6" />
+                  <rect x="60" y="24" width="6" height="6" /><rect x="54" y="36" width="6" height="6" />
+                  <rect x="42" y="42" width="6" height="6" /><rect x="36" y="54" width="6" height="6" />
+                  <rect x="48" y="48" width="6" height="6" /><rect x="60" y="48" width="6" height="6" />
+                  <rect x="24" y="60" width="6" height="6" /><rect x="36" y="66" width="6" height="6" />
+                  <rect x="48" y="72" width="6" height="6" /><rect x="60" y="66" width="6" height="6" />
+                  <rect x="72" y="48" width="6" height="6" /><rect x="78" y="60" width="6" height="6" />
+                  <rect x="66" y="78" width="6" height="6" /><rect x="78" y="84" width="6" height="6" />
+                  <rect x="54" y="84" width="6" height="6" /><rect x="84" y="72" width="6" height="6" />
+                </g>
+                <circle cx="48" cy="48" r="11" fill="#07c160" />
+                <path d="M43 45c0-2.2 2.2-4 4.6-4s4.6 1.8 4.6 4c0 .8-.3 1.6-.8 2.2" fill="#fff" opacity="0.9" />
+              </svg>
+            </div>
+            <p class="qr-caption">微信扫码</p>
+          </div>
+
+          <div class="socials">
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="GitHub 主页（链接待补充）">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.04 1.78 2.73 1.27 3.4.97.1-.75.4-1.27.73-1.56-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.41-2.69 5.39-5.26 5.67.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/>
+              </svg>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn 主页（链接待补充）">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05a3.74 3.74 0 0 1 3.36-1.85c3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.72v20.55C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.72C24 .77 23.2 0 22.22 0Z"/>
+              </svg>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="个人博客（链接待补充）">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+              </svg>
+            </a>
+            <a href="mailto:2263989218@qq.com" aria-label="发送邮件">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 7 10-7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <footer class="footer">
+          <p>© 2025 罗娇 · 数智编程课程作业</p>
+          <p class="motto-line">用数智编码创意，以过程定义成长。</p>
+          <!-- 托管说明：面向长期可访问性的正式部署定位 -->
+          <p class="platform-line">本网站托管于专业云端平台，由 Vercel / GitHub Pages 提供稳定访问支持。</p>
+        </footer>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       作品详情模态框（内容由 JS 根据 WORKS 数据填充）
+       ============================================================ -->
+  <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" type="button" aria-label="关闭详情">✕</button>
+      <!-- 模态框封面大图，由 JS 填充 -->
+      <div class="modal-cover" id="modalCover"></div>
+      <div class="modal-body">
+        <span class="modal-badge">课程作业 · 持续建设</span>
+        <h3 id="modalTitle"></h3>
+        <p class="modal-desc" id="modalDesc"></p>
+        <ul class="tags" id="modalTags"></ul>
+        <a class="btn btn-primary" id="modalLink" href="#" target="_blank" rel="noopener noreferrer">
+          访问作品
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7M9 7h8v8" />
+          </svg>
+        </a>
+        <p class="modal-note">正式部署地址，正在建设中；作品上线后将在此直接开放访问。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">邮箱已复制到剪贴板</div>
+
+  <script>
+    /* ============================================================
+       交互脚本
+       1) Hero 粒子光线画布（性能受控）
+       2) 滚动显现（IntersectionObserver）
+       3) 作品详情模态框（数据驱动，含封面大图）
+       4) 复制邮箱按钮
+       ============================================================ */
+    (function () {
+      'use strict';
+
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* ---------- 1. Hero 粒子光线画布 ---------- */
+      var canvas = document.getElementById('fx-canvas');
+      if (canvas && canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var W = 0, H = 0, pts = [], rafId = null;
+        var COLORS = ['94,234,212', '167,139,250', '251,191,36'];
+        var LINK_DIST = 120;
+
+        function resize() {
+          W = canvas.clientWidth;
+          H = canvas.clientHeight;
+          canvas.width = W * dpr;
+          canvas.height = H * dpr;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          var count = Math.min(90, Math.floor((W * H) / 16000));
+          pts = [];
+          for (var i = 0; i < count; i++) {
+            pts.push({
+              x: Math.random() * W,
+              y: Math.random() * H,
+              vx: (Math.random() - 0.5) * 0.35,
+              vy: (Math.random() - 0.5) * 0.35,
+              r: Math.random() * 1.6 + 0.6,
+              c: COLORS[i % COLORS.length],
+              a: Math.random() * 0.5 + 0.25
+            });
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, W, H);
+          for (var i = 0; i < pts.length; i++) {
+            var p = pts[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < -20) p.x = W + 20;
+            if (p.x > W + 20) p.x = -20;
+            if (p.y < -20) p.y = H + 20;
+            if (p.y > H + 20) p.y = -20;
+
+            for (var j = i + 1; j < pts.length; j++) {
+              var q = pts[j];
+              var dx = p.x - q.x, dy = p.y - q.y;
+              var d2 = dx * dx + dy * dy;
+              if (d2 < LINK_DIST * LINK_DIST) {
+                var opacity = (1 - Math.sqrt(d2) / LINK_DIST) * 0.16;
+                ctx.strokeStyle = 'rgba(' + p.c + ',' + opacity + ')';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.stroke();
+              }
+            }
+
+            ctx.fillStyle = 'rgba(' + p.c + ',' + p.a + ')';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function loop() {
+          draw();
+          rafId = requestAnimationFrame(loop);
+        }
+
+        resize();
+        window.addEventListener('resize', resize);
+
+        if (reduceMotion) {
+          draw();
+        } else {
+          loop();
+          document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+              cancelAnimationFrame(rafId);
+              rafId = null;
+            } else if (!rafId) {
+              rafId = requestAnimationFrame(loop);
+            }
+          });
+        }
+      }
+
+      /* ---------- 2. 滚动显现动画 ---------- */
+      var revealEls = document.querySelectorAll('.reveal');
+      if (!reduceMotion && 'IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(function (el) { io.observe(el); });
+      } else {
+        revealEls.forEach(function (el) { el.classList.add('in'); });
+      }
+
+      /* ---------- 3. 作品详情模态框（3 个作品数据） ---------- */
+      // 正式部署占位地址：作品上线后，只需替换此处的 url 与页面中对应 <a> 的 href
+      // 封面统一复用作品卡片中的内联 SVG，不引用任何外部图床
+      var WORKS = {
+        w1: {
+          title: 'e次元账本',
+          url: 'https://e-credit-ledger.vercel.app',
+          desc: 'e次元账本是一款基于"工银e校园·数字孪生"理念的财商教育交互演示。用户可一键进入演示模式，体验虚拟分身随消费实时变化、六维数值成长与消费回溯，直观呈现理性消费的陪伴式财商教育。',
+          tags: ['数字孪生', '数据可视化', '消费分析', '交互设计']
+        },
+        w2: {
+          title: '像素小恐龙闯关',
+          url: 'https://pixel-dino.vercel.app',
+          desc: '像素小恐龙闯关是一款轻量级特技跑酷小游戏。玩家可操控剑龙、霸王龙、三角龙、翼龙四种角色，穿越森林、火山、冰川、沙漠四大主题关卡。通过二段跳、俯身下滑、斜向冲刺灵活避障，沿途收集金币叠加分数，挑战历史最高纪录。像素画风复古，操作爽快，适合碎片时间解压闯关。',
+          tags: ['像素画风', '游戏开发', '物理引擎', '交互体验']
+        },
+        w3: {
+          title: '智学伴侣',
+          url: 'https://study-companion.vercel.app',
+          desc: '智学伴侣是一款面向大学生的自主学习辅助工具在线演示版。用户使用学号登录后，可模拟上传教材PDF，由系统自动拆解为章、节知识点，并依据遗忘曲线安排1/2/4/7/15/30天复习计划。通过5题闯关检验掌握情况，≥60分即可过关。本页面为纯前端交互原型，数据仅存于当前会话，轻量直观，适合快速体验"把厚教材拆成记得住的知识点"的学习闭环。',
+          tags: ['学习工具', 'AI拆解', '遗忘曲线', '交互原型']
+        }
+      };
+
+      var overlay = document.getElementById('modalOverlay');
+      var modalTitle = document.getElementById('modalTitle');
+      var modalDesc = document.getElementById('modalDesc');
+      var modalTags = document.getElementById('modalTags');
+      var modalLink = document.getElementById('modalLink');
+      var modalCover = document.getElementById('modalCover');
+      var modalClose = document.getElementById('modalClose');
+      var lastFocus = null;
+
+      function openModal(id) {
+        var work = WORKS[id];
+        if (!work) return;
+        modalTitle.textContent = work.title;
+        modalDesc.textContent = work.desc;
+        modalTags.innerHTML = work.tags.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+        modalLink.setAttribute('href', work.url);
+        // 封面来源：直接复用作品卡片中的内联 SVG，保持单一数据源，无外部图片请求
+        var coverNode = document.querySelector('.work-cover[data-cover="' + id + '"] svg');
+        modalCover.innerHTML = coverNode ? coverNode.outerHTML : '';
+        lastFocus = document.activeElement;
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('locked');
+        modalClose.focus();
+      }
+
+      function closeModal() {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('locked');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      document.querySelectorAll('.js-detail').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openModal(btn.getAttribute('data-id'));
+        });
+      });
+
+      modalClose.addEventListener('click', closeModal);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+      });
+
+      /* ---------- 4. 复制邮箱按钮 ---------- */
+      var EMAIL = '2263989218@qq.com'; // 真实信息锁定区
+      var copyBtn = document.getElementById('copyEmail');
+      var toast = document.getElementById('toast');
+      var toastTimer = null;
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+      }
+
+      copyBtn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(EMAIL).then(function () {
+            showToast('邮箱已复制到剪贴板');
+          }).catch(function () { fallbackCopy(); });
+        } else {
+          fallbackCopy();
+        }
+      });
+
+      function fallbackCopy() {
+        var input = document.createElement('input');
+        input.value = EMAIL;
+        document.body.appendChild(input);
+        input.select();
+        try {
+          document.execCommand('copy');
+          showToast('邮箱已复制到剪贴板');
+        } catch (err) {
+          showToast('复制失败，请手动复制：' + EMAIL);
+        }
+        document.body.removeChild(input);
+      }
+    })();
+  </script>
+</body>
+</html>
