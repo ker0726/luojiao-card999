@@ -116,6 +116,21 @@ body::before{
     linear-gradient(180deg, rgba(3,7,24,.26), transparent 16%);
 }
 
+/* 第三颗流星登场时，整片夜空轻微一亮，把视线带到主角流星 */
+#flash{
+  position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;
+  mix-blend-mode:screen;
+  background:radial-gradient(ellipse at 62% 42%,
+    rgba(255,236,196,.34) 0%, rgba(255,214,150,.16) 32%, transparent 66%);
+}
+body.hero-flight #flash{animation:heroFlash 3.2s ease-out both;}
+@keyframes heroFlash{
+  0%{opacity:0;}
+  14%{opacity:.55;}
+  46%{opacity:.30;}
+  100%{opacity:0;}
+}
+
 /* ============================================================
    3. 布局：左为底图意境 / 右为信息
    ============================================================ */
@@ -510,6 +525,7 @@ h1.name{
 <div id="bg" aria-hidden="true"></div>
 <!-- 银心暖光 -->
 <div class="galaxy-glow" aria-hidden="true"></div>
+<div id="flash" aria-hidden="true"></div>
 
 <!-- 水彩晕染 -->
 <div class="wash" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -1048,7 +1064,7 @@ h1.name{
      ========================================================== */
   var meteors = [];
   var flightCount = 0;
-  var nextMeteorTime = 900;
+  var nextMeteorTime = 650;
   var infoLit = false;
 
   function lightInfo() {
@@ -1064,9 +1080,9 @@ h1.name{
     var hero = flightCount === 3;
     var sx, sy, ang, sp, len, max;
     if (hero) {
-      // 固定轨迹：从画面中上偏左，斜穿信息区
-      sx = W * 0.40; sy = -H * 0.18;
-      ang = 0.86; sp = 620; len = 380; max = 2600;
+      // 固定轨迹：从画面中上偏左，缓而长地斜穿信息区，留出足够辨认时间
+      sx = W * 0.30; sy = -H * 0.22;
+      ang = 0.83; sp = 470; len = 650; max = 3000;
     } else {
       var fromLeft = Math.random() < 0.62;
       sx = fromLeft ? rand(-140, W * 0.5) : rand(W * 0.5, W + 140);
@@ -1086,8 +1102,13 @@ h1.name{
       hero: hero
     });
     if (hero) {
+      // 第三颗登场时整片夜空轻微一亮，把视线带过去
+      document.body.classList.remove('hero-flight');
+      void document.body.offsetWidth;
+      document.body.classList.add('hero-flight');
+      setTimeout(function () { document.body.classList.remove('hero-flight'); }, 3200);
       // 划到信息区时，让这一颗流星“化为”个人信息
-      setTimeout(lightInfo, 950);
+      setTimeout(lightInfo, 1250);
     }
     // 普通流星 30% 概率伴随一颗略小的子流星
     if (!hero && Math.random() < 0.3) {
@@ -1121,11 +1142,11 @@ h1.name{
 
       // 尾部辉光（更宽更柔）
       var glow = ctx.createLinearGradient(m.x, m.y, tx, ty);
-      glow.addColorStop(0, 'rgba(255,224,162,' + ((hero ? 0.92 : 0.62) * fade) + ')');
-      glow.addColorStop(0.4, 'rgba(255,186,102,' + ((hero ? 0.36 : 0.22) * fade) + ')');
+      glow.addColorStop(0, 'rgba(255,224,162,' + ((hero ? 1 : 0.62) * fade) + ')');
+      glow.addColorStop(0.4, 'rgba(255,186,102,' + ((hero ? 0.48 : 0.22) * fade) + ')');
       glow.addColorStop(1, 'rgba(255,160,60,0)');
       ctx.strokeStyle = glow;
-      ctx.lineWidth = hero ? 16 : 8.5;
+      ctx.lineWidth = hero ? 24 : 8.5;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(m.x, m.y);
@@ -1135,21 +1156,46 @@ h1.name{
       // 主线（更亮更清晰）
       var line = ctx.createLinearGradient(m.x, m.y, tx, ty);
       line.addColorStop(0, 'rgba(255,255,250,' + fade + ')');
-      line.addColorStop(0.18, 'rgba(255,234,178,' + ((hero ? 0.95 : 0.78) * fade) + ')');
+      line.addColorStop(0.18, 'rgba(255,234,178,' + ((hero ? 1 : 0.78) * fade) + ')');
       line.addColorStop(1, 'rgba(255,196,120,0)');
       ctx.strokeStyle = line;
-      ctx.lineWidth = hero ? 4.0 : 2.1;
+      ctx.lineWidth = hero ? 5.6 : 2.1;
       ctx.beginPath();
       ctx.moveTo(m.x, m.y);
       ctx.lineTo(tx, ty);
       ctx.stroke();
 
+      // 主角流星：在尾迹上撒几粒星火，拉开与普通流星的差别
+      if (hero) {
+        ctx.globalAlpha = fade;
+        for (var k = 1; k <= 4; k++) {
+          var fx = m.x - (m.vx / sp) * m.len * (k / 5);
+          var fy = m.y - (m.vy / sp) * m.len * (k / 5);
+          ctx.fillStyle = 'rgba(255,238,196,' + (0.5 - k * 0.09) + ')';
+          ctx.beginPath();
+          ctx.arc(fx, fy, 2.6 - k * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
       // 头部亮点
       ctx.globalAlpha = fade;
-      var hr = hero ? 30 : 15;
+      if (hero) {
+        // 主角外圈大光晕
+        var halo = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 96);
+        halo.addColorStop(0, 'rgba(255,246,214,.34)');
+        halo.addColorStop(0.5, 'rgba(255,206,132,.14)');
+        halo.addColorStop(1, 'rgba(255,200,120,0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, 96, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      var hr = hero ? 46 : 15;
       var head = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, hr);
       head.addColorStop(0, 'rgba(255,255,252,1)');
-      head.addColorStop(0.34, 'rgba(255,228,158,' + (hero ? 0.82 : 0.55) + ')');
+      head.addColorStop(0.34, 'rgba(255,228,158,' + (hero ? 0.92 : 0.55) + ')');
       head.addColorStop(1, 'rgba(255,214,140,0)');
       ctx.fillStyle = head;
       ctx.beginPath();
@@ -1157,12 +1203,18 @@ h1.name{
       ctx.fill();
 
       if (hero) {
-        // 最亮的那颗：加一圈十字星芒
-        ctx.strokeStyle = 'rgba(255,246,214,' + (0.55 * fade) + ')';
-        ctx.lineWidth = 1.4;
+        // 最亮的那颗：十字星芒 + 斜向短芒
+        ctx.strokeStyle = 'rgba(255,246,214,' + (0.75 * fade) + ')';
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.moveTo(m.x - 46, m.y); ctx.lineTo(m.x + 46, m.y);
-        ctx.moveTo(m.x, m.y - 30); ctx.lineTo(m.x, m.y + 30);
+        ctx.moveTo(m.x - 78, m.y); ctx.lineTo(m.x + 78, m.y);
+        ctx.moveTo(m.x, m.y - 52); ctx.lineTo(m.x, m.y + 52);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,246,214,' + (0.34 * fade) + ')';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(m.x - 34, m.y - 34); ctx.lineTo(m.x + 34, m.y + 34);
+        ctx.moveTo(m.x + 34, m.y - 34); ctx.lineTo(m.x - 34, m.y + 34);
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
@@ -1247,7 +1299,9 @@ h1.name{
     // 前 3 颗按固定节奏入场，第 3 颗为点亮信息的主角；之后持续不断划过
     if (!reduceMotion && time >= nextMeteorTime) {
       spawnMeteor();
-      nextMeteorTime = time + (flightCount < 3 ? 1000 : rand(1500, 3400));
+      // 节奏：先一颗、稍等、再一颗，然后留白一拍，让第三颗在空夜里独自登场
+      var gap = flightCount === 1 ? 1150 : (flightCount === 2 ? 1500 : rand(1400, 3000));
+      nextMeteorTime = time + gap;
     }
     drawMeteors(dt);
 
