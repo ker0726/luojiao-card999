@@ -4,1582 +4,1046 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>罗娇 · 星之星球 | 武汉理工大学 数字经济2502</title>
-<meta name="description" content="罗娇，武汉理工大学数字经济2502班（学号1025007580）个人作品集首页。《数智编程》课程结课作业，以《小王子》蓝调星空为意象。" />
-<meta name="keywords" content="罗娇,武汉理工大学,数字经济2502,学号1025007580,数智编程,个人作品集" />
+<meta name="description" content="罗娇，武汉理工大学经济学院数字经济2502班个人作品集。《数智编程》课程结课作业，以《小王子》蓝调星空为意象。" />
 <meta name="author" content="罗娇" />
-<meta name="theme-color" content="#050b1f" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23060d26'/%3E%3Cpath d='M50 12 L56 44 L88 50 L56 56 L50 88 L44 56 L12 50 L44 44 Z' fill='%23ffd489'/%3E%3C/svg%3E" />
-<script>document.documentElement.className += ' js';</script>
+<meta name="theme-color" content="#0d1b2a" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%230d1b2a'/%3E%3Cpath d='M50 12 L56 44 L88 50 L56 56 L50 88 L44 56 L12 50 L44 44 Z' fill='%23f5e6c8'/%3E%3C/svg%3E" />
+
+<!-- 字体：本地化 + 子集化（仅打包页面实际用到的字） -->
+<link rel="preload" href="fonts/lxgwwenkai-subset.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/cinzel-decorative-subset.woff2" as="font" type="font/woff2" crossorigin />
 
 <style>
 /* ============================================================
-   0. 设计令牌
+   0. 字体与设计令牌
    ============================================================ */
-:root{
-  --navy-0:#030718;
-  --navy-1:#061029;
-  --navy-2:#0a1a44;
-  --indigo:#141b55;
-  --violet:#3b2a7a;
-  --cyan:#2e7fa8;
-  --gold:#ffd489;
-  --gold-2:#ffc15c;
-  --rose:#e2635f;
-  --ink:#eaf0ff;
-  --muted:#93a4cf;
+@font-face{
+  font-family:'LXGW WenKai';
+  src:url('fonts/lxgwwenkai-subset.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Cinzel Decorative';
+  src:url('fonts/cinzel-decorative-subset.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
 
-  /* 西文：EB Garamond 系优雅衬线；中文：宋体 / 思源宋体，与手绘水彩统一 */
-  --latin:"EB Garamond","Cormorant Garamond","Georgia","Times New Roman",serif;
-  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif SC","Source Han Serif CN","SimSun",serif;
-  --sans:"Inter","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+:root{
+  /* 色彩规范 */
+  --navy-0:#0d1b2a;         /* 主夜空 */
+  --navy-1:#13243b;         /* 次夜空 */
+  --star:#f5e6c8;           /* 星点暖白 */
+  --paper:#f5ecd7;          /* 信纸米白 */
+  --paper-2:#faf4e6;        /* 信纸亮 */
+  --rose:#e8a0a8;           /* 玫瑰粉（强调） */
+  --wheat:#e6c468;          /* 麦田金（强调） */
+  --ink-on-dark:#e8ebf2;    /* 深底文字浅灰白 */
+  --ink-on-paper:#1c2b40;   /* 浅底文字墨蓝 */
+  --muted:#9aa8c2;
+
+  /* 字体规范 */
+  --kai:'LXGW WenKai','Songti SC','STSong',serif;          /* 中文标题：手写温度 */
+  --deco:'Cinzel Decorative','Georgia',serif;              /* 哥特编号点缀 */
+  --sans:'PingFang SC','Microsoft YaHei',system-ui,sans-serif; /* 正文兜底 */
+
   --ease:cubic-bezier(.2,.8,.3,1);
+  --section-gap:96px;      /* 板块垂直间距 ≥80px */
 }
 
 *,*::before,*::after{box-sizing:border-box;}
-html,body{height:100%;margin:0;}
-
+html{scroll-behavior:smooth;}
+html,body{margin:0;}
 body{
-  background:#040a1e;
-  color:var(--ink);
+  background:var(--navy-0);
+  color:var(--ink-on-dark);
   font-family:var(--sans);
-  overflow:hidden;
+  font-size:16px;line-height:1.8;   /* 中文行高 1.8 */
   -webkit-font-smoothing:antialiased;
 }
-/* 整幅底图：等比铺满，整体提亮，让中段黄色星系自然透出 */
+a{color:inherit;}
+img{max-width:100%;}
+:focus-visible{outline:2px solid var(--wheat);outline-offset:3px;border-radius:4px;}
+
+/* ============================================================
+   1. 常驻顶部导航
+   ============================================================ */
+.site-header{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(13,27,42,.72);
+  border-bottom:1px solid rgba(245,230,200,.10);
+}
+.nav-wrap{
+  max-width:1180px;margin:0 auto;padding:0 24px;
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+}
+.brand{
+  font-family:var(--kai);font-size:1.12rem;letter-spacing:.14em;
+  color:var(--star);text-decoration:none;display:flex;align-items:center;gap:9px;
+}
+.brand svg{flex:none;}
+.nav-links{display:flex;gap:6px;list-style:none;margin:0;padding:0;}
+.nav-links a{
+  display:block;padding:7px 14px;border-radius:999px;
+  font-size:.86rem;letter-spacing:.08em;color:var(--ink-on-dark);
+  text-decoration:none;opacity:.82;
+  transition:opacity .25s,background-color .25s;
+}
+.nav-links a:hover{opacity:1;background:rgba(245,230,200,.10);}
+.nav-links a.active{opacity:1;color:var(--wheat);background:rgba(230,196,104,.10);}
+.nav-toggle{
+  display:none;background:none;border:1px solid rgba(245,230,200,.25);
+  border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--star);
+}
+@media (max-width:760px){
+  .nav-toggle{display:block;}
+  .nav-links{
+    position:absolute;top:60px;right:12px;flex-direction:column;
+    background:rgba(13,27,42,.97);border:1px solid rgba(245,230,200,.14);
+    border-radius:14px;padding:10px;min-width:150px;
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+    display:none;
+  }
+  .nav-links.open{display:flex;}
+}
+
+/* ============================================================
+   2. 背景层：底图 / 星空画布 / 暗角
+   ============================================================ */
 #bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:url('bg.jpg') center 44% / cover no-repeat;
-  filter:brightness(1.16) saturate(1.07) contrast(1.02);
-  transform:scale(1.02);
-  transform-origin:50% 46%;
+  background:url('bg.jpg') center 40% / cover no-repeat;
+  filter:brightness(1.05) saturate(1.05);
 }
-/* 只保留很轻的压暗：右侧文字区 + 上下透气 */
-body::before{
-  content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:
-    linear-gradient(100deg, rgba(4,9,26,.30) 0%, rgba(4,9,26,.05) 30%, rgba(4,9,26,.08) 56%, rgba(4,9,26,.44) 100%),
-    linear-gradient(180deg, rgba(4,9,26,.22), rgba(4,9,26,0) 30%, rgba(4,9,26,.26) 100%);
-}
-/* 银心暖光：把底图中段的金色星系托起来 */
-.galaxy-glow{
-  position:fixed;left:54%;top:39%;width:76vmax;height:48vmax;
-  transform:translate(-50%,-50%);z-index:2;pointer-events:none;
-  mix-blend-mode:screen;filter:blur(18px);
-  background:radial-gradient(ellipse at center,
-    rgba(255,222,158,.26) 0%, rgba(255,196,118,.13) 34%, rgba(180,150,255,.05) 58%, transparent 74%);
-  animation:glowPulse 11s ease-in-out infinite alternate;
-}
-
-/* ============================================================
-   1. 水彩晕染层（低透叠加，给印象派底图添"湿润呼吸感"）
-   ============================================================ */
-.wash{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
-.wash i{
-  position:absolute;display:block;border-radius:50%;
-  filter:blur(80px) saturate(125%);
-  mix-blend-mode:screen;
-  animation:washDrift 34s ease-in-out infinite alternate;
-}
-/* 靛蓝主晕 */
-.wash i:nth-child(1){width:70vw;height:70vw;left:-22vw;top:-18vw;opacity:.32;
-  background:radial-gradient(circle at 50% 50%, rgba(56,86,220,.7), rgba(56,86,220,0) 68%);}
-/* 紫罗兰次晕 */
-.wash i:nth-child(2){width:62vw;height:62vw;right:-18vw;top:4vh;opacity:.28;animation-delay:-11s;
-  background:radial-gradient(circle at 50% 50%, rgba(150,84,225,.6), rgba(150,84,225,0) 70%);}
-/* 青蓝压底 */
-.wash i:nth-child(3){width:74vw;height:74vw;left:16vw;bottom:-34vw;opacity:.24;animation-delay:-18s;
-  background:radial-gradient(circle at 50% 50%, rgba(44,140,190,.55), rgba(44,140,190,0) 72%);}
-/* 银河背后的暖调 */
-.wash i:nth-child(4){width:30vw;height:30vw;left:35vw;top:8vh;opacity:.20;animation-delay:-6s;
-  background:radial-gradient(circle at 50% 50%, rgba(255,186,110,.5), rgba(255,186,110,0) 70%);}
-
-@keyframes washDrift{
-  0%{transform:translate3d(0,0,0) scale(1) rotate(0deg);}
-  100%{transform:translate3d(3vw,-3vh,0) scale(1.1) rotate(6deg);}
-}
-
-/* ============================================================
-   2. 星空画布 / 纸纹 / 暗角
-   ============================================================ */
-#sky{position:fixed;inset:0;z-index:3;display:block;pointer-events:none;}
-
-.grain{
-  position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.20;
-  mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-  background-size:240px 240px;
-}
+#sky{position:fixed;inset:0;z-index:1;pointer-events:none;}
 .vig{
-  position:fixed;inset:0;z-index:5;pointer-events:none;
+  position:fixed;inset:0;z-index:2;pointer-events:none;
   background:
-    radial-gradient(circle at 52% 40%, transparent 48%, rgba(3,7,22,.52) 100%),
-    linear-gradient(180deg, rgba(3,7,24,.26), transparent 16%);
+    radial-gradient(circle at 50% 34%, transparent 44%, rgba(9,18,32,.55) 100%),
+    linear-gradient(180deg, rgba(9,18,32,.30), transparent 22%);
 }
-
-/* 第三颗流星登场时，整片夜空轻微一亮，把视线带到主角流星 */
-#flash{
-  position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;
-  mix-blend-mode:screen;
-  background:radial-gradient(ellipse at 62% 42%,
-    rgba(255,236,196,.34) 0%, rgba(255,214,150,.16) 32%, transparent 66%);
-}
-body.hero-flight #flash{animation:heroFlash 3.2s ease-out both;}
-@keyframes heroFlash{
-  0%{opacity:0;}
-  14%{opacity:.55;}
-  46%{opacity:.30;}
-  100%{opacity:0;}
+/* 板块内容背后整体压一层，保证阅读对比度（WCAG AA） */
+.read-veil{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(13,27,42,.30) 0%, rgba(13,27,42,.55) 30%,
+    rgba(13,27,42,.62) 60%, rgba(13,27,42,.66) 100%);
 }
 
 /* ============================================================
-   3. 布局：左为底图意境 / 右为信息
+   3. 首页 / B-612 星球
    ============================================================ */
 .hero{
-  position:fixed;inset:0;z-index:6;
-  display:flex;align-items:center;justify-content:flex-end;
-  padding:clamp(16px,3vh,40px) clamp(20px,5.5vw,96px) clamp(16px,3vh,40px) 18px;
-  overflow-y:auto;
+  position:relative;z-index:5;min-height:100vh;min-height:100svh;
+  display:flex;align-items:center;justify-content:center;
+  padding:110px 24px 90px;text-align:center;
 }
-.split{
-  width:min(520px,100%);
-  display:block;
-  margin:auto 0;
+.hero-inner{max-width:760px;position:relative;}
+.hero .planet-tag{
+  font-family:var(--deco);font-size:.78rem;letter-spacing:.42em;
+  color:var(--wheat);opacity:.85;margin-bottom:22px;
 }
-
-/* 左侧：由抠图小王子与底图承载，SVG 插画隐去避免叠影 */
-.left{display:none;}
-
-/* ============================================================
-   3.1 画面左下：抠图小王子 + 玻璃罩玫瑰（带暖光渲染）
-   ============================================================ */
-.prince-glow{
-  position:absolute;left:-8vw;top:32vh;width:60vw;height:56vh;z-index:0;
-  pointer-events:none;filter:blur(26px);
-  background:radial-gradient(ellipse at 40% 62%,
-    rgba(255,192,116,.28) 0%, rgba(255,172,92,.11) 42%, rgba(255,160,80,0) 72%);
-  animation:glowPulse 9s ease-in-out infinite alternate;
+.hero h1{
+  font-family:var(--kai);font-weight:400;
+  font-size:clamp(3rem,9vw,5.4rem);
+  letter-spacing:.16em;margin:0 0 6px;color:var(--star);
+  text-shadow:0 0 34px rgba(245,230,200,.22);
 }
-@keyframes glowPulse{from{opacity:.55;}to{opacity:.95;}}
-
-.prince-cut{
-  position:absolute;left:-2vw;top:34vh;
-  width:min(52vw,760px);height:auto;z-index:-1;
-  pointer-events:none;
-  /* 轻降饱和 + 微弱提亮，与底图的蓝调夜色统一 */
-  filter:saturate(.94) brightness(1.04) contrast(1.02)
-         drop-shadow(0 16px 34px rgba(2,6,22,.6))
-         drop-shadow(0 0 34px rgba(255,196,110,.20));
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 72%,rgba(0,0,0,.55) 89%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 72%,rgba(0,0,0,.55) 89%,transparent 100%);
-  opacity:0;
-  animation:princeIn 2.4s var(--ease) .6s forwards;
+.hero .pinyin{
+  font-family:var(--deco);font-size:.92rem;letter-spacing:.55em;
+  color:var(--muted);margin-bottom:30px;
 }
-@keyframes princeIn{
-  0%{opacity:0;transform:translateY(24px) scale(.988);}
-  100%{opacity:1;transform:none;}
+.hero .slogan{
+  font-family:var(--kai);font-size:clamp(1.05rem,2.6vw,1.32rem);
+  line-height:2;color:var(--ink-on-dark);
+  margin:0 auto 26px;max-width:34em;
 }
-
-/* 右：个人信息 */
-.right{
-  position:relative;text-align:left;z-index:2;
-  padding-left:clamp(0px,1.4vw,18px);
+.hero .tags{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px;}
+.hero .tags span{
+  font-size:.82rem;letter-spacing:.16em;padding:6px 16px;border-radius:999px;
+  border:1px solid rgba(245,230,200,.28);color:var(--star);
+  background:rgba(245,230,200,.06);
 }
-.right::before{
-  /* 文字背后的柔光雾：偏亮的靛蓝玻璃感，不压成死黑 */
-  content:"";position:absolute;inset:-28% -34% -28% -22%;z-index:-1;
-  background:
-    radial-gradient(ellipse at 48% 50%, rgba(26,44,92,.62) 0%, rgba(24,42,88,.52) 42%, rgba(22,40,84,.26) 70%, rgba(22,40,84,0) 90%);
-  filter:blur(18px);pointer-events:none;
-  opacity:0;transform:scale(.94);transform-origin:16% 24%;
-  transition:opacity 1.9s ease .1s,transform 2.2s var(--ease);
-}
-.right.lit::before{opacity:1;transform:scale(1);}
-
-/* 第三颗流星划过时，沿着光迹扫过信息区的一束星辉 */
-.right::after{
-  content:"";position:absolute;left:-32%;top:-18%;width:164%;height:136%;z-index:0;
-  pointer-events:none;opacity:0;mix-blend-mode:screen;
-  background:linear-gradient(104deg,transparent 36%,rgba(255,238,202,.20) 47%,rgba(255,222,162,.06) 55%,transparent 66%);
-}
-.right.lit::after{animation:starSweep 2.4s cubic-bezier(.25,.7,.3,1) .32s both;}
-@keyframes starSweep{
-  0%{opacity:0;transform:translateX(-46%);}
-  20%{opacity:.9;}
-  100%{opacity:0;transform:translateX(46%);}
-}
-
-/* 逐行“由星光凝成文字”的浮现 */
-.rev{position:relative;z-index:1;}
-.js .right .rev{
-  opacity:0;transform:translateY(18px);filter:blur(10px);
-  transition:opacity 1.6s var(--ease),transform 1.7s var(--ease),filter 1.6s var(--ease);
-  transition-delay:var(--d,0ms);
-}
-.js .right.lit .rev{opacity:1;transform:none;filter:none;}
-
-.enter{opacity:0;transform:translateY(16px);animation:rise .95s var(--ease) forwards;}
-
-/* —— 信息标签 —— */
-.kicker{
-  display:inline-flex;align-items:center;gap:10px;
-  font-family:var(--latin);
-  font-size:.78rem;letter-spacing:.34em;text-transform:uppercase;font-weight:500;
-  color:rgba(255,218,150,.92);
-  border:1px solid rgba(255,212,137,.30);
-  background:rgba(255,212,137,.06);
-  border-radius:999px;padding:8px 20px 8px 18px;
-  margin-bottom:clamp(20px,3vh,30px);
-}
-.kicker .cn{font-family:var(--serif);letter-spacing:.22em;font-size:.88rem;}
-.kicker .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);
-  box-shadow:0 0 12px 3px rgba(255,212,137,.75);animation:blink 2.4s ease-in-out infinite;}
-
-/* —— 姓名 —— */
-h1.name{
-  margin:0;font-family:var(--serif);font-weight:400;
-  font-size:clamp(3.2rem,7.4vw,5.9rem);line-height:1.08;letter-spacing:.16em;
-  text-indent:.16em;
-  background:linear-gradient(176deg,#fffdf6 0%,#ffe9bf 38%,#f3bd63 70%,#c98833 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 18px rgba(255,196,110,.28));
-}
-/* 姓名下方的金线分隔 */
-.name-rule{
-  display:block;width:clamp(46px,6vw,72px);height:1px;margin:clamp(18px,2.6vh,24px) 0;
-  background:linear-gradient(90deg, rgba(255,212,137,.85), rgba(255,212,137,0));
-}
-.name-en{
-  display:block;
-  font-family:var(--latin);
-  font-size:.78rem;letter-spacing:.5em;text-transform:uppercase;font-weight:400;
-  color:rgba(240,244,255,.56);
-}
-
-/* —— 信息行 —— */
-.meta{margin-top:clamp(22px,3.4vh,32px);}
-.meta .row{
-  display:flex;align-items:baseline;gap:clamp(12px,1.4vw,18px);
-  padding:11px 0;
-  border-bottom:1px solid rgba(255,212,137,.12);
-}
-.meta .row:last-child{border-bottom:none;}
-.meta .k{
-  flex:0 0 3.9em;
-  font-family:var(--serif);
-  font-size:.80rem;letter-spacing:.26em;font-weight:400;
-  color:rgba(255,218,150,.66);
-}
-.meta .v{
-  font-family:var(--serif);
-  font-size:clamp(1.06rem,2.05vw,1.22rem);letter-spacing:.10em;color:#eef3ff;font-weight:400;
-}
-.meta .v.school{color:#fff;font-weight:500;letter-spacing:.08em;}
-.meta .v.cls{letter-spacing:.10em;}
-.meta .v.sid{
-  font-family:var(--latin);
-  font-variant-numeric:lining-nums tabular-nums;
-  font-feature-settings:"lnum","tnum";
-  color:var(--gold);
-  letter-spacing:.16em;font-weight:500;font-size:clamp(1.08rem,2.1vw,1.26rem);
-}
-.meta .v.course{font-family:var(--serif);}
-
-/* —— 标语 —— */
-.motto{
-  margin-top:clamp(24px,3.8vh,38px);
-  font-family:var(--serif);
-  font-size:clamp(1.12rem,2.3vw,1.4rem);
-  line-height:2.05;letter-spacing:.16em;
-  color:rgba(255,247,228,.94);
-}
-.motto .q{color:var(--gold);opacity:.78;font-size:1.18em;vertical-align:.05em;}
-
-/* 入口 */
-.portal{
-  display:flex;flex-wrap:wrap;gap:clamp(10px,1.6vw,18px);
-  margin-top:clamp(24px,4vh,42px);
-}
-
 .portal-btn{
-  position:relative;display:inline-flex;align-items:center;gap:11px;
-  padding:14px 28px;border-radius:999px;cursor:pointer;
-  font-family:var(--sans);font-size:.94rem;letter-spacing:.12em;color:#fff7e6;
-  background:rgba(8,16,46,.62);
-  border:1px solid rgba(255,212,137,.34);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  box-shadow:0 1px 0 rgba(255,255,255,.07) inset, 0 12px 32px -16px rgba(0,0,0,.9);
-  transition:transform .45s var(--ease), box-shadow .45s var(--ease),
-             border-color .45s var(--ease), background .45s var(--ease);
-  -webkit-tap-highlight-color:transparent;
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--kai);font-size:1rem;letter-spacing:.2em;
+  color:var(--navy-0);text-decoration:none;
+  background:linear-gradient(135deg,var(--star),var(--wheat));
+  padding:13px 34px;border-radius:999px;
+  box-shadow:0 8px 30px rgba(230,196,104,.30);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
 }
-.portal-btn:hover,.portal-btn:focus-visible{
-  transform:translateY(-3px);
-  border-color:rgba(255,226,170,.9);
-  background:rgba(18,30,74,.78);
-  box-shadow:0 0 28px -2px rgba(255,196,110,.45), 0 20px 42px -20px rgba(0,0,0,.95);
-  outline:none;
-}
-.portal-btn .ico{width:20px;height:20px;display:grid;place-items:center;flex:0 0 auto;}
-.portal-btn .ico svg{width:100%;height:100%;display:block;}
-.portal-btn.rose .ico{filter:drop-shadow(0 0 8px rgba(226,99,95,.9));}
-.portal-btn.star .ico{filter:drop-shadow(0 0 8px rgba(255,212,137,1));}
-.portal-btn::after{
-  content:"";position:absolute;inset:-3px;border-radius:999px;z-index:-1;
-  background:radial-gradient(circle at 50% 50%, rgba(255,196,110,.5), transparent 70%);
-  opacity:.45;animation:breathe 3.6s ease-in-out infinite;
-}
-@keyframes breathe{0%,100%{opacity:.26;transform:scale(.96);}50%{opacity:.7;transform:scale(1.05);}}
-@keyframes blink{0%,100%{opacity:.4;}50%{opacity:1;}}
-@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.portal-btn:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(230,196,104,.42);}
 
-/* 底部提示（不显示作品数量信息） */
-.foot-note{
-  position:fixed;left:50%;bottom:clamp(14px,2.6vh,26px);transform:translateX(-50%);
-  z-index:7;font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;
-  color:rgba(147,164,207,.42);white-space:nowrap;pointer-events:none;
-  animation:blink 5s ease-in-out infinite;
+/* 小王子抠图：英雄区左侧意境 */
+.prince-cut{
+  position:absolute;left:max(1vw,-10px);bottom:6vh;z-index:-1;
+  width:min(30vw,360px);height:auto;pointer-events:none;
+  filter:saturate(.95) brightness(1.05) drop-shadow(0 14px 30px rgba(2,6,22,.55));
+  opacity:.96;
 }
+@media (max-width:900px){.prince-cut{width:42vw;opacity:.5;left:-4vw;}}
 
-/* 点击入口后的占位提示 */
-.toast{
-  position:fixed;left:50%;bottom:clamp(48px,9vh,84px);transform:translate(-50%,14px);
-  z-index:40;padding:12px 22px;border-radius:999px;
-  font-size:.78rem;letter-spacing:.14em;color:#fff3dc;
-  background:rgba(12,20,52,.82);
-  border:1px solid rgba(255,212,137,.42);
-  box-shadow:0 0 30px -6px rgba(255,196,110,.45);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  opacity:0;pointer-events:none;
-  transition:opacity .45s var(--ease), transform .45s var(--ease);
+/* —— 三颗可点击流星（用户创意核心）—— */
+.sky-meteor{
+  position:absolute;z-index:6;border:0;background:none;cursor:pointer;
+  width:170px;height:44px;padding:0;
+  /* 让点击区域覆盖流星本体 */
 }
-.toast.on{opacity:1;transform:translate(-50%,0);}
-
-/* ============================================================
-   4. 玫瑰隧道 / 作品星球
-   ============================================================ */
-#tunnel{
-  position:fixed;inset:0;z-index:30;pointer-events:none;
-  opacity:0;transition:opacity .35s ease;
+.sky-meteor .tail{
+  position:absolute;top:50%;left:0;width:150px;height:2px;
+  transform-origin:right center;
+  background:linear-gradient(90deg,transparent,rgba(245,230,200,.85));
+  border-radius:2px;
 }
-#tunnel.on{opacity:1;}
-
-#works{
-  position:fixed;inset:0;z-index:25;
-  display:flex;flex-direction:column;align-items:center;
-  overflow-y:auto;
-  background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(90,70,170,.30), transparent 60%),
-    rgba(3,7,24,.80);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  opacity:0;visibility:hidden;
-  transition:opacity .6s var(--ease), visibility .6s;
-  padding:clamp(64px,10vh,96px) clamp(18px,4vw,56px) 72px;
+.sky-meteor .head{
+  position:absolute;top:50%;right:8px;width:9px;height:9px;border-radius:50%;
+  transform:translateY(-50%);
+  background:radial-gradient(circle,#fff8e8 0%,var(--star) 45%,rgba(245,230,200,0) 75%);
+  box-shadow:0 0 14px 4px rgba(245,230,200,.55);
+  transition:box-shadow .3s;
 }
-#works.show{opacity:1;visibility:visible;}
-
-#works .back{
-  position:fixed;top:clamp(18px,3vh,30px);left:50%;transform:translateX(-50%);
-  z-index:26;display:inline-flex;align-items:center;gap:10px;
-  padding:10px 20px;border-radius:999px;cursor:pointer;
-  font-family:var(--sans);font-size:.78rem;letter-spacing:.14em;color:#fff3dc;
-  background:rgba(8,16,46,.6);border:1px solid rgba(255,212,137,.34);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  box-shadow:0 12px 30px -16px rgba(0,0,0,.9);
-  transition:transform .4s var(--ease), border-color .4s var(--ease), background .4s var(--ease);
+.sky-meteor .m-label{
+  position:absolute;top:26px;right:-6px;white-space:nowrap;
+  font-family:var(--kai);font-size:.86rem;letter-spacing:.18em;color:var(--star);
+  opacity:0;transform:translateY(4px);
+  transition:opacity .3s,transform .3s var(--ease);
 }
-#works .back:hover{
-  transform:translateX(-50%) translateY(-2px);
-  border-color:rgba(255,226,170,.9);background:rgba(18,30,74,.82);
+/* 三个起飞方位：左上 / 正上 / 右上，轨迹方向各异，像箭头 */
+.sky-meteor.m-left {left:8%;  top:24%;--rot:32deg;}
+.sky-meteor.m-top  {left:46%; top:13%;--rot:58deg;}
+.sky-meteor.m-right{right:6%; top:22%;--rot:148deg;}
+.sky-meteor .tail{transform:rotate(var(--rot));}
+.sky-meteor.m-right .m-label{right:auto;left:-10px;}
+/* 悬停微动预览 + 变亮提示 */
+.sky-meteor:hover .head,.sky-meteor:focus-visible .head{
+  box-shadow:0 0 22px 8px rgba(230,196,104,.75);
 }
-#works .back .ico{width:16px;height:16px;filter:drop-shadow(0 0 6px rgba(255,212,137,.9));}
-
-#works .title{
-  font-family:var(--serif);font-weight:400;
-  font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:.16em;
-  background:linear-gradient(178deg,#fffaf0,#ffd489 60%,#cf8f39);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  margin:0 0 12px;text-align:center;
+.sky-meteor:hover .m-label,.sky-meteor:focus-visible .m-label{opacity:1;transform:none;}
+@keyframes meteorIdle{
+  0%,100%{translate:0 0;}
+  50%{translate:6px 4px;}
 }
-#works .sub{
-  font-size:.66rem;letter-spacing:.32em;text-transform:uppercase;
-  color:rgba(255,212,137,.66);text-align:center;margin-bottom:clamp(26px,4vh,42px);
+.sky-meteor{animation:meteorIdle 4.5s ease-in-out infinite;}
+.sky-meteor.m-top{animation-delay:-1.6s;}
+.sky-meteor.m-right{animation-delay:-3s;}
+@media (max-width:760px){
+  .sky-meteor{width:120px;}
+  .sky-meteor .tail{width:100px;}
+  .sky-meteor .m-label{opacity:1;transform:none;font-size:.78rem;} /* 移动端常显标签，保证可达 */
+  .sky-meteor.m-left{left:4%;top:18%;}
+  .sky-meteor.m-top{left:40%;top:9%;}
+  .sky-meteor.m-right{right:2%;top:17%;}
 }
-
-#works .quote{
-  font-family:var(--serif);
-  font-size:clamp(1rem,2.2vw,1.32rem);
-  line-height:2.05;letter-spacing:.12em;
-  color:rgba(255,236,200,.94);
-  text-align:center;max-width:680px;margin:0 auto clamp(30px,5vh,54px);
-  min-height:2.2em;
-}
-#works .quote .caret{
-  display:inline-block;width:2px;height:1.15em;vertical-align:-.2em;
-  background:var(--gold);margin-left:3px;animation:blink 1s steps(2) infinite;
-}
-
-#works .grid{
-  width:min(1120px,100%);
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));
-  gap:clamp(18px,2.4vw,30px);
-}
-.work{
-  --tilt:0deg;
-  position:relative;
-  padding:clamp(20px,2.4vw,28px) clamp(18px,2vw,24px) 22px;
-  border-radius:18px;
-  background:
-    linear-gradient(160deg, rgba(255,255,255,.45), rgba(255,255,255,.05) 40%),
-    linear-gradient(180deg, #f7eed6 0%, #efe1bb 55%, #e7d4a1 100%);
-  color:#3a2a12;
-  box-shadow:0 18px 44px -22px rgba(0,0,0,.82), inset 0 1px 0 rgba(255,255,255,.55);
-  border:1px solid rgba(120,80,30,.28);
-  opacity:0;transform:translateY(28px) rotate(var(--tilt));
-  transition:opacity .7s var(--ease), transform .7s var(--ease), box-shadow .4s var(--ease);
-}
-#works.show .work{opacity:1;transform:translateY(0) rotate(var(--tilt));}
-#works.show .work:nth-child(1){transition-delay:.18s;}
-#works.show .work:nth-child(2){transition-delay:.30s;}
-#works.show .work:nth-child(3){transition-delay:.42s;}
-#works.show .work:nth-child(4){transition-delay:.54s;}
-#works.show .work:nth-child(5){transition-delay:.66s;}
-.work:hover{
-  box-shadow:0 26px 56px -18px rgba(255,196,110,.46), inset 0 1px 0 rgba(255,255,255,.55);
-}
-.work .num{
-  font-family:var(--serif);font-size:.7rem;letter-spacing:.28em;
-  color:#8a5a24;opacity:.72;
-}
-.work h3{
-  margin:7px 0 10px;font-family:var(--serif);font-weight:600;
-  font-size:clamp(1.12rem,1.9vw,1.34rem);color:#2a1d0a;letter-spacing:.04em;
-}
-.work .tag{
-  display:inline-block;font-size:.6rem;letter-spacing:.16em;
-  padding:3px 10px;border-radius:999px;margin-bottom:12px;
-  background:rgba(120,80,30,.13);color:#6a4512;text-transform:uppercase;
-}
-.work p{
-  margin:0 0 16px;font-size:.86rem;line-height:1.75;color:#5a4220;min-height:4.6em;
-}
-.work .meta-line{
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:.72rem;color:#8a5a24;border-top:1px dashed rgba(120,80,30,.3);
-  padding-top:12px;
-}
-.work .status{display:inline-flex;align-items:center;gap:6px;color:#9c6b1f;}
-.work .status .dot{
-  width:6px;height:6px;border-radius:50%;background:var(--gold);
-  box-shadow:0 0 8px rgba(255,196,110,.85);
-}
-.work .go{color:#6a4512;font-weight:600;cursor:default;}
 
 /* ============================================================
-   5. 响应式
+   4. 流星转场层（1.2s 内，可跳过，可记忆）
    ============================================================ */
-@media (max-width:1024px){
-  .hero{justify-content:center;padding-bottom:34vh;}
-  .split{width:min(560px,92vw);max-width:560px;}
-  .right{text-align:center;padding-left:0;}
-  .right::before{inset:-12% -10%;}
-  .name-rule{margin-left:auto;margin-right:auto;}
-  .meta{max-width:420px;margin-left:auto;margin-right:auto;text-align:left;}
-  .portal{justify-content:center;}
-  .prince-cut{width:min(74vw,470px);left:-12vw;top:auto;bottom:1vh;}
-  .prince-glow{width:84vw;height:44vh;left:-20vw;top:auto;bottom:-4vh;}
-  h1.name{font-size:clamp(2.6rem,10vw,4rem);}
+#meteor-transition{
+  position:fixed;inset:0;z-index:90;
+  background:rgba(9,17,30,.86);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .28s ease;
 }
-
-@media (max-width:640px){
-  .hero{align-items:flex-start;padding-top:5vh;padding-bottom:25vh;}
-  .kicker{font-size:.62rem;letter-spacing:.28em;margin-bottom:18px;}
-  .meta{margin-top:18px;}
-  .meta .row{padding:8px 0;}
-  .meta .k{flex-basis:3.2em;font-size:.6rem;letter-spacing:.18em;}
-  .meta .v{font-size:.84rem;}
-  .motto{margin-top:20px;font-size:.96rem;line-height:1.9;letter-spacing:.12em;}
-  .portal{margin-top:22px;gap:10px;flex-direction:column;align-items:stretch;}
-  .portal-btn{justify-content:center;padding:11px 18px;font-size:.8rem;}
-  .prince-cut{width:min(88vw,360px);left:-14vw;bottom:0;}
-  .prince-glow{width:100vw;height:36vh;left:-26vw;bottom:-6vh;}
-  .foot-note{font-size:.56rem;letter-spacing:.18em;bottom:10px;}
+#meteor-transition.on{opacity:1;}
+#meteor-transition[hidden]{display:none;}
+.t-meteor{
+  position:absolute;width:200px;height:3px;left:50%;top:0;
+  background:linear-gradient(90deg,transparent,#fff6df);
+  border-radius:3px;opacity:0;
+  filter:drop-shadow(0 0 12px rgba(245,230,200,.9));
 }
+.t-meteor::after{
+  content:"";position:absolute;right:-5px;top:50%;width:14px;height:14px;
+  border-radius:50%;transform:translateY(-50%);
+  background:radial-gradient(circle,#fff 0%,var(--star) 50%,transparent 80%);
+}
+/* 点击反馈：先变亮，再加速下坠（只动 transform/opacity） */
+#meteor-transition.go .t-meteor{opacity:1;}
+#meteor-transition.go .t-meteor{animation:tFall .45s cubic-bezier(.55,.06,.85,.36) .05s both;}
+@keyframes tFall{
+  0%{transform:translate(var(--fx,-30vw),-6vh) rotate(var(--fr,28deg));opacity:0;}
+  12%{opacity:1;}
+  100%{transform:translate(0vw,66vh) rotate(var(--fr,28deg));opacity:1;}
+}
+/* 触底：光点炸开成星尘涟漪 */
+.t-ripple{
+  position:absolute;left:50%;top:calc(66vh + 2px);width:30px;height:30px;
+  margin:-15px 0 0 -15px;border-radius:50%;
+  border:2px solid rgba(245,230,200,.85);opacity:0;
+}
+.t-ripple.r2{border-color:rgba(230,196,104,.6);}
+#meteor-transition.boom .t-ripple{animation:tRipple .55s ease-out both;}
+#meteor-transition.boom .t-ripple.r2{animation-delay:.08s;}
+@keyframes tRipple{
+  0%{transform:scale(.2);opacity:1;}
+  100%{transform:scale(9);opacity:0;}
+}
+.t-dust{
+  position:absolute;left:50%;top:66vh;width:5px;height:5px;border-radius:50%;
+  background:var(--star);opacity:0;
+}
+#meteor-transition.boom .t-dust{animation:tDust .6s ease-out both;}
+@keyframes tDust{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0;}
+}
+/* 信息卡片从涟漪中心浮出 */
+.t-card{
+  position:absolute;left:50%;top:66vh;transform:translate(-50%,-50%) translateY(26px);
+  text-align:center;opacity:0;max-width:82vw;
+}
+#meteor-transition.card-in .t-card{
+  transform:translate(-50%,-50%) translateY(0);opacity:1;
+  transition:transform .5s var(--ease),opacity .5s ease;
+}
+.t-card .t-quote{
+  font-family:var(--kai);font-size:clamp(.95rem,2.4vw,1.14rem);
+  color:var(--wheat);letter-spacing:.1em;margin:0 0 10px;
+}
+.t-card .t-title{
+  font-family:var(--kai);font-weight:400;font-size:clamp(1.6rem,4.6vw,2.4rem);
+  letter-spacing:.22em;color:var(--star);margin:0;
+}
+.t-skip{
+  position:absolute;top:18px;right:20px;z-index:2;
+  background:rgba(245,230,200,.08);border:1px solid rgba(245,230,200,.3);
+  color:var(--ink-on-dark);border-radius:999px;padding:7px 18px;
+  font-size:.84rem;letter-spacing:.14em;cursor:pointer;font-family:var(--sans);
+}
+.t-skip:hover{background:rgba(245,230,200,.16);}
 
-/* 减少动态效果 */
+/* ============================================================
+   5. 内容板块公共
+   ============================================================ */
+main{position:relative;z-index:5;}
+.section{
+  max-width:980px;margin:0 auto;
+  padding:var(--section-gap) 24px 0;
+  scroll-margin-top:70px;
+}
+.section:last-of-type{padding-bottom:var(--section-gap);}
+.sec-head{margin-bottom:44px;}
+.sec-quote{
+  font-family:var(--kai);font-size:clamp(.95rem,2.4vw,1.1rem);
+  color:var(--wheat);letter-spacing:.1em;margin:0 0 12px;
+}
+.sec-title{
+  font-family:var(--kai);font-weight:400;
+  font-size:clamp(1.7rem,4.6vw,2.3rem);
+  letter-spacing:.24em;color:var(--star);margin:0;
+}
+.sec-sub{
+  font-family:var(--deco);font-size:.72rem;letter-spacing:.4em;
+  color:var(--muted);margin-top:8px;text-transform:uppercase;
+}
+/* 板块入场（只动 transform/opacity，reduced-motion 时直接终态） */
+.rise{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
+.rise.in{opacity:1;transform:none;}
+
+/* ============================================================
+   6. 关于我（玫瑰星球）
+   ============================================================ */
+.about-grid{display:grid;grid-template-columns:250px 1fr;gap:44px;align-items:start;}
+@media (max-width:760px){.about-grid{grid-template-columns:1fr;}}
+.fact-card{
+  background:rgba(19,36,59,.72);border:1px solid rgba(245,230,200,.12);
+  border-radius:18px;padding:26px 24px;
+}
+.fact-card dl{margin:0;}
+.fact-card dt{
+  font-size:.78rem;letter-spacing:.2em;color:var(--wheat);margin-bottom:2px;
+}
+.fact-card dd{margin:0 0 16px;font-size:.95rem;color:var(--ink-on-dark);}
+.fact-card dd:last-child{margin-bottom:0;}
+.about-intro p{margin:0 0 18px;font-size:.98rem;line-height:1.9;}
+.about-intro p em{font-style:normal;color:var(--rose);}
+.hobbies{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:34px;}
+.hobby{
+  display:flex;gap:14px;align-items:flex-start;
+  background:rgba(19,36,59,.55);border:1px solid rgba(245,230,200,.10);
+  border-radius:14px;padding:16px 18px;
+  transition:transform .35s var(--ease),border-color .35s;
+}
+.hobby:hover{transform:translateY(-4px);border-color:rgba(232,160,168,.4);}
+.hobby svg{flex:none;margin-top:3px;}
+.hobby b{font-family:var(--kai);font-weight:400;letter-spacing:.12em;color:var(--star);display:block;font-size:.98rem;}
+.hobby span{font-size:.82rem;color:var(--muted);line-height:1.6;}
+
+/* ============================================================
+   7. 能力（数星星的商人星球）
+   ============================================================ */
+.skill-groups{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media (max-width:760px){.skill-groups{grid-template-columns:1fr;}}
+.skill-group{
+  background:rgba(19,36,59,.60);border:1px solid rgba(245,230,200,.10);
+  border-radius:18px;padding:24px 26px;
+}
+.skill-group h3{
+  font-family:var(--kai);font-weight:400;font-size:1.12rem;letter-spacing:.2em;
+  color:var(--star);margin:0 0 18px;
+}
+.skill-item{margin-bottom:15px;}
+.skill-item:last-child{margin-bottom:0;}
+.skill-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.skill-row .s-name{font-size:.92rem;color:var(--ink-on-dark);}
+.skill-row .s-level{font-size:.74rem;letter-spacing:.08em;color:var(--wheat);opacity:.9;}
+.skill-bar{height:3px;border-radius:3px;background:rgba(245,230,200,.12);overflow:hidden;}
+.skill-bar i{
+  display:block;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--wheat),var(--star));
+  width:0;transition:width 1s var(--ease) .15s;
+}
+.rise.in .skill-bar i{width:var(--pct);}
+
+/* ============================================================
+   8. 经历与成绩（点灯人星球）
+   ============================================================ */
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media (max-width:760px){.exp-grid{grid-template-columns:1fr;}}
+.exp-card{
+  background:rgba(19,36,59,.60);border:1px solid rgba(245,230,200,.10);
+  border-radius:18px;padding:24px 26px;
+}
+.exp-card h3{
+  font-family:var(--kai);font-weight:400;font-size:1.08rem;letter-spacing:.2em;
+  color:var(--star);margin:0 0 16px;
+}
+.exp-card.wide{grid-column:1 / -1;}
+.study-stats{display:flex;gap:26px;flex-wrap:wrap;}
+.stat b{
+  font-family:var(--kai);font-weight:400;font-size:1.7rem;color:var(--wheat);
+  display:block;letter-spacing:.04em;
+}
+.stat span{font-size:.8rem;color:var(--muted);letter-spacing:.1em;}
+.course-list{margin:0;padding:0;list-style:none;}
+.course-list li{
+  display:flex;justify-content:space-between;padding:8px 0;
+  border-bottom:1px dashed rgba(245,230,200,.14);font-size:.92rem;
+}
+.course-list li:last-child{border-bottom:0;}
+.course-list .c-score{font-family:var(--deco);color:var(--wheat);letter-spacing:.06em;}
+.exp-story{
+  font-size:.95rem;line-height:1.9;color:var(--ink-on-dark);margin:0;
+  border-left:2px solid rgba(232,160,168,.5);padding-left:18px;
+}
+.honor-list{margin:0;padding:0;list-style:none;}
+.honor-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:9px 0;border-bottom:1px dashed rgba(245,230,200,.14);font-size:.92rem;
+}
+.honor-list li:last-child{border-bottom:0;}
+.honor-list .h-level{
+  flex:none;font-size:.76rem;letter-spacing:.1em;color:var(--rose);
+  border:1px solid rgba(232,160,168,.4);border-radius:999px;padding:2px 12px;
+}
+.practice-list{margin:0;padding-left:1.2em;font-size:.92rem;}
+.practice-list li{margin-bottom:8px;}
+.practice-list li::marker{content:'✦ ';color:var(--wheat);}
+
+/* ============================================================
+   9. 作品星球（信封墙）—— 本次重点
+   ============================================================ */
+.env-wall{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:30px;
+}
+@media (max-width:1080px){.env-wall{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:680px){.env-wall{grid-template-columns:1fr;}}
+.envelope{
+  position:relative;cursor:pointer;text-align:left;
+  border:0;padding:0;background:none;font:inherit;color:inherit;
+  perspective:900px;
+  transition:transform .4s var(--ease);
+}
+.envelope:hover,.envelope:focus-visible{transform:translateY(-7px);}
+.env-card{
+  position:relative;border-radius:14px;overflow:visible;
+  background:linear-gradient(160deg,var(--paper-2),var(--paper) 55%,#efe2c6);
+  color:var(--ink-on-paper);
+  box-shadow:0 10px 26px rgba(4,10,24,.45);
+  transition:box-shadow .4s var(--ease);
+  min-height:300px;display:flex;flex-direction:column;
+}
+.envelope:hover .env-card,.envelope:focus-visible .env-card{
+  box-shadow:0 22px 44px rgba(4,10,24,.6),0 0 0 1px rgba(230,196,104,.25);
+}
+/* 翻盖：三角，transform-origin 顶部，3D 掀开 */
+.env-flap{
+  position:absolute;top:0;left:0;right:0;height:86px;z-index:4;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  background:linear-gradient(180deg,#efe3c8,#e4d3ae);
+  border-radius:14px 14px 0 0;
+  transform-origin:top center;
+  transition:transform .55s var(--ease);
+  box-shadow:inset 0 -8px 14px rgba(28,43,64,.10);
+}
+.envelope:hover .env-flap,.envelope:focus-visible .env-flap{transform:rotateX(-22deg);}
+.envelope.open .env-flap{transform:rotateX(-158deg);transition-duration:.6s;}
+/* 信纸（点击后滑出） */
+.env-letter{
+  position:absolute;left:7%;right:7%;top:10px;height:120px;z-index:3;
+  background:var(--paper-2);border-radius:8px;
+  box-shadow:0 4px 14px rgba(28,43,64,.18);
+  padding:16px 18px;font-size:.8rem;line-height:1.7;color:var(--ink-on-paper);
+  transform:translateY(0);opacity:0;
+  transition:transform .55s var(--ease) .18s,opacity .4s ease .18s;
+}
+.envelope.open .env-letter{transform:translateY(-46%);opacity:1;}
+.env-letter .l-title{font-family:var(--kai);letter-spacing:.14em;display:block;margin-bottom:6px;}
+/* 蜡封 */
+.env-wax{
+  position:absolute;left:50%;top:64px;z-index:5;width:44px;height:44px;
+  transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#f0b6bc,var(--rose) 55%,#c77f88);
+  box-shadow:0 3px 10px rgba(120,60,66,.45),inset 0 0 0 3px rgba(255,255,255,.16);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--kai);color:#fff3f4;font-size:1.15rem;
+  transition:box-shadow .35s,opacity .4s;
+}
+.envelope:hover .env-wax,.envelope:focus-visible .env-wax{
+  box-shadow:0 3px 14px rgba(120,60,66,.5),0 0 18px rgba(232,160,168,.75),inset 0 0 0 3px rgba(255,255,255,.2);
+}
+.envelope.open .env-wax{opacity:0;}
+/* 封面信息（不打开也看得清） */
+.env-body{padding:104px 22px 20px;display:flex;flex-direction:column;flex:1;position:relative;z-index:2;}
+.env-no{
+  position:absolute;top:18px;left:20px;z-index:2;
+  font-family:var(--deco);font-size:1.05rem;letter-spacing:.14em;color:#8a7448;
+}
+.env-status{
+  position:absolute;top:16px;right:16px;z-index:2;
+  font-size:.68rem;letter-spacing:.14em;border-radius:999px;padding:3px 11px;
+  border:1px solid;
+}
+.st-doing{color:#8a6a1f;border-color:rgba(160,120,40,.5);background:rgba(230,196,104,.22);}
+.st-done{color:#3c6e51;border-color:rgba(80,140,105,.5);background:rgba(140,190,160,.22);}
+.st-design{color:#7a5c80;border-color:rgba(150,110,160,.5);background:rgba(190,150,200,.22);}
+.env-name{
+  font-family:var(--kai);font-weight:400;
+  font-size:clamp(1.4rem,2.6vw,1.65rem);letter-spacing:.12em;
+  margin:0 0 8px;color:var(--ink-on-paper);
+}
+.env-brief{font-size:.86rem;line-height:1.7;color:#4a5a72;margin:0 0 14px;flex:1;}
+.env-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.env-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.env-tags span{
+  font-size:.68rem;letter-spacing:.06em;padding:2px 10px;border-radius:999px;
+  background:rgba(28,43,64,.08);color:#41506a;border:1px solid rgba(28,43,64,.10);
+}
+.env-cta{font-size:.76rem;letter-spacing:.14em;color:#8a7448;white-space:nowrap;}
+
+/* ============================================================
+   10. 联系 / 页脚
+   ============================================================ */
+.site-footer{
+  position:relative;z-index:5;
+  border-top:1px solid rgba(245,230,200,.10);
+  background:rgba(10,20,35,.72);backdrop-filter:blur(10px);
+  padding:70px 24px 46px;text-align:center;
+}
+.contact-grid{
+  max-width:760px;margin:0 auto 40px;
+  display:flex;justify-content:center;gap:44px;flex-wrap:wrap;
+}
+.contact-item{font-size:.92rem;}
+.contact-item .c-label{
+  font-size:.74rem;letter-spacing:.24em;color:var(--wheat);display:block;margin-bottom:6px;
+}
+.contact-item a{color:var(--ink-on-dark);text-decoration:none;border-bottom:1px dashed rgba(245,230,200,.4);}
+.contact-item a:hover{color:var(--wheat);}
+.wechat-qr{
+  width:96px;height:96px;margin:0 auto 8px;border-radius:12px;
+  border:1px dashed rgba(245,230,200,.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;color:var(--muted);letter-spacing:.1em;
+}
+.closing{
+  font-family:var(--kai);font-size:1.02rem;letter-spacing:.14em;color:var(--star);
+  margin:0 0 26px;
+}
+.copyright{font-size:.74rem;color:var(--muted);letter-spacing:.1em;margin:0;}
+
+/* ============================================================
+   11. 动效降级：prefers-reduced-motion 直接显示终态
+   ============================================================ */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:.001ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.15ms !important;
-  }
-  .enter,.left{opacity:1 !important;transform:none !important;filter:none !important;}
-  .right .rev{opacity:1 !important;transform:none !important;filter:none !important;}
-  .right::before{opacity:1 !important;}
-  #info.lit::after{animation:none !important;opacity:0 !important;}
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation:none !important;transition:none !important;}
+  .rise{opacity:1;transform:none;}
+  .skill-bar i{width:var(--pct);}
+  .sky-meteor .m-label{opacity:1;transform:none;}
+  #meteor-transition{display:none !important;}
 }
 </style>
 </head>
-
 <body>
 
-<!-- 整幅底图（等比铺满、整体提亮） -->
+<!-- 背景层 -->
 <div id="bg" aria-hidden="true"></div>
-<!-- 银心暖光 -->
-<div class="galaxy-glow" aria-hidden="true"></div>
-<div id="flash" aria-hidden="true"></div>
-
-<!-- 水彩晕染 -->
-<div class="wash" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<!-- 星空 / 银河 / 星芒 / 流星 -->
 <canvas id="sky" aria-hidden="true"></canvas>
-<div class="grain" aria-hidden="true"></div>
+<div class="read-veil" aria-hidden="true"></div>
 <div class="vig" aria-hidden="true"></div>
 
-<main class="hero">
-  <!-- 左下前景：抠图小王子与玫瑰 + 暖光渲染 -->
-  <div class="prince-glow" aria-hidden="true"></div>
-  <img class="prince-cut" src="prince.png" alt="" aria-hidden="true" />
+<!-- 常驻导航 -->
+<header class="site-header">
+  <nav class="nav-wrap" aria-label="主导航">
+    <a class="brand" href="#home">
+      <svg width="18" height="18" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 L57 43 L92 50 L57 57 L50 92 L43 57 L8 50 L43 43 Z" fill="#e6c468"/></svg>
+      星之星球
+    </a>
+    <button class="nav-toggle" aria-label="展开导航菜单" aria-expanded="false">
+      <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+    <ul class="nav-links" id="navLinks"><!-- 由 data.js 渲染 --></ul>
+  </nav>
+</header>
 
-  <div class="split">
+<main>
+  <!-- 1. 首页 / B-612 星球 -->
+  <section class="hero" id="home">
+    <img class="prince-cut" src="prince.png" alt="小王子站在星球上守护着玻璃罩里的玫瑰" />
+    <div class="hero-inner">
+      <p class="planet-tag" id="planetTag">B-612 · PLANET</p>
+      <h1 id="heroName"></h1>
+      <p class="pinyin" id="heroPinyin"></p>
+      <p class="slogan" id="heroSlogan"></p>
+      <div class="tags" id="heroTags"></div>
+      <a class="portal-btn" href="#works" id="portalBtn"></a>
+    </div>
+    <!-- 三颗可点击流星：由 data.js 渲染 -->
+    <div id="skyMeteors"></div>
+  </section>
 
-    <!-- ============ 左：小王子与玫瑰 ============ -->
-    <section class="left" aria-hidden="true">
-      <svg class="prince" viewBox="0 0 560 540" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <!-- 星球石面（上方受银河金光，向下沉入深蓝） -->
-          <linearGradient id="rockG" x1="0" y1="330" x2="0" y2="560" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"  stop-color="#48598f"/>
-            <stop offset="16%" stop-color="#2a3768"/>
-            <stop offset="46%" stop-color="#131d44"/>
-            <stop offset="100%" stop-color="#060b20"/>
-          </linearGradient>
-          <!-- 星球上缘的月光 -->
-          <linearGradient id="rimG" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stop-color="#ffd489" stop-opacity=".0"/>
-            <stop offset="45%"  stop-color="#ffd489" stop-opacity=".85"/>
-            <stop offset="100%" stop-color="#8fd0ff" stop-opacity=".0"/>
-          </linearGradient>
-          <!-- 绿衣 -->
-          <linearGradient id="coatG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"  stop-color="#3f8f63"/>
-            <stop offset="60%" stop-color="#1f5c3d"/>
-            <stop offset="100%" stop-color="#123725"/>
-          </linearGradient>
-          <!-- 金发 -->
-          <linearGradient id="hairG" x1="0" y1="0" x2="0.6" y2="1">
-            <stop offset="0%"  stop-color="#ffd98a"/>
-            <stop offset="55%" stop-color="#f2b94f"/>
-            <stop offset="100%" stop-color="#c68a2c"/>
-          </linearGradient>
-          <!-- 围巾 -->
-          <linearGradient id="scarfG" x1="0" y1="0" x2="1" y2="0.4">
-            <stop offset="0%"  stop-color="#ffe08a"/>
-            <stop offset="100%" stop-color="#e8a93c"/>
-          </linearGradient>
-          <!-- 玻璃罩 -->
-          <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%"  stop-color="#d8efff" stop-opacity=".50"/>
-            <stop offset="52%" stop-color="#9fc4f2" stop-opacity=".12"/>
-            <stop offset="100%" stop-color="#ffffff" stop-opacity=".42"/>
-          </linearGradient>
-          <!-- 玫瑰 -->
-          <radialGradient id="roseG" cx="42%" cy="36%" r="62%">
-            <stop offset="0%"  stop-color="#ff9d92"/>
-            <stop offset="52%" stop-color="#cf3b42"/>
-            <stop offset="100%" stop-color="#8a1c24"/>
-          </radialGradient>
-          <radialGradient id="haloG" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"  stop-color="#ffcf85" stop-opacity=".26"/>
-            <stop offset="55%" stop-color="#8a6ae0" stop-opacity=".10"/>
-            <stop offset="100%" stop-color="#8a6ae0" stop-opacity="0"/>
-          </radialGradient>
-          <!-- 手绘毛边 -->
-          <filter id="rough" filterUnits="userSpaceOnUse" x="0" y="150" width="560" height="410">
-            <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="3" seed="11" result="n"/>
-            <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"
-              xChannelSelector="R" yChannelSelector="G"/>
-          </filter>
-          <!-- 星球边缘柔化遮罩：让岩面在画面边缘自然融进星空，避免硬切边 -->
-          <radialGradient id="pmRad" cx="50%" cy="44%" r="50%">
-            <stop offset="0.52" stop-color="#fff"/>
-            <stop offset="0.78" stop-color="#fff" stop-opacity=".72"/>
-            <stop offset="1"    stop-color="#000"/>
-          </radialGradient>
-          <linearGradient id="pmLin" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0"    stop-color="#000" stop-opacity="0"/>
-            <stop offset="0.55" stop-color="#000" stop-opacity=".35"/>
-            <stop offset="1"    stop-color="#000" stop-opacity="1"/>
-          </linearGradient>
-          <mask id="planetMask" maskUnits="userSpaceOnUse" x="-10" y="300" width="580" height="240">
-            <rect x="-10" y="300" width="580" height="240" fill="url(#pmRad)"/>
-            <rect x="-10" y="300" width="580" height="240" fill="url(#pmLin)"/>
-          </mask>
-          <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
-        </defs>
+  <!-- 2. 关于我（玫瑰星球） -->
+  <section class="section" id="about" aria-labelledby="aboutTitle">
+    <header class="sec-head rise">
+      <p class="sec-quote" id="aboutQuote"></p>
+      <h2 class="sec-title" id="aboutTitle">关于我</h2>
+      <p class="sec-sub">Rose · Planet</p>
+    </header>
+    <div class="about-grid">
+      <aside class="fact-card rise" aria-label="基本信息"><dl id="factList"></dl></aside>
+      <div class="about-intro rise" id="aboutIntro"></div>
+    </div>
+    <div class="hobbies rise" id="hobbyList"></div>
+  </section>
 
-        <!-- 背光 -->
-        <circle cx="300" cy="306" r="226" fill="url(#haloG)"/>
+  <!-- 3. 能力（数星星的商人星球） -->
+  <section class="section" id="skills" aria-labelledby="skillsTitle">
+    <header class="sec-head rise">
+      <p class="sec-quote" id="skillsQuote"></p>
+      <h2 class="sec-title" id="skillsTitle">能力</h2>
+      <p class="sec-sub">Merchant · Planet</p>
+    </header>
+    <div class="skill-groups rise" id="skillGroups"></div>
+  </section>
 
-        <g filter="url(#rough)">
-          <g mask="url(#planetMask)">
-            <!-- 星球本体：巨大球体的近地弧面，两侧随曲率下沉 -->
-            <circle cx="300" cy="768" r="420" fill="url(#rockG)"/>
-            <circle cx="300" cy="768" r="420" fill="none" stroke="url(#rimG)" stroke-width="3"/>
-            <!-- 陨石坑 -->
-            <ellipse cx="128" cy="470" rx="46" ry="14" fill="#0a1030" opacity=".8"/>
-            <ellipse cx="128" cy="466" rx="46" ry="14" fill="none" stroke="#ffd489" stroke-opacity=".24" stroke-width="1.4"/>
-            <ellipse cx="452" cy="450" rx="30" ry="9" fill="#0a1030" opacity=".72"/>
-            <ellipse cx="452" cy="447" rx="30" ry="9" fill="none" stroke="#8fd0ff" stroke-opacity=".24" stroke-width="1.4"/>
-            <ellipse cx="300" cy="506" rx="58" ry="15" fill="#0a1030" opacity=".4"/>
-            <ellipse cx="218" cy="524" rx="28" ry="9" fill="#0a1030" opacity=".35"/>
-          </g>
-          <!-- 坐姿投影 -->
-          <ellipse cx="300" cy="356" rx="100" ry="14" fill="#04081b" opacity=".55" filter="url(#soft)"/>
+  <!-- 4. 经历与成绩（点灯人星球） -->
+  <section class="section" id="experience" aria-labelledby="expTitle">
+    <header class="sec-head rise">
+      <p class="sec-quote" id="expQuote"></p>
+      <h2 class="sec-title" id="expTitle">经历与成绩</h2>
+      <p class="sec-sub">Lamplighter · Planet</p>
+    </header>
+    <div class="exp-grid">
+      <article class="exp-card rise">
+        <h3>学业</h3>
+        <div class="study-stats" id="studyStats"></div>
+      </article>
+      <article class="exp-card rise">
+        <h3>核心课程</h3>
+        <ul class="course-list" id="courseList"></ul>
+      </article>
+      <article class="exp-card wide rise">
+        <h3>成长故事</h3>
+        <p class="exp-story" id="expStory"></p>
+      </article>
+      <article class="exp-card rise">
+        <h3>实践与荣誉</h3>
+        <ul class="honor-list" id="honorList"></ul>
+      </article>
+      <article class="exp-card rise">
+        <h3>校园与社会实践</h3>
+        <ul class="practice-list" id="practiceList"></ul>
+      </article>
+    </div>
+  </section>
 
-          <!-- ===== 玻璃罩 + 红玫瑰 ===== -->
-          <g transform="translate(0,25)">
-            <ellipse cx="164" cy="346" rx="48" ry="12" fill="#0a1230"
-                     stroke="#ffd489" stroke-opacity=".35" stroke-width="1.2"/>
-            <path d="M124 346 Q124 260 164 254 Q204 260 204 346" fill="url(#glassG)"
-                  stroke="#cfe4ff" stroke-opacity=".55" stroke-width="1.2"/>
-            <path d="M136 308 Q140 272 162 264" fill="none" stroke="#ffffff"
-                  stroke-opacity=".45" stroke-width="2.6" stroke-linecap="round"/>
-            <path d="M164 342 L164 288" stroke="#4e8a5c" stroke-width="2.6" stroke-linecap="round"/>
-            <path d="M164 324 Q146 316 142 302 Q158 300 164 314 Z" fill="#3d7a4f"/>
-            <path d="M164 310 Q182 302 188 288 Q172 290 164 304 Z" fill="#4e8a5c"/>
-            <path d="M164 292 Q156 280 162 268 Q171 276 168 292 Z" fill="url(#roseG)"/>
-            <path d="M164 292 Q174 280 169 268 Q160 276 162 292 Z" fill="#e2635f"/>
-            <circle cx="165" cy="290" r="11" fill="url(#roseG)"/>
-            <path d="M156 288 Q165 279 174 288 Q165 297 156 288 Z" fill="#ffb3ac" opacity=".7"/>
-          </g>
-
-          <!-- ===== 小王子（金发 / 绿衣 / 黄围巾 · 背影） ===== -->
-          <g>
-            <!-- 盘坐的双腿 -->
-            <path d="M258 350 Q240 366 256 376 Q282 384 300 358 Q318 384 344 376 Q360 366 342 350 Z"
-                  fill="#123726"/>
-            <!-- 绿色上衣：宽肩 → 收腰 → 下摆微张 -->
-            <path d="M254 352 C 250 324 253 296 266 286 C 278 277 322 277 334 286 C 347 296 350 324 346 352 Z"
-                  fill="url(#coatG)"/>
-            <path d="M266 286 C 276 293 324 293 334 286" fill="none" stroke="#0c2417" stroke-opacity=".55" stroke-width="2"/>
-            <path d="M300 292 L300 352" stroke="#0e2c1e" stroke-width="1.4" stroke-opacity=".4"/>
-            <path d="M276 304 Q281 330 278 352" fill="none" stroke="#78c79a" stroke-opacity=".14" stroke-width="1.2"/>
-            <path d="M324 304 Q319 330 322 352" fill="none" stroke="#78c79a" stroke-opacity=".14" stroke-width="1.2"/>
-            <!-- 手臂搭在膝上 -->
-            <path d="M264 298 C 249 314 246 332 257 344" fill="none" stroke="#1f5c3d" stroke-width="10" stroke-linecap="round"/>
-            <path d="M336 298 C 351 314 354 332 343 344" fill="none" stroke="#1f5c3d" stroke-width="10" stroke-linecap="round"/>
-            <ellipse cx="257" cy="345" rx="6.4" ry="5.2" fill="#a06a3c"/>
-            <ellipse cx="343" cy="345" rx="6.4" ry="5.2" fill="#8a5a34"/>
-            <!-- 黄围巾：颈圈 + 一条随风右飘的尾巴 -->
-            <path d="M282 281 C 290 289 310 289 318 281 C 322 293 312 301 300 301 C 288 301 278 293 282 281 Z"
-                  fill="url(#scarfG)"/>
-            <path d="M313 289 C 330 298 348 301 366 297 C 356 312 330 314 313 302 Z" fill="url(#scarfG)"/>
-            <path d="M316 301 C 332 308 348 310 362 306 C 354 318 332 319 316 312 Z"
-                  fill="url(#scarfG)" opacity=".78"/>
-            <!-- 金发：蓬松的碗状发帽 + 发丝层次 -->
-            <path d="M272 240 C 270 214 280 198 300 196 C 320 198 330 214 328 240
-                       C 327 254 318 263 300 265 C 282 263 273 254 272 240 Z" fill="url(#hairG)"/>
-            <path d="M296 197 C 300 190 307 189 311 195 C 305 194 300 197 298 202 Z" fill="#ffdf9a"/>
-            <path d="M281 206 C 289 199 300 197 311 200 C 302 202 291 205 284 211 Z" fill="#ffe6ab" opacity=".95"/>
-            <path d="M286 214 C 292 209 300 207 308 209" fill="none" stroke="#fff3cc" stroke-opacity=".6" stroke-width="1.6"/>
-            <path d="M274 246 C 276 257 284 263 296 264" fill="none" stroke="#c68a2c" stroke-opacity=".5" stroke-width="2"/>
-            <path d="M326 246 C 324 257 316 263 304 264" fill="none" stroke="#c68a2c" stroke-opacity=".5" stroke-width="2"/>
-            <!-- 后颈暗部：让头与肩自然衔接 -->
-            <path d="M286 262 C 292 268 308 268 314 262 L314 274 C 306 280 294 280 286 274 Z"
-                  fill="#8f6430" opacity=".55"/>
-            <!-- 月光金边 -->
-            <path d="M272 238 C 268 212 281 198 298 196" fill="none" stroke="#ffe6b4" stroke-opacity=".55" stroke-width="1.6"/>
-            <path d="M254 352 C 250 322 253 296 266 286" fill="none" stroke="#ffe6b4" stroke-opacity=".3" stroke-width="1.6"/>
-          </g>
-        </g>
-
-        <!-- 附近漂浮的小星 -->
-        <g fill="#ffe1ab" opacity=".9">
-          <path d="M108 190 l3.2 9.4 9.4 3.2 -9.4 3.2 -3.2 9.4 -3.2 -9.4 -9.4 -3.2 9.4 -3.2 Z"/>
-          <path d="M436 156 l2.4 7 7 2.4 -7 2.4 -2.4 7 -2.4 -7 -7 -2.4 7 -2.4 Z" opacity=".8"/>
-        </g>
-      </svg>
-    </section>
-
-    <!-- ============ 右：个人信息（由第三颗流星点亮） ============ -->
-    <section class="right" id="info">
-      <div class="kicker rev" style="--d:0ms"><span class="dot"></span>Le Petit Prince<span class="cn">· 星之星球</span></div>
-
-      <h1 class="name rev" style="--d:100ms">罗&nbsp;娇</h1>
-      <span class="name-rule rev" style="--d:200ms"></span>
-      <span class="name-en rev" style="--d:260ms">LUO&nbsp;JIAO</span>
-
-      <div class="meta">
-        <div class="row rev" style="--d:360ms"><span class="k">学校</span><span class="v school">武汉理工大学</span></div>
-        <div class="row rev" style="--d:470ms"><span class="k">班级</span><span class="v cls">数字经济 2502</span></div>
-        <div class="row rev" style="--d:580ms"><span class="k">学号</span><span class="v sid">1025007580</span></div>
-        <div class="row rev" style="--d:690ms"><span class="k">课程</span><span class="v course">数智编程</span></div>
-      </div>
-
-      <p class="motto rev" style="--d:820ms">
-        <span class="q">“</span>用数智编码创意，以过程定义成长。<span class="q">”</span>
-      </p>
-
-      <div class="portal rev" style="--d:960ms">
-        <button class="portal-btn star" type="button" data-enter>
-          <span class="ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ffd489" stroke-width="1.3" stroke-linejoin="round">
-              <path d="M12 3.2 L14.4 9.6 L21 12 L14.4 14.4 L12 20.8 L9.6 14.4 L3 12 L9.6 9.6 Z"
-                    fill="#ffd489" fill-opacity=".6"/>
-            </svg>
-          </span>
-          <span>星星入口 · 出发</span>
-        </button>
-      </div>
-    </section>
-
-  </div>
+  <!-- 5. 作品星球（信封墙） -->
+  <section class="section" id="works" aria-labelledby="worksTitle">
+    <header class="sec-head rise">
+      <p class="sec-quote" id="worksQuote"></p>
+      <h2 class="sec-title" id="worksTitle">作品星球</h2>
+      <p class="sec-sub">Letters · From · Planets</p>
+    </header>
+    <div class="env-wall rise" id="envWall"></div>
+  </section>
 </main>
 
-<div class="foot-note">用数智编码创意 · 以过程定义成长</div>
-<div class="toast" id="toast">玫瑰隧道正在搭建，下一站是作品星球</div>
+<!-- 6. 联系（页脚常驻） -->
+<footer class="site-footer" id="contact">
+  <div class="contact-grid" id="contactGrid"></div>
+  <p class="closing" id="closingLine"></p>
+  <p class="copyright">© 2026 罗娇 · 武汉理工大学经济学院 数字经济2502 ·《数智编程》结课作品</p>
+</footer>
 
-<!-- 玫瑰隧道画布 -->
-<canvas id="tunnel" aria-hidden="true"></canvas>
-
-<!-- 作品星球 -->
-<section id="works" aria-label="作品集">
-  <button class="back" type="button" data-back>
-    <span class="ico" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#ffd489" stroke-width="1.3" stroke-linejoin="round">
-        <path d="M12 3.2 L14.4 9.6 L21 12 L14.4 14.4 L12 20.8 L9.6 14.4 L3 12 L9.6 9.6 Z"
-              fill="#ffd489" fill-opacity=".6"/>
-      </svg>
-    </span>
-    返回星球
-  </button>
-
-  <h2 class="title">作 品 星 球</h2>
-  <div class="sub">每一件作品，都是一颗小行星</div>
-
-  <p class="quote" id="quote"><span class="caret"></span></p>
-
-  <div class="grid">
-    <article class="work" style="--tilt:-1.4deg">
-      <span class="num">01 · WEB APP</span>
-      <h3>星念待办</h3>
-      <span class="tag">React · TypeScript</span>
-      <p>支持中文自然语言日期解析与重复规则的个人待办事项应用。</p>
-      <div class="meta-line">
-        <span class="status"><span class="dot"></span>部署中</span>
-        <span class="go">前往 →</span>
-      </div>
-    </article>
-
-    <article class="work" style="--tilt:1.1deg">
-      <span class="num">02 · MINI GAME</span>
-      <h3>像素恐龙</h3>
-      <span class="tag">HTML5 Canvas</span>
-      <p>复刻经典 Chrome 小恐龙的像素风跳跃小游戏，记录最高分。</p>
-      <div class="meta-line">
-        <span class="status"><span class="dot"></span>部署中</span>
-        <span class="go">前往 →</span>
-      </div>
-    </article>
-
-    <article class="work" style="--tilt:-0.8deg">
-      <span class="num">03 · TOOL</span>
-      <h3>电子信用账本</h3>
-      <span class="tag">Vue · ECharts</span>
-      <p>面向校园场景的轻量信用记录工具，可视化积分与账单明细。</p>
-      <div class="meta-line">
-        <span class="status"><span class="dot"></span>部署中</span>
-        <span class="go">前往 →</span>
-      </div>
-    </article>
-
-    <article class="work" style="--tilt:1.3deg">
-      <span class="num">04 · STUDY</span>
-      <h3>学习伴侣</h3>
-      <span class="tag">原生 JS · LocalStorage</span>
-      <p>课程表与番茄钟整合的学习辅助小工具，数据本地保存。</p>
-      <div class="meta-line">
-        <span class="status"><span class="dot"></span>部署中</span>
-        <span class="go">前往 →</span>
-      </div>
-    </article>
-
-    <article class="work" style="--tilt:-1.0deg">
-      <span class="num">05 · PORTFOLIO</span>
-      <h3>星之星球</h3>
-      <span class="tag">HTML · CSS · Canvas</span>
-      <p>你正在浏览的个人作品集，以《小王子》蓝调星空为意象。</p>
-      <div class="meta-line">
-        <span class="status"><span class="dot"></span>当前页</span>
-        <span class="go">正在浏览</span>
-      </div>
-    </article>
+<!-- 流星转场层 -->
+<div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
+  <button class="t-skip" id="transitSkip">跳过 ✕</button>
+  <div class="t-meteor" id="tMeteor"></div>
+  <div class="t-ripple"></div>
+  <div class="t-ripple r2"></div>
+  <div class="t-dust" style="--dx:-70px;--dy:-46px;"></div>
+  <div class="t-dust" style="--dx:64px;--dy:-60px;background:var(--wheat);"></div>
+  <div class="t-dust" style="--dx:-44px;--dy:56px;background:var(--rose);"></div>
+  <div class="t-dust" style="--dx:78px;--dy:40px;"></div>
+  <div class="t-dust" style="--dx:0px;--dy:-84px;background:var(--wheat);"></div>
+  <div class="t-dust" style="--dx:-92px;--dy:6px;background:var(--rose);"></div>
+  <div class="t-card">
+    <p class="t-quote" id="tQuote"></p>
+    <h2 class="t-title" id="tTitle"></h2>
   </div>
-</section>
+</div>
 
+<script src="data.js"></script>
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
+var D = window.SITE_DATA;
+var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $ = function(id){ return document.getElementById(id); };
 
-  var canvas = document.getElementById('sky');
-  var ctx = canvas.getContext('2d');
-  var W = 0, H = 0, DPR = 1;
+/* ============================================================
+   一、内容渲染（数据全部来自 data.js，改文案不碰结构）
+   ============================================================ */
+// 导航
+$('navLinks').innerHTML = D.nav.map(function(n){
+  return '<li><a href="#' + n.key + '" data-nav="' + n.key + '">' + n.label + '</a></li>';
+}).join('');
 
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var rafId = null;
-  var prevT = 0;
+// 首页
+$('heroName').textContent   = D.home.name.split('').join(' ');
+$('heroPinyin').textContent = D.home.nameEn;
+$('heroSlogan').textContent = D.home.slogan;
+$('heroTags').innerHTML = D.home.tags.map(function(t){ return '<span>' + t + '</span>'; }).join('');
+$('portalBtn').textContent = D.home.portalText;
 
-  function rand(a, b) { return a + Math.random() * (b - a); }
+// 三颗可点击流星
+var dirClass = { left:'m-left', top:'m-top', right:'m-right' };
+$('skyMeteors').innerHTML = D.home.meteors.map(function(m){
+  return '<button type="button" class="sky-meteor ' + dirClass[m.from] + '" data-target="' + m.key + '"' +
+    ' aria-label="乘流星前往：' + m.label + '">' +
+    '<span class="tail"></span><span class="head"></span>' +
+    '<span class="m-label">' + m.label + '</span></button>';
+}).join('');
 
-  /* ==========================================================
-     一、银河：离屏预渲染
-     —— 一次绘制几千个粒子，之后每帧只做一次 drawImage
-     ========================================================== */
-  var GALAXY_SIZE = 1500;
-  var galaxyCanvas = null;
+// 关于我
+$('aboutQuote').textContent = D.about.quote;
+$('factList').innerHTML = D.about.facts.map(function(f){
+  return '<dt>' + f.k + '</dt><dd>' + f.v + '</dd>';
+}).join('');
+$('aboutIntro').innerHTML = D.about.intro.map(function(p){ return '<p>' + p + '</p>'; }).join('');
+// 爱好小图标（inline SVG，手绘线条感）
+var hobbyIcons = {
+  pot:  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8a0a8" stroke-width="1.4" aria-hidden="true"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-6z"/><path d="M2 10h20M9 6c1-1.5 3-1.5 4 0M12 3v2"/></svg>',
+  music:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e6c468" stroke-width="1.4" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="16" r="2.4"/></svg>',
+  leaf: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8fc4a0" stroke-width="1.4" aria-hidden="true"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19c3-5 7-9 11-11"/></svg>',
+  tile: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa8c2" stroke-width="1.4" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M12 7l1.2 2.4L15.6 10l-2.4.6L12 13l-1.2-2.4L8.4 10l2.4-.6z"/></svg>'
+};
+$('hobbyList').innerHTML = D.about.hobbies.map(function(h){
+  return '<div class="hobby">' + (hobbyIcons[h.icon] || '') +
+    '<div><b>' + h.name + '</b><span>' + h.desc + '</span></div></div>';
+}).join('');
 
-  function mix(c1, c2, t) {
-    return [
-      Math.round(c1[0] + (c2[0] - c1[0]) * t),
-      Math.round(c1[1] + (c2[1] - c1[1]) * t),
-      Math.round(c1[2] + (c2[2] - c1[2]) * t)
-    ];
-  }
+// 能力
+$('skillsQuote').textContent = D.skills.quote;
+$('skillGroups').innerHTML = D.skills.groups.map(function(g){
+  return '<section class="skill-group"><h3>' + g.title + '</h3>' + g.items.map(function(it){
+    return '<div class="skill-item"><div class="skill-row">' +
+      '<span class="s-name">' + it.name + '</span>' +
+      '<span class="s-level">' + it.level + '</span></div>' +
+      '<div class="skill-bar"><i style="--pct:' + it.pct + '%"></i></div></div>';
+  }).join('') + '</section>';
+}).join('');
 
-  /**
-   * 旋臂配色：银心暖金 → 中段青白 → 外缘紫罗兰
-   * @param {number} t 归一化半径 0~1
-   */
-  function armColor(t) {
-    var A = [255, 224, 160];   // 金
-    var B = [150, 214, 255];   // 青
-    var C = [176, 148, 255];   // 紫
-    if (t < 0.42) return mix(A, B, t / 0.42 * 0.72);
-    return mix(B, C, (t - 0.42) / 0.58);
-  }
+// 经历与成绩
+$('expQuote').textContent = D.experience.quote;
+$('studyStats').innerHTML = D.experience.study.map(function(s){
+  return '<div class="stat"><b>' + s.v + '</b><span>' + s.k + '</span></div>';
+}).join('');
+$('courseList').innerHTML = D.experience.courses.map(function(c){
+  return '<li><span>' + c.name + '</span><span class="c-score">' + c.score + '</span></li>';
+}).join('');
+$('expStory').textContent = D.experience.story;
+$('honorList').innerHTML = D.experience.honors.map(function(h){
+  return '<li><span>' + h.title + '</span><span class="h-level">' + h.level + '</span></li>';
+}).join('');
+$('practiceList').innerHTML = D.experience.practice.map(function(p){
+  return '<li>' + p + '</li>';
+}).join('');
 
-  function buildGalaxy() {
-    var c = document.createElement('canvas');
-    c.width = c.height = GALAXY_SIZE;
-    var g = c.getContext('2d');
-    var C = GALAXY_SIZE / 2;
-    var R = GALAXY_SIZE * 0.455;
+// 作品信封墙
+$('worksQuote').textContent = D.works.quote;
+var statusClass = { '开发中':'st-doing', '已完成':'st-done', '设计中':'st-design' };
+$('envWall').innerHTML = D.works.list.map(function(w){
+  return '<button type="button" class="envelope" data-id="' + w.id + '" aria-label="打开作品：' + w.name + '">' +
+    '<div class="env-card">' +
+      '<div class="env-letter"><span class="l-title">' + w.name + '</span>' + (w.detail.oneliner.indexOf('【待填】') === 0 ? '信件内容正在书写……' : w.detail.oneliner) + '</div>' +
+      '<div class="env-flap"></div>' +
+      '<div class="env-wax" aria-hidden="true">L</div>' +
+      '<div class="env-body">' +
+        '<span class="env-no">' + w.no + '</span>' +
+        '<span class="env-status ' + (statusClass[w.status] || 'st-design') + '">' + w.status + '</span>' +
+        '<h3 class="env-name">' + w.name + '</h3>' +
+        '<p class="env-brief">' + w.brief + '</p>' +
+        '<div class="env-foot"><div class="env-tags">' +
+          w.tags.map(function(t){ return '<span>' + t + '</span>'; }).join('') +
+        '</div><span class="env-cta">拆信 →</span></div>' +
+      '</div>' +
+    '</div></button>';
+}).join('');
 
-    g.globalCompositeOperation = 'lighter';
+// 联系
+var c = D.contact;
+$('contactGrid').innerHTML =
+  '<div class="contact-item"><span class="c-label">邮箱</span><a href="mailto:' + c.email + '">' + c.email + '</a></div>' +
+  '<div class="contact-item"><span class="c-label">GitHub</span><a href="' + c.githubUrl + '" target="_blank" rel="noopener">' + c.github + '</a></div>' +
+  '<div class="contact-item"><div class="wechat-qr">二维码<br>【待填】</div><span class="c-label">微信</span>' + c.wechat + '</div>';
+$('closingLine').textContent = c.closing;
 
-    // 1) 银心暖光（多层叠加，核心更亮更暖）
-    var core = g.createRadialGradient(C, C, 0, C, C, R * 0.5);
-    core.addColorStop(0,    'rgba(255,250,232,0.94)');
-    core.addColorStop(0.09, 'rgba(255,220,148,0.82)');
-    core.addColorStop(0.20, 'rgba(255,188,110,0.46)');
-    core.addColorStop(0.38, 'rgba(196,146,224,0.18)');
-    core.addColorStop(0.66, 'rgba(120,130,255,0.09)');
-    core.addColorStop(1,    'rgba(80,90,220,0)');
-    g.fillStyle = core;
-    g.beginPath();
-    g.arc(C, C, R * 0.5, 0, Math.PI * 2);
-    g.fill();
-
-    var ARMS = 5, WRAP = 3.4, PER = 760;
-    var STEP = Math.PI * 2 / ARMS;
-
-    // 2) 旋臂云雾：只铺薄薄一层，保留通透感
-    for (var a2 = 0; a2 < ARMS; a2++) {
-      var base2 = a2 * STEP;
-      for (var h = 0; h < 80; h++) {
-        var th = h / 80;
-        var theta2 = base2 + th * WRAP;
-        var r2 = (0.085 + Math.pow(th, 0.86) * 0.905) * R;
-        var hx = C + Math.cos(theta2) * r2 + rand(-26, 26) * (0.6 + th);
-        var hy = C + Math.sin(theta2) * r2 + rand(-26, 26) * (0.6 + th);
-        var hr = rand(40, 82) * (1 - th * 0.3);
-        var hc = armColor(th);
-        var hz = g.createRadialGradient(hx, hy, 0, hx, hy, hr);
-        hz.addColorStop(0,    'rgba(' + hc[0] + ',' + hc[1] + ',' + hc[2] + ',0.045)');
-        hz.addColorStop(0.55, 'rgba(' + hc[0] + ',' + hc[1] + ',' + hc[2] + ',0.015)');
-        hz.addColorStop(1,    'rgba(' + hc[0] + ',' + hc[1] + ',' + hc[2] + ',0)');
-        g.fillStyle = hz;
-        g.beginPath();
-        g.arc(hx, hy, hr, 0, Math.PI * 2);
-        g.fill();
-      }
+/* ============================================================
+   二、导航：汉堡菜单 + 当前板块高亮
+   ============================================================ */
+var navToggle = document.querySelector('.nav-toggle');
+var navLinks = $('navLinks');
+navToggle.addEventListener('click', function(){
+  var open = navLinks.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+navLinks.addEventListener('click', function(e){
+  if (e.target.tagName === 'A') navLinks.classList.remove('open');
+});
+// 滚动高亮当前板块
+var secIds = D.nav.map(function(n){ return n.key; });
+var navAnchors = {};
+document.querySelectorAll('[data-nav]').forEach(function(a){ navAnchors[a.dataset.nav] = a; });
+var spy = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (en.isIntersecting) {
+      Object.keys(navAnchors).forEach(function(k){ navAnchors[k].classList.remove('active'); });
+      var a = navAnchors[en.target.id];
+      if (a) a.classList.add('active');
     }
+  });
+}, { rootMargin:'-38% 0px -55% 0px' });
+secIds.forEach(function(id){ var el = $(id); if (el) spy.observe(el); });
 
-    // 3) 五条对数旋臂的星点
-    for (var a = 0; a < ARMS; a++) {
-      var base = a * STEP;
-      for (var k = 0; k < PER; k++) {
-        var t = k / PER;
-        var theta = base + t * WRAP;
-        var r = (0.055 + Math.pow(t, 0.82) * 0.945) * R;
+/* ============================================================
+   三、板块入场：IntersectionObserver 只触发一次
+   ============================================================ */
+var riseObs = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (en.isIntersecting) { en.target.classList.add('in'); riseObs.unobserve(en.target); }
+  });
+}, { threshold:.12 });
+document.querySelectorAll('.rise').forEach(function(el){ riseObs.observe(el); });
 
-        var spread = 1 + (Math.random() - 0.5) * 0.055 * (1 + t * 2);
-        var x = C + Math.cos(theta) * r * spread;
-        var y = C + Math.sin(theta) * r * spread;
+/* ============================================================
+   四、流星转场（1.2s / 可跳过 / 可记忆 / 降级直显）
+   ============================================================ */
+var overlay = $('meteor-transition');
+var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
+var transitTimers = [];
+var transitOpen = false;
 
-        // 少量粒子落在旋臂之间，形成尘埃带
-        if (Math.random() < 0.14) {
-          var off = rand(-0.16, 0.16) * R;
-          x += Math.cos(theta + Math.PI / 2) * off;
-          y += Math.sin(theta + Math.PI / 2) * off;
-        }
+// 流星方位 → 起飞位置与角度（左上 / 正上 / 右上）
+var dirVars = {
+  left:  { fx:'-34vw', fr:'30deg'  },
+  top:   { fx:'-6vw',  fr:'55deg'  },
+  right: { fx:'24vw',  fr:'-138deg'}
+};
+var secMeta = {
+  about:      { title:'关于我',     quote:D.about.quote },
+  skills:     { title:'能力',       quote:D.skills.quote },
+  experience: { title:'经历与成绩', quote:D.experience.quote }
+};
 
-        var col = armColor(t);
-        var alpha = (1 - t) * 0.42 + 0.06;
-        var size = (2.1 * (1 - t) + 0.48) * rand(0.8, 1.5);
-
-        g.globalAlpha = alpha;
-        g.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-        g.beginPath();
-        g.arc(x, y, size, 0, Math.PI * 2);
-        g.fill();
-
-        // 旋臂上的亮星，带辉光
-        if (t < 0.75 && Math.random() < 0.05) {
-          g.globalAlpha = 0.75;
-          g.shadowBlur = 12;
-          g.shadowColor = 'rgba(255,236,200,.9)';
-          g.beginPath();
-          g.arc(x, y, size * 1.6, 0, Math.PI * 2);
-          g.fill();
-          g.shadowBlur = 0;
-        }
-      }
-    }
-
-    // 4) 外缘冷色晕
-    var halo = g.createRadialGradient(C, C, R * 0.55, C, C, R * 1.02);
-    halo.addColorStop(0, 'rgba(120,140,255,0)');
-    halo.addColorStop(0.6, 'rgba(150,120,255,0.06)');
-    halo.addColorStop(1, 'rgba(90,150,255,0)');
-    g.fillStyle = halo;
-    g.beginPath();
-    g.arc(C, C, R * 1.02, 0, Math.PI * 2);
-    g.fill();
-
-    g.globalAlpha = 1;
-    g.globalCompositeOperation = 'source-over';
-    galaxyCanvas = c;
+function clearTransitTimers(){
+  transitTimers.forEach(clearTimeout);
+  transitTimers = [];
+}
+function goToSection(key){
+  var el = $(key);
+  if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block:'start' });
+}
+function endTransit(key, instant){
+  clearTransitTimers();
+  if (key) goToSection(key);
+  overlay.classList.remove('on','go','boom','card-in');
+  if (instant) {
+    overlay.hidden = true;
+  } else {
+    transitTimers.push(setTimeout(function(){ overlay.hidden = true; }, 300));
   }
+  transitOpen = false;
+  document.removeEventListener('keydown', onTransitKey);
+}
+function onTransitKey(e){
+  if (e.key === 'Escape') endTransit(currentTarget, true);
+}
+var currentTarget = null;
 
-  /* ==========================================================
-     二、星点：四角星芒
-     ========================================================== */
-  var stars = [];
-
-  function buildStars() {
-    var count = Math.min(430, Math.floor(W * H / 5400));
-    stars = [];
-    for (var i = 0; i < count; i++) {
-      var depth = rand(0.3, 1);
-      var burst = Math.random() < 0.06;   // 极少数星会突发闪亮
-      stars.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        depth: depth,
-        r: rand(0.45, 1.6) * (0.6 + depth * 0.9),
-        base: rand(0.2, 1),
-        speed: rand(0.5, 2.4),
-        phase: rand(0, Math.PI * 2),
-        warm: Math.random() < 0.38,
-        sparkle: Math.random() < 0.13,    // 带四角星芒的星
-        spikeLen: rand(6, 19),
-        burst: burst,
-        burstSpeed: rand(1.8, 3.2),       // 突发闪烁节奏（较快）
-        burstPhase: rand(0, Math.PI * 2)
-      });
-    }
+function playTransit(key, from){
+  // 已观看过 → 直接显示内容（localStorage 记忆）
+  if (reduceMotion || localStorage.getItem('luojiao-meteor-' + key) === '1') {
+    goToSection(key);
+    return;
   }
+  currentTarget = key;
+  transitOpen = true;
+  var meta = secMeta[key] || { title:'', quote:'' };
+  tQuote.textContent = meta.quote;
+  tTitle.textContent = meta.title;
+  var dv = dirVars[from] || dirVars.top;
+  tMeteor.style.setProperty('--fx', dv.fx);
+  tMeteor.style.setProperty('--fr', dv.fr);
 
-  // 四角星芒：由上下左右四个尖角组成的细长菱形
-  function drawSparkle(x, y, len, alpha, color) {
-    var w = len * 0.14;
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x, y - len);
-    ctx.lineTo(x + w, y);
-    ctx.lineTo(x, y + len);
-    ctx.lineTo(x - w, y);
-    ctx.closePath();
-    ctx.fill();
+  overlay.hidden = false;
+  overlay.classList.remove('go','boom','card-in');
+  void overlay.offsetWidth; // 强制回流，重启动画
+  overlay.classList.add('on');
 
-    ctx.beginPath();
-    ctx.moveTo(x - len * 0.62, y);
-    ctx.lineTo(x, y - w * 0.9);
-    ctx.lineTo(x + len * 0.62, y);
-    ctx.lineTo(x, y + w * 0.9);
-    ctx.closePath();
-    ctx.fill();
+  document.addEventListener('keydown', onTransitKey);
+
+  // 0.0s 流星加速下坠（点击反馈 = overlay 一出现流星即亮）
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); }, 30));
+  // 0.4s 触底：光点炸开成星尘涟漪
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); }, 480));
+  // 0.6s 信息卡片从涟漪中心浮出
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 640));
+  // 1.0s 稳定：切换滚动位置（在遮罩后完成，用户无感知）
+  transitTimers.push(setTimeout(function(){
+    goToSection(key);
+    localStorage.setItem('luojiao-meteor-' + key, '1');
+  }, 1000));
+  // 1.2s 收场
+  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1250));
+}
+
+// 绑定三颗流星
+document.querySelectorAll('.sky-meteor').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    playTransit(btn.dataset.target, btn.className.match(/m-(left|top|right)/)[1]);
+  });
+});
+// 跳过：按钮 / 点击遮罩空白处 / Esc（Esc 在上面已绑定）
+$('transitSkip').addEventListener('click', function(e){
+  e.stopPropagation();
+  endTransit(currentTarget, true);
+  if (currentTarget) localStorage.setItem('luojiao-meteor-' + currentTarget, '1');
+});
+overlay.addEventListener('click', function(e){
+  if (e.target === overlay) {
+    endTransit(currentTarget, true);
+    if (currentTarget) localStorage.setItem('luojiao-meteor-' + currentTarget, '1');
   }
+});
 
-  function drawStars(time) {
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i];
-      var tw = 0.5 + 0.5 * Math.sin(time * 0.0011 * s.speed + s.phase);
-      // 突发闪烁星：在常规呼吸上叠加一个快速脉冲，制造"眨眼"感
-      if (s.burst) {
-        var b = 0.5 + 0.5 * Math.sin(time * 0.004 * s.burstSpeed + s.burstPhase);
-        tw = Math.max(tw, b);
-      }
-      var alpha = s.base * (0.28 + tw * 0.72);
-      var px = s.x + pointer.x * s.depth * 22;
-      var py = s.y + pointer.y * s.depth * 22;
+/* ============================================================
+   五、信封拆信：翻盖 3D 掀开 → 信纸滑出 → 进入子作品页
+   ============================================================ */
+document.querySelectorAll('.envelope').forEach(function(env){
+  env.addEventListener('click', function(){
+    var id = env.dataset.id;
+    if (reduceMotion) { location.href = 'project.html?id=' + encodeURIComponent(id); return; }
+    if (env.classList.contains('open')) return;
+    env.classList.add('open');
+    // 等翻盖+信纸动画走完再跳转（reduced-motion 时上面已直接跳转）
+    setTimeout(function(){ location.href = 'project.html?id=' + encodeURIComponent(id); }, 820);
+  });
+});
 
-      var tone = s.warm ? '255,225,173' : '214,231,255';
-
-      // 光晕
-      if (s.r > 1.0) {
-        var glowR = s.r * 7.5;
-        var gr = ctx.createRadialGradient(px, py, 0, px, py, glowR);
-        gr.addColorStop(0, 'rgba(' + tone + ',' + (0.38 * alpha) + ')');
-        gr.addColorStop(1, 'rgba(' + tone + ',0)');
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = gr;
-        ctx.beginPath();
-        ctx.arc(px, py, glowR, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // 星核
-      ctx.globalAlpha = Math.min(1, alpha + 0.2);
-      ctx.fillStyle = 'rgb(' + tone + ')';
-      ctx.beginPath();
-      ctx.arc(px, py, s.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 四角星芒（闪烁越强，星芒越长越亮）
-      if (s.sparkle) {
-        drawSparkle(px, py, s.spikeLen * (0.7 + tw * 0.6),
-                    0.28 + 0.5 * tw, 'rgba(255,240,214,.92)');
-        if (s.depth > 0.9) {
-          drawSparkle(px, py, s.spikeLen * 2.5, 0.14 + 0.16 * tw, 'rgba(214,231,255,.9)');
-        }
-      }
-    }
-    ctx.globalAlpha = 1;
+/* ============================================================
+   六、星空画布：星星 + 尘埃 + 环境流星（装饰，不影响阅读）
+   ============================================================ */
+var canvas = $('sky'), ctx = canvas.getContext('2d');
+var W = 0, H = 0, stars = [], dust = [], ambMeteors = [];
+function resize(){
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  buildStars();
+}
+function rand(a,b){ return a + Math.random() * (b - a); }
+function buildStars(){
+  stars = [];
+  var n = Math.floor(W * H / 8500);
+  for (var i = 0; i < n; i++) {
+    stars.push({ x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), p:Math.random()*Math.PI*2, s:rand(.4,1.2) });
   }
-
-  /* ==========================================================
-     三、流星：金色拖尾（第三颗最亮，划过时点亮个人信息）
-     ========================================================== */
-  var meteors = [];
-  var sparks = [];
-  var flightCount = 0;
-  var nextMeteorTime = 650;
-  var infoLit = false;
-
-  function lightInfo() {
-    if (infoLit) return;
-    var el = document.getElementById('info');
-    if (!el) return;
-    infoLit = true;
-    el.classList.add('lit');
+  dust = [];
+  for (var j = 0; j < 60; j++) {
+    dust.push({ x:Math.random()*W, y:Math.random()*H, r:rand(1,2.6), vx:rand(-.05,.05), vy:rand(-.04,.02), a:rand(.05,.14) });
   }
-
-  function spawnMeteor() {
-    flightCount++;
-    var hero = flightCount === 3;
-    var sx, sy, ang, sp, len, max;
-    if (hero) {
-      // 固定轨迹：从画面中上偏左，缓而长地斜穿信息区，留出足够辨认时间
-      sx = W * 0.30; sy = -H * 0.22;
-      ang = 0.83; sp = 470; len = 650; max = 3000;
-    } else {
-      var fromLeft = Math.random() < 0.62;
-      sx = fromLeft ? rand(-140, W * 0.5) : rand(W * 0.5, W + 140);
-      sy = rand(-160, H * 0.42);
-      ang = fromLeft ? rand(0.5, 0.95) : rand(Math.PI * 0.72, Math.PI * 0.95);
-      sp = rand(420, 760);
-      len = rand(150, 290);
-      max = rand(900, 1600);
-    }
-    meteors.push({
-      x: sx, y: sy,
-      vx: Math.cos(ang) * sp,
-      vy: Math.sin(ang) * sp,
-      len: len,
-      life: 0,
-      max: max,
-      hero: hero
+}
+function drawSky(t){
+  ctx.clearRect(0, 0, W, H);
+  // 星星（暖白微闪）
+  for (var i = 0; i < stars.length; i++) {
+    var s = stars[i];
+    ctx.globalAlpha = .35 + .45 * (0.5 + 0.5 * Math.sin(t * .001 * s.s + s.p));
+    ctx.fillStyle = '#f5e6c8';
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+  }
+  // 尘埃
+  ctx.fillStyle = '#bcd7ff';
+  for (var j = 0; j < dust.length; j++) {
+    var d = dust[j];
+    d.x += d.vx; d.y += d.vy;
+    if (d.x < -10) d.x = W + 10; if (d.x > W + 10) d.x = -10;
+    if (d.y < -10) d.y = H + 10; if (d.y > H + 10) d.y = -10;
+    ctx.globalAlpha = d.a;
+    ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+  }
+  // 环境流星（纯装饰，与三颗可点击流星区分：更细更淡）
+  for (var k = ambMeteors.length - 1; k >= 0; k--) {
+    var m = ambMeteors[k];
+    m.life += 16; m.x += m.vx * .016; m.y += m.vy * .016;
+    var fade = Math.min(1, m.life / 200) * Math.max(0, 1 - m.life / m.max);
+    var sp = Math.sqrt(m.vx * m.vx + m.vy * m.vy);
+    var tx = m.x - m.vx / sp * m.len, ty = m.y - m.vy / sp * m.len;
+    var g = ctx.createLinearGradient(m.x, m.y, tx, ty);
+    g.addColorStop(0, 'rgba(245,230,200,' + (.7 * fade) + ')');
+    g.addColorStop(1, 'rgba(245,230,200,0)');
+    ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+    if (m.life > m.max) ambMeteors.splice(k, 1);
+  }
+  ctx.globalAlpha = 1;
+}
+var nextAmb = 2000;
+function loop(t){
+  if (!reduceMotion && t >= nextAmb) {
+    nextAmb = t + rand(2600, 5200);
+    var fromLeft = Math.random() < .6;
+    var ang = fromLeft ? rand(.5,.9) : rand(Math.PI*.72, Math.PI*.9);
+    var sp = rand(380, 640);
+    ambMeteors.push({
+      x: fromLeft ? rand(-100, W*.55) : rand(W*.45, W+100),
+      y: rand(-140, H*.35),
+      vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp,
+      len: rand(120, 220), life: 0, max: rand(900, 1500)
     });
-    if (hero) {
-      // 第三颗登场时整片夜空轻微一亮，把视线带过去
-      document.body.classList.remove('hero-flight');
-      void document.body.offsetWidth;
-      document.body.classList.add('hero-flight');
-      setTimeout(function () { document.body.classList.remove('hero-flight'); }, 3200);
-      // 划到信息区时，让这一颗流星“化为”个人信息
-      setTimeout(lightInfo, 1250);
-    }
-    // 普通流星 30% 概率伴随一颗略小的子流星
-    if (!hero && Math.random() < 0.3) {
-      var off = rand(28, 70);
-      var ang2 = ang + rand(-0.12, 0.12);
-      meteors.push({
-        x: sx + Math.cos(ang2 + Math.PI / 2) * off,
-        y: sy + Math.sin(ang2 + Math.PI / 2) * off,
-        vx: Math.cos(ang2) * sp * rand(0.78, 1.0),
-        vy: Math.sin(ang2) * sp * rand(0.78, 1.0),
-        len: rand(90, 170),
-        life: 0,
-        max: rand(700, 1300),
-        hero: false
-      });
-    }
   }
-
-  function drawSparks(dt) {
-    for (var i = sparks.length - 1; i >= 0; i--) {
-      var p = sparks[i];
-      p.life += dt;
-      p.x += p.vx * dt / 1000;
-      p.y += p.vy * dt / 1000;
-      p.vx *= 0.992;
-      p.vy *= 0.992;
-      var a = 1 - p.life / p.max;
-      if (a <= 0) { sparks.splice(i, 1); continue; }
-      ctx.globalAlpha = a * 0.72;
-      ctx.fillStyle = 'rgba(255,232,180,1)';
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * (0.55 + a * 0.65), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function drawMeteors(dt) {
-    for (var i = meteors.length - 1; i >= 0; i--) {
-      var m = meteors[i];
-      var hero = m.hero;
-      m.life += dt;
-      // 主角流星进入信息区时缓下来，像光被文字吸住一样
-      var damp = 1;
-      if (hero && m.life > 800) {
-        damp = Math.max(0.42, 1 - (m.life - 800) / 2400 * 0.55);
-      }
-      m.x += m.vx * dt / 1000 * damp;
-      m.y += m.vy * dt / 1000 * damp;
-
-      var fade = Math.min(1, m.life / 180) * Math.max(0, 1 - m.life / m.max);
-      var sp = Math.sqrt(m.vx * m.vx + m.vy * m.vy) || 1;
-      var tx = m.x - (m.vx / sp) * m.len;
-      var ty = m.y - (m.vy / sp) * m.len;
-
-      // 尾部辉光（更宽更柔）
-      var glow = ctx.createLinearGradient(m.x, m.y, tx, ty);
-      glow.addColorStop(0, 'rgba(255,224,162,' + ((hero ? 1 : 0.62) * fade) + ')');
-      glow.addColorStop(0.4, 'rgba(255,186,102,' + ((hero ? 0.48 : 0.22) * fade) + ')');
-      glow.addColorStop(1, 'rgba(255,160,60,0)');
-      ctx.strokeStyle = glow;
-      ctx.lineWidth = hero ? 24 : 8.5;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-
-      // 主线（更亮更清晰）
-      var line = ctx.createLinearGradient(m.x, m.y, tx, ty);
-      line.addColorStop(0, 'rgba(255,255,250,' + fade + ')');
-      line.addColorStop(0.18, 'rgba(255,234,178,' + ((hero ? 1 : 0.78) * fade) + ')');
-      line.addColorStop(1, 'rgba(255,196,120,0)');
-      ctx.strokeStyle = line;
-      ctx.lineWidth = hero ? 5.6 : 2.1;
-      ctx.beginPath();
-      ctx.moveTo(m.x, m.y);
-      ctx.lineTo(tx, ty);
-      ctx.stroke();
-
-      // 主角流星：在尾迹上撒几粒星火，拉开与普通流星的差别
-      if (hero) {
-        ctx.globalAlpha = fade;
-        for (var k = 1; k <= 4; k++) {
-          var fx = m.x - (m.vx / sp) * m.len * (k / 5);
-          var fy = m.y - (m.vy / sp) * m.len * (k / 5);
-          ctx.fillStyle = 'rgba(255,238,196,' + (0.5 - k * 0.09) + ')';
-          ctx.beginPath();
-          ctx.arc(fx, fy, 2.6 - k * 0.35, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      // 流星进入信息区后开始“散成星尘”：光粒从弹头剥离，慢慢飘向文字
-      if (hero && m.life > 760 && m.life < 2600) {
-        m.dust = (m.dust || 0) + dt;
-        while (m.dust > 42) {
-          m.dust -= 42;
-          sparks.push({
-            x: m.x, y: m.y,
-            vx: rand(-130, 40), vy: rand(-55, 75),
-            life: 0, max: rand(750, 1400), r: rand(1.0, 2.4)
-          });
-        }
-        if (sparks.length > 150) sparks.splice(0, sparks.length - 150);
-      }
-
-      // 头部亮点
-      ctx.globalAlpha = fade;
-      if (hero) {
-        // 主角外圈大光晕
-        var halo = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 96);
-        halo.addColorStop(0, 'rgba(255,246,214,.34)');
-        halo.addColorStop(0.5, 'rgba(255,206,132,.14)');
-        halo.addColorStop(1, 'rgba(255,200,120,0)');
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, 96, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      var hr = hero ? 46 : 15;
-      var head = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, hr);
-      head.addColorStop(0, 'rgba(255,255,252,1)');
-      head.addColorStop(0.34, 'rgba(255,228,158,' + (hero ? 0.92 : 0.55) + ')');
-      head.addColorStop(1, 'rgba(255,214,140,0)');
-      ctx.fillStyle = head;
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, hr, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (hero) {
-        // 最亮的那颗：十字星芒 + 斜向短芒
-        ctx.strokeStyle = 'rgba(255,246,214,' + (0.75 * fade) + ')';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(m.x - 78, m.y); ctx.lineTo(m.x + 78, m.y);
-        ctx.moveTo(m.x, m.y - 52); ctx.lineTo(m.x, m.y + 52);
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,246,214,' + (0.34 * fade) + ')';
-        ctx.lineWidth = 1.1;
-        ctx.beginPath();
-        ctx.moveTo(m.x - 34, m.y - 34); ctx.lineTo(m.x + 34, m.y + 34);
-        ctx.moveTo(m.x + 34, m.y - 34); ctx.lineTo(m.x - 34, m.y + 34);
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-
-      if (m.life > m.max || m.x > W + 400 || m.y > H + 400) meteors.splice(i, 1);
-    }
-  }
-
-  /* ==========================================================
-     四、星云尘埃：缓慢漂移的半透明粒子
-     ========================================================== */
-  var dust = [];
-  function buildDust() {
-    dust = [];
-    for (var i = 0; i < 90; i++) {
-      dust.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: rand(1.2, 3.4),
-        vx: rand(-0.06, 0.06),
-        vy: rand(-0.05, 0.02),
-        a: rand(0.05, 0.16)
-      });
-    }
-  }
-  function drawDust() {
-    for (var i = 0; i < dust.length; i++) {
-      var d = dust[i];
-      d.x += d.vx; d.y += d.vy;
-      if (d.x < -10) d.x = W + 10; if (d.x > W + 10) d.x = -10;
-      if (d.y < -10) d.y = H + 10; if (d.y > H + 10) d.y = -10;
-      ctx.globalAlpha = d.a;
-      ctx.fillStyle = 'rgba(190,215,255,1)';
-      ctx.beginPath();
-      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  /* ==========================================================
-     五、视差与主循环
-     ========================================================== */
-  var pointer = { x: 0, y: 0, tx: 0, ty: 0 };
-
-  function galaxyPlacement() {
-    // 与底图中段的黄褐色银心对齐（约 54% / 39%），只做极淡的流光叠加
-    if (W < 900) {
-      return { x: W * 0.50, y: H * 0.30, size: Math.max(W, H) * 0.92 };
-    }
-    return { x: W * 0.54, y: H * 0.39, size: Math.max(W, H) * 1.02 };
-  }
-
-  function drawGalaxy(time) {
-    if (!galaxyCanvas) return;
-    var p = galaxyPlacement();
-    var rot = time * 0.000035;          // 极缓自转，避免抢戏
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.075;  // 底图已有银河，这里只叠加一层极淡的流光
-    ctx.translate(p.x, p.y);
-    ctx.rotate(rot - 0.26);             // 盘面斜置，避免正视成"甜甜圈"
-    ctx.scale(1, 0.66);                 // 纵向压扁 → 倾斜盘面
-    ctx.drawImage(galaxyCanvas, -p.size / 2, -p.size / 2, p.size, p.size);
-    ctx.restore();
-  }
-
-  function loop(time) {
-    var dt = Math.min(46, time - (prevT || time));
-    prevT = time;
-
-    ctx.clearRect(0, 0, W, H);
-
-    pointer.x += (pointer.tx - pointer.x) * 0.055;
-    pointer.y += (pointer.ty - pointer.y) * 0.055;
-
-    drawGalaxy(time);
-    drawDust();
-    drawStars(time);
-
-    // 前 3 颗按固定节奏入场，第 3 颗为点亮信息的主角；之后持续不断划过
-    if (!reduceMotion && time >= nextMeteorTime) {
-      spawnMeteor();
-      // 节奏：先一颗、稍等、再一颗，然后留白一拍，让第三颗在空夜里独自登场
-      var gap = flightCount === 1 ? 1150 : (flightCount === 2 ? 1500 : rand(1400, 3000));
-      nextMeteorTime = time + gap;
-    }
-    drawMeteors(dt);
-    drawSparks(dt);
-
-    rafId = requestAnimationFrame(loop);
-  }
-
-  function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = Math.floor(W * DPR);
-    canvas.height = Math.floor(H * DPR);
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    buildStars();
-    buildDust();
-  }
-
-  function start() {
-    resize();
-    if (!galaxyCanvas) buildGalaxy();
-
-    if (reduceMotion) {
-      // 静态帧：银河 + 星点，不跑动画；信息直接呈现
-      ctx.clearRect(0, 0, W, H);
-      drawGalaxy(0);
-      drawStars(0);
-      lightInfo();
-      return;
-    }
-    // 兜底：即便流星因异常未触发，信息也不会一直缺席
-    setTimeout(lightInfo, 8000);
-    rafId = requestAnimationFrame(loop);
-  }
-
-  start();
-
-  window.addEventListener('resize', function () {
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    prevT = 0;
-    start();
-  });
-
-  window.addEventListener('pointermove', function (e) {
-    pointer.tx = (e.clientX / W - 0.5) * 2;
-    pointer.ty = (e.clientY / H - 0.5) * 2;
-  }, { passive: true });
-
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      prevT = 0;
-    } else if (!rafId && !reduceMotion) {
-      rafId = requestAnimationFrame(loop);
-    }
-  });
-
-  /* ==========================================================
-     六、玫瑰隧道转场 + 作品星球
-     ========================================================== */
-  var toast = document.getElementById('toast');
-  var toastTimer = null;
-  var tunnelCanvas = document.getElementById('tunnel');
-  var tctx = tunnelCanvas.getContext('2d');
-  var works = document.getElementById('works');
-  var quoteEl = document.getElementById('quote');
-
-  var tunnelRaf = null;
-  var tunnelStart = 0;
-  var TUNNEL_MS = 1900;
-  var petals = [];
-
-  // 《小王子》逐字浮现语录
-  var QUOTE = '真正重要的东西，用眼睛是看不见的。';
-
-  function resizeTunnel() {
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    tunnelCanvas.width = Math.floor(window.innerWidth * dpr);
-    tunnelCanvas.height = Math.floor(window.innerHeight * dpr);
-    tunnelCanvas.style.width = window.innerWidth + 'px';
-    tunnelCanvas.style.height = window.innerHeight + 'px';
-    tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  resizeTunnel();
-
-  function buildPetals() {
-    petals = [];
-    var count = 76;
-    for (var i = 0; i < count; i++) {
-      petals.push({
-        angle: (i / count) * Math.PI * 2 + rand(-0.12, 0.12),
-        radius: rand(0.62, 1.12),
-        target: rand(0.02, 0.09),
-        size: rand(14, 30),
-        rot: rand(0, Math.PI * 2),
-        rotSpeed: rand(-2.4, 2.4),
-        hue: Math.random() < 0.5 ? '#e2635f' : '#ff9d92',
-        delay: rand(0, 0.22)
-      });
-    }
-  }
-
-  function drawTunnel(now) {
-    var elapsed = now - tunnelStart;
-    var t = Math.min(1, elapsed / TUNNEL_MS);
-    var W = window.innerWidth, H = window.innerHeight;
-    var cx = W / 2, cy = H / 2;
-    var maxR = Math.hypot(W, H) / 2;
-
-    tctx.clearRect(0, 0, W, H);
-
-    // 背景：中心暖光 → 外围深紫，末段泛白闪光
-    var flashT = Math.max(0, (t - 0.62) / 0.38);
-    var glowA = 0.18 + flashT * 0.78;
-    var bg = tctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-    bg.addColorStop(0,    'rgba(255,242,214,' + glowA + ')');
-    bg.addColorStop(0.28, 'rgba(255,178,118,' + (0.5 * glowA) + ')');
-    bg.addColorStop(0.62, 'rgba(120,60,150,' + (0.22 * glowA) + ')');
-    bg.addColorStop(1,    'rgba(16,6,34,0.94)');
-    tctx.fillStyle = bg;
-    tctx.fillRect(0, 0, W, H);
-
-    // 花瓣沿螺旋向中心汇聚
-    tctx.globalCompositeOperation = 'lighter';
-    for (var i = 0; i < petals.length; i++) {
-      var p = petals[i];
-      var pt = Math.max(0, Math.min(1, (t - p.delay) / (1 - p.delay)));
-      // 半径从远到近，末段加速
-      var r = (p.radius - p.target) * Math.pow(1 - pt, 1.5) + p.target;
-      var dist = r * maxR;
-      var px = cx + Math.cos(p.angle) * dist;
-      var py = cy + Math.sin(p.angle) * dist;
-      var scale = 0.32 + pt * 1.15;
-      // 先淡入，末段随闪光淡出
-      var alpha = Math.sin(pt * Math.PI) * 0.92;
-      p.rot += p.rotSpeed * 0.016;
-
-      tctx.save();
-      tctx.translate(px, py);
-      tctx.rotate(p.rot);
-      tctx.scale(scale, scale);
-      tctx.globalAlpha = alpha;
-      tctx.fillStyle = p.hue;
-      tctx.beginPath();
-      tctx.moveTo(0, -p.size);
-      tctx.bezierCurveTo(p.size * 0.72, -p.size * 0.42, p.size * 0.72, p.size * 0.52, 0, p.size);
-      tctx.bezierCurveTo(-p.size * 0.72, p.size * 0.52, -p.size * 0.72, -p.size * 0.42, 0, -p.size);
-      tctx.fill();
-      // 花瓣高光
-      tctx.globalAlpha = alpha * 0.5;
-      tctx.fillStyle = '#ffd6cf';
-      tctx.beginPath();
-      tctx.moveTo(0, -p.size * 0.82);
-      tctx.bezierCurveTo(p.size * 0.3, -p.size * 0.32, p.size * 0.3, p.size * 0.3, 0, p.size * 0.62);
-      tctx.bezierCurveTo(-p.size * 0.3, p.size * 0.3, -p.size * 0.3, -p.size * 0.32, 0, -p.size * 0.82);
-      tctx.fill();
-      tctx.restore();
-    }
-    tctx.globalAlpha = 1;
-    tctx.globalCompositeOperation = 'source-over';
-
-    if (t < 1) {
-      tunnelRaf = requestAnimationFrame(drawTunnel);
-    } else {
-      onTunnelEnd();
-    }
-  }
-
-  function startTunnel() {
-    buildPetals();
-    tunnelCanvas.classList.add('on');
-    tunnelStart = performance.now();
-    tunnelRaf = requestAnimationFrame(drawTunnel);
-  }
-
-  function typeQuote() {
-    var caret = quoteEl.querySelector('.caret');
-    quoteEl.textContent = '';
-    quoteEl.appendChild(caret);
-    var i = 0;
-    function step() {
-      if (i < QUOTE.length) {
-        quoteEl.insertBefore(document.createTextNode(QUOTE.charAt(i)), caret);
-        i++;
-        setTimeout(step, 70);
-      }
-    }
-    step();
-  }
-
-  function onTunnelEnd() {
-    // 闪光白屏后淡入作品页
-    tunnelCanvas.style.transition = 'opacity .45s ease';
-    tunnelCanvas.classList.remove('on');
-
-    works.classList.add('show');
-    works.scrollTop = 0;
-    setTimeout(typeQuote, 250);
-
-    // 隧道画布淡出后清理
-    setTimeout(function () {
-      tunnelCanvas.style.transition = '';
-      tctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    }, 500);
-  }
-
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toast.classList.remove('on'); }, 2200);
-  }
-
-  function goHome() {
-    works.classList.remove('show');
-  }
-
-  window.RoseEntrance = {
-    start: function (source) {
-      document.dispatchEvent(new CustomEvent('rose-enter', { detail: { source: source } }));
-      showToast(source === 'rose' ? '玫瑰之门开启，穿越隧道…' : '星星入口亮起，出发！');
-      startTunnel();
-    }
-  };
-
-  Array.prototype.forEach.call(document.querySelectorAll('[data-enter]'), function (btn) {
-    btn.addEventListener('click', function () {
-      var source = btn.classList.contains('rose') ? 'rose' : 'star';
-      window.RoseEntrance.start(source);
-    });
-  });
-
-  var backBtn = document.querySelector('[data-back]');
-  if (backBtn) backBtn.addEventListener('click', goHome);
-
-  window.addEventListener('resize', resizeTunnel);
+  if (!reduceMotion) drawSky(t); 
+  requestAnimationFrame(loop);
+}
+resize();
+window.addEventListener('resize', resize);
+if (reduceMotion) { drawSky(0); } // 降级：静态星空一帧
+else { requestAnimationFrame(loop); }
 })();
 </script>
 </body>
