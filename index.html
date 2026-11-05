@@ -247,48 +247,90 @@ img{max-width:100%;}
 }
 #meteor-transition.on{opacity:1;}
 #meteor-transition[hidden]{display:none;}
+/* 流星本体：楔形拖尾（clip-path 收窄尾端）+ 双层光晕弹头 */
 .t-meteor{
-  position:absolute;width:200px;height:3px;left:50%;top:0;
-  background:linear-gradient(90deg,transparent,#fff6df);
-  border-radius:3px;opacity:0;
-  filter:drop-shadow(0 0 12px rgba(245,230,200,.9));
+  position:absolute;width:230px;height:7px;left:50%;top:0;opacity:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(245,230,200,.25) 42%,rgba(255,246,223,.95) 88%,#fff 100%);
+  clip-path:polygon(0 50%,100% 0,100% 100%);   /* 尾细头粗，像真正的光迹 */
+  border-radius:3px;
+  filter:drop-shadow(0 0 10px rgba(245,230,200,.75)) drop-shadow(0 0 26px rgba(230,196,104,.35));
 }
 .t-meteor::after{
-  content:"";position:absolute;right:-5px;top:50%;width:14px;height:14px;
+  content:"";position:absolute;right:-7px;top:50%;width:16px;height:16px;
   border-radius:50%;transform:translateY(-50%);
-  background:radial-gradient(circle,#fff 0%,var(--star) 50%,transparent 80%);
+  background:radial-gradient(circle,#fff 0%,var(--star) 45%,rgba(245,230,200,0) 78%);
 }
-/* 点击反馈：先变亮，再加速下坠（只动 transform/opacity） */
-#meteor-transition.go .t-meteor{opacity:1;}
-#meteor-transition.go .t-meteor{animation:tFall .45s cubic-bezier(.55,.06,.85,.36) .05s both;}
+/* 点击即时反馈：弹头先一亮（缩放脉冲），再加速下坠 */
+#meteor-transition.go .t-meteor{animation:tFall .48s cubic-bezier(.55,.06,.84,.32) .06s both;}
+#meteor-transition.go .t-meteor::after{animation:tHeadPulse .18s ease-out 2;}
+@keyframes tHeadPulse{
+  50%{transform:translateY(-50%) scale(1.45);}
+}
 @keyframes tFall{
   0%{transform:translate(var(--fx,-30vw),-6vh) rotate(var(--fr,28deg));opacity:0;}
-  12%{opacity:1;}
+  10%{opacity:1;}
+  82%{opacity:1;}
   100%{transform:translate(0vw,66vh) rotate(var(--fr,28deg));opacity:1;}
 }
-/* 触底：光点炸开成星尘涟漪 */
+/* 触底瞬间：流星本体快速湮灭，把舞台让给涟漪 */
+#meteor-transition.boom .t-meteor{animation:tMeteorOut .2s ease-in both;}
+@keyframes tMeteorOut{
+  0%{opacity:1;filter:drop-shadow(0 0 10px rgba(245,230,200,.75)) brightness(1.6);}
+  100%{opacity:0;filter:drop-shadow(0 0 2px transparent) brightness(2);}
+}
+/* 触底闪光：一点爆开的暖白金光 */
+.t-flash{
+  position:absolute;left:50%;top:66vh;width:120px;height:120px;
+  margin:-60px 0 0 -60px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(255,248,228,.95) 0%,rgba(245,230,200,.55) 32%,rgba(230,196,104,.18) 58%,transparent 74%);
+  mix-blend-mode:screen;
+}
+#meteor-transition.boom .t-flash{animation:tFlash .38s ease-out both;}
+@keyframes tFlash{
+  0%{transform:scale(.15);opacity:1;}
+  100%{transform:scale(1.5);opacity:0;}
+}
+/* 触底：三环涟漪错开扩散（细环+微模糊更柔） */
 .t-ripple{
   position:absolute;left:50%;top:calc(66vh + 2px);width:30px;height:30px;
   margin:-15px 0 0 -15px;border-radius:50%;
   border:2px solid rgba(245,230,200,.85);opacity:0;
+  filter:blur(.4px);
 }
-.t-ripple.r2{border-color:rgba(230,196,104,.6);}
-#meteor-transition.boom .t-ripple{animation:tRipple .55s ease-out both;}
-#meteor-transition.boom .t-ripple.r2{animation-delay:.08s;}
+.t-ripple.r2{border-width:1.4px;border-color:rgba(230,196,104,.6);}
+.t-ripple.r3{border-width:1px;border-color:rgba(232,160,168,.45);}
+#meteor-transition.boom .t-ripple{animation:tRipple .58s ease-out both;}
+#meteor-transition.boom .t-ripple.r2{animation-delay:.09s;}
+#meteor-transition.boom .t-ripple.r3{animation-delay:.18s;}
 @keyframes tRipple{
   0%{transform:scale(.2);opacity:1;}
-  100%{transform:scale(9);opacity:0;}
+  70%{opacity:.55;}
+  100%{transform:scale(9.5);opacity:0;}
 }
+/* 星尘：大小/时序各异，个别加柔焦，像溅起的星屑 */
 .t-dust{
-  position:absolute;left:50%;top:66vh;width:5px;height:5px;border-radius:50%;
-  background:var(--star);opacity:0;
+  position:absolute;left:50%;top:66vh;width:var(--s,5px);height:var(--s,5px);
+  margin:calc(var(--s,5px) / -2) 0 0 calc(var(--s,5px) / -2);
+  border-radius:50%;background:var(--star);opacity:0;
 }
-#meteor-transition.boom .t-dust{animation:tDust .6s ease-out both;}
+.t-dust.soft{filter:blur(1.2px);}
+#meteor-transition.boom .t-dust{animation:tDust .68s cubic-bezier(.16,.7,.36,1) var(--dl,0s) both;}
 @keyframes tDust{
   0%{transform:translate(0,0) scale(1);opacity:1;}
-  100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0;}
+  60%{opacity:.9;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.25);opacity:0;}
 }
-/* 信息卡片从涟漪中心浮出 */
+/* 信息卡片：背后先晕开一团暖光，文字再逐行淡入 */
+.t-glow{
+  position:absolute;left:50%;top:66vh;width:64vmin;height:34vmin;
+  transform:translate(-50%,-50%) scale(.6);border-radius:50%;
+  background:radial-gradient(ellipse,rgba(230,196,104,.16) 0%,rgba(230,196,104,.05) 48%,transparent 72%);
+  opacity:0;mix-blend-mode:screen;pointer-events:none;
+}
+#meteor-transition.card-in .t-glow{
+  transform:translate(-50%,-50%) scale(1);opacity:1;
+  transition:transform .7s var(--ease),opacity .6s ease;
+}
 .t-card{
   position:absolute;left:50%;top:66vh;transform:translate(-50%,-50%) translateY(26px);
   text-align:center;opacity:0;max-width:82vw;
@@ -304,6 +346,34 @@ img{max-width:100%;}
 .t-card .t-title{
   font-family:var(--kai);font-weight:400;font-size:clamp(1.6rem,4.6vw,2.4rem);
   letter-spacing:.22em;color:var(--star);margin:0;
+}
+/* 逐行淡入：引言先行，标题稍候，金线最后扫入 */
+#meteor-transition.card-in .t-card .t-quote,
+#meteor-transition.card-in .t-card .t-title,
+#meteor-transition.card-in .t-card .t-line{
+  animation:tLineIn .55s var(--ease) both;
+}
+#meteor-transition.card-in .t-card .t-title{animation-delay:.14s;}
+#meteor-transition.card-in .t-card .t-line{animation-delay:.3s;}
+@keyframes tLineIn{
+  0%{opacity:0;transform:translateY(10px);}
+  100%{opacity:1;transform:none;}
+}
+.t-line{
+  width:64px;height:2px;margin:16px auto 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--wheat),transparent);
+  transform-origin:center;
+}
+#meteor-transition.card-in .t-card .t-line{
+  animation-name:tLineIn,tLineGrow;
+  animation-duration:.55s,.6s;
+  animation-delay:.3s,.3s;
+  animation-fill-mode:both,both;
+  animation-timing-function:var(--ease),ease-out;
+}
+@keyframes tLineGrow{
+  0%{transform:scaleX(0);}
+  100%{transform:scaleX(1);}
 }
 .t-skip{
   position:absolute;top:18px;right:20px;z-index:2;
@@ -691,17 +761,25 @@ main{position:relative;z-index:5;}
 <div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
   <button class="t-skip" id="transitSkip">跳过 ✕</button>
   <div class="t-meteor" id="tMeteor"></div>
+  <div class="t-flash"></div>
   <div class="t-ripple"></div>
   <div class="t-ripple r2"></div>
-  <div class="t-dust" style="--dx:-70px;--dy:-46px;"></div>
-  <div class="t-dust" style="--dx:64px;--dy:-60px;background:var(--wheat);"></div>
-  <div class="t-dust" style="--dx:-44px;--dy:56px;background:var(--rose);"></div>
-  <div class="t-dust" style="--dx:78px;--dy:40px;"></div>
-  <div class="t-dust" style="--dx:0px;--dy:-84px;background:var(--wheat);"></div>
-  <div class="t-dust" style="--dx:-92px;--dy:6px;background:var(--rose);"></div>
+  <div class="t-ripple r3"></div>
+  <div class="t-dust" style="--dx:-70px;--dy:-46px;--s:5px;"></div>
+  <div class="t-dust soft" style="--dx:64px;--dy:-60px;--s:7px;--dl:.04s;background:var(--wheat);"></div>
+  <div class="t-dust" style="--dx:-44px;--dy:56px;--s:4px;--dl:.02s;background:var(--rose);"></div>
+  <div class="t-dust" style="--dx:78px;--dy:40px;--s:5px;--dl:.06s;"></div>
+  <div class="t-dust soft" style="--dx:0px;--dy:-84px;--s:6px;--dl:.03s;background:var(--wheat);"></div>
+  <div class="t-dust" style="--dx:-92px;--dy:6px;--s:4px;--dl:.05s;background:var(--rose);"></div>
+  <div class="t-dust" style="--dx:36px;--dy:70px;--s:3px;--dl:.08s;"></div>
+  <div class="t-dust soft" style="--dx:-24px;--dy:-30px;--s:6px;--dl:.01s;"></div>
+  <div class="t-dust" style="--dx:96px;--dy:-18px;--s:3px;--dl:.07s;background:var(--wheat);"></div>
+  <div class="t-dust" style="--dx:-58px;--dy:28px;--s:3px;--dl:.09s;"></div>
+  <div class="t-glow"></div>
   <div class="t-card">
     <p class="t-quote" id="tQuote"></p>
     <h2 class="t-title" id="tTitle"></h2>
+    <div class="t-line"></div>
   </div>
 </div>
 
