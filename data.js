@@ -47,7 +47,10 @@ window.SITE_DATA = {
     ],
     /* 明信片 03 · 我的生活碎片：把朋友圈图片路径填进 photos 数组即可 */
     moments: {
-      photos: []
+      photos: [
+        'moments/01.jpg', 'moments/02.jpg', 'moments/03.jpg',
+        'moments/04.jpg', 'moments/05.jpg', 'moments/06.jpg'
+      ]
     }
   },
 
