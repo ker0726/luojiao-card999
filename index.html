@@ -158,6 +158,55 @@ img{max-width:100%;}
   animation:galaxySpin 118s linear infinite reverse;
   transform:translateZ(0);
 }
+/* 星球内容页背景：暖金玫瑰油画（与首页蓝调星空明确区分） */
+.planet-bg{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 118% 92% at 50% 34%, rgba(13,27,42,.10) 0%, rgba(10,20,36,.50) 70%, rgba(7,13,24,.86) 100%),
+    linear-gradient(180deg, rgba(9,17,30,.80) 0%, rgba(12,24,40,.34) 22%, rgba(12,24,40,.32) 56%, rgba(7,13,24,.84) 100%),
+    url('bg-rose.webp') center 44% / cover no-repeat;
+  opacity:0;visibility:hidden;
+  transform:scale(1.02);transform-origin:50% 42%;
+  transition:opacity .7s var(--ease),visibility .7s;
+  animation:planetDrift 58s ease-in-out infinite alternate;
+}
+body.planet-view .planet-bg{opacity:1;visibility:visible;}
+@keyframes planetDrift{
+  0%{transform:scale(1.02) translate3d(-.4%,.3%,0);}
+  100%{transform:scale(1.09) translate3d(.4%,-.3%,0);}
+}
+/* 进入星球视图时，蓝调夜空各层淡出，避免与新背景叠色 */
+#bg,.galaxy-live,.galaxy-flow,#sky,.read-veil{transition:opacity .55s ease,visibility .55s;}
+body.planet-view #bg,
+body.planet-view .galaxy-live,
+body.planet-view .galaxy-flow,
+body.planet-view #sky,
+body.planet-view .read-veil{opacity:0;visibility:hidden;}
+/* 暖金底上的文字与卡片：加深衬底，保证可读 */
+body.planet-view .section{position:relative;}
+body.planet-view .section::before{
+  content:'';position:absolute;z-index:-1;pointer-events:none;
+  left:-5%;right:-5%;top:-30px;bottom:-30px;
+  background:
+    radial-gradient(ellipse 74% 58% at 40% 28%, rgba(8,16,30,.62) 0%, rgba(8,16,30,.46) 50%, rgba(8,16,30,0) 78%),
+    radial-gradient(ellipse 60% 50% at 62% 74%, rgba(8,16,30,.44) 0%, rgba(8,16,30,0) 76%);
+}
+body.planet-view .section p,
+body.planet-view .section li,
+body.planet-view .section dd,
+body.planet-view .section dt{text-shadow:0 1px 7px rgba(8,16,30,.65);}
+body.planet-view .sec-title{
+  text-shadow:0 2px 16px rgba(8,16,30,.95),0 0 40px rgba(8,16,30,.8);
+}
+body.planet-view .sec-quote{text-shadow:0 2px 12px rgba(8,16,30,.95);}
+body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);}
+body.planet-view .fact-card,
+body.planet-view .hobby,
+body.planet-view .skill-group,
+body.planet-view .exp-card{
+  background:rgba(14,26,44,.80);border-color:rgba(245,226,186,.16);
+}
+
 @keyframes bgBreath{
   0%{transform:scale(1.05) rotate(-.25deg) translate3d(-.6%,.4%,0);}
   100%{transform:scale(1.13) rotate(.25deg) translate3d(.6%,-.4%,0);}
@@ -1000,6 +1049,7 @@ main{position:relative;z-index:5;}
 <div class="galaxy-live" aria-hidden="true"></div>
 <div class="galaxy-flow" aria-hidden="true"></div>
 <div class="galaxy-flow b" aria-hidden="true"></div>
+<div class="planet-bg" aria-hidden="true"></div>
 <canvas id="sky" aria-hidden="true"></canvas>
 <div class="read-veil" aria-hidden="true"></div>
 <div class="vig" aria-hidden="true"></div>
@@ -1683,7 +1733,7 @@ function buildStars(){
   stars = [];
   var n = Math.floor(W * H / 8500);
   for (var i = 0; i < n; i++) {
-    stars.push({ x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), p:Math.random()*Math.PI*2, s:rand(.4,1.2) });
+    stars.push({ x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), p:Math.random()*Math.PI*2, s:rand(1.0,2.2), a:rand(.55,1), flare:Math.random()<.09 });
   }
   dust = [];
   for (var j = 0; j < 60; j++) {
@@ -1692,12 +1742,25 @@ function buildStars(){
 }
 function drawSky(t){
   ctx.clearRect(0, 0, W, H);
-  // 星星（暖白微闪）
+  // 星星：按各自频率明暗呼吸（约 3~6 秒一轮），偶尔带一点十字星芒
   for (var i = 0; i < stars.length; i++) {
     var s = stars[i];
-    ctx.globalAlpha = .35 + .45 * (0.5 + 0.5 * Math.sin(t * .001 * s.s + s.p));
+    var tw = .5 + .5 * Math.sin(t * .001 * s.s + s.p);   // 0~1
+    var pulse = Math.pow(tw, 1.6);
+    var al = .16 + .84 * pulse * s.a;
+    var rr = s.r * (.78 + .42 * tw);
+    ctx.globalAlpha = Math.min(1, al);
     ctx.fillStyle = '#f5e6c8';
-    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(s.x, s.y, rr, 0, Math.PI * 2); ctx.fill();
+    if (s.flare && tw > .72) {
+      var fw = rr * 4.2, fa = .42 * (tw - .72) / .28;
+      ctx.globalAlpha = Math.min(1, fa);
+      ctx.strokeStyle = '#fff6da'; ctx.lineWidth = .8; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(s.x - fw, s.y); ctx.lineTo(s.x + fw, s.y);
+      ctx.moveTo(s.x, s.y - fw); ctx.lineTo(s.x, s.y + fw);
+      ctx.stroke();
+    }
   }
   // 尘埃
   ctx.fillStyle = '#bcd7ff';
@@ -1758,7 +1821,8 @@ function loop(t){
       }
     }
   }
-  if (!reduceMotion) drawSky(t); 
+  if (!reduceMotion && !document.body.classList.contains('planet-view')) drawSky(t);
+
   requestAnimationFrame(loop);
 }
 resize();
