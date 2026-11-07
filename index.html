@@ -187,9 +187,6 @@ body.planet-view .sec-title{
 }
 body.planet-view .sec-quote{text-shadow:0 2px 12px rgba(8,16,30,.95);}
 body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);}
-body.planet-view .exp-card{
-  background:rgba(14,26,44,.80);border-color:rgba(245,226,186,.16);
-}
 
 @keyframes bgBreath{
   0%{transform:scale(1.05) rotate(-.25deg) translate3d(-.6%,.4%,0);}
@@ -269,6 +266,9 @@ body.planet-view .exp-card{
 .section.on,.site-footer.on{display:block;animation:viewIn .55s var(--ease) both;}
 body.planet-view .hero{display:none;}
 @keyframes viewIn{0%{opacity:0;transform:translateY(16px);}100%{opacity:1;transform:none;}}
+/* 返回上一步：不做转场，也不播放入场动效，直接到位 */
+.section.no-anim,.site-footer.no-anim{animation:none;}
+.no-anim .rise{transition:none!important;}
 .back-sky{
   position:fixed;left:22px;bottom:22px;z-index:70;
   display:inline-flex;align-items:center;gap:8px;
@@ -299,8 +299,8 @@ body.planet-view .hero{display:none;}
 .continue-row .continue-btn{margin:0;}
 /* 从第二颗星球起，底部多一个「返回上一步」的次要按钮 */
 .back-btn{
-  background:transparent;border-color:rgba(245,230,200,.22);
-  color:rgba(245,230,200,.82);letter-spacing:.12em;
+  background:rgba(13,27,42,.42);border-color:rgba(245,230,200,.24);
+  color:rgba(245,230,200,.86);letter-spacing:.12em;
 }
 .back-btn:hover{background:rgba(245,230,200,.10);border-color:rgba(245,230,200,.44);}
 .back-btn:hover .arr{transform:translateX(-4px);}
@@ -702,6 +702,12 @@ main{position:relative;z-index:5;}
 .skills-play .skill-dim.d4{animation-delay:1.1s;}
 .skills-play .skill-dim.d5{animation-delay:1.2s;}
 @keyframes dimIn{from{opacity:0;translate:0 8px;}to{opacity:1;translate:0 0;}}
+/* 无动效进入（返回上一步）：直接呈现最终状态 */
+.skills-card.skills-static .skill-plane{display:none;}
+.skills-card.skills-static .skill-note{opacity:1;transform:scaleY(1) rotate(-.5deg);}
+.skills-card.skills-static .skill-note-line{opacity:1;transform:none;}
+.skills-card.skills-static .skill-map{opacity:1;}
+.skills-card.skills-static .skill-dim{opacity:1;translate:0 0;}
 
 /* 02 能力自评雷达图 */
 .radar-card{margin-top:30px;}
@@ -748,49 +754,60 @@ main{position:relative;z-index:5;}
 }
 
 /* ============================================================
-   8. 经历与成绩（点灯人星球）
+   8. 经历与成绩（点灯人星球）—— 与「关于我」同款明信片
    ============================================================ */
-.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
-@media (max-width:760px){.exp-grid{grid-template-columns:1fr;}}
-.exp-card{
-  background:rgba(19,36,59,.60);border:1px solid rgba(245,230,200,.10);
-  border-radius:18px;padding:24px 26px;
+.exp-row{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
+.exp-row > .postcard{min-width:0;}
+@media (max-width:860px){.exp-row{grid-template-columns:1fr;}}
+
+.study-stats{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:26px 24px;position:relative;z-index:1;
 }
-.exp-card h3{
-  font-family:var(--kai);font-weight:400;font-size:1.08rem;letter-spacing:.2em;
-  color:var(--star);margin:0 0 16px;
-}
-.exp-card.wide{grid-column:1 / -1;}
-.study-stats{display:flex;gap:26px;flex-wrap:wrap;}
+.stat{min-width:0;}
 .stat b{
-  font-family:var(--kai);font-weight:400;font-size:1.7rem;color:var(--wheat);
-  display:block;letter-spacing:.04em;
+  display:block;font-family:var(--kai);font-weight:400;
+  font-size:clamp(1.32rem,2.2vw,1.6rem);line-height:1.3;
+  letter-spacing:.02em;color:#9d6b34;white-space:nowrap;
 }
-.stat span{font-size:.8rem;color:var(--muted);letter-spacing:.1em;}
-.course-list{margin:0;padding:0;list-style:none;}
+.stat span{
+  display:block;margin-top:5px;font-size:.74rem;letter-spacing:.18em;color:#9e6357;
+}
+.course-list{margin:0;padding:0;list-style:none;position:relative;z-index:1;}
 .course-list li{
-  display:flex;justify-content:space-between;padding:8px 0;
-  border-bottom:1px dashed rgba(245,230,200,.14);font-size:.92rem;
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:8px 0;border-bottom:1px dashed rgba(152,112,90,.26);
+  font-size:.92rem;color:#3b4b62;
 }
 .course-list li:last-child{border-bottom:0;}
-.course-list .c-score{font-family:var(--deco);color:var(--wheat);letter-spacing:.06em;}
+.course-list .c-score{flex:none;font-family:var(--deco);color:#9d6b34;letter-spacing:.06em;}
 .exp-story{
-  font-size:.95rem;line-height:1.9;color:var(--ink-on-dark);margin:0;
-  border-left:2px solid rgba(232,160,168,.5);padding-left:18px;
+  position:relative;z-index:1;margin:0;
+  border-left:2px solid rgba(176,106,99,.42);padding-left:18px;
 }
-.honor-list{margin:0;padding:0;list-style:none;}
+.exp-story p{
+  margin:0 0 12px;font-size:.93rem;line-height:1.95;color:#3b4b62;
+  text-align:justify;text-justify:inter-ideograph;
+}
+.exp-story p:last-child{margin-bottom:0;}
+.honor-list{margin:0;padding:0;list-style:none;position:relative;z-index:1;}
 .honor-list li{
   display:flex;justify-content:space-between;align-items:baseline;gap:14px;
-  padding:9px 0;border-bottom:1px dashed rgba(245,230,200,.14);font-size:.92rem;
+  padding:9px 0;border-bottom:1px dashed rgba(152,112,90,.26);
+  font-size:.92rem;color:#3b4b62;
 }
 .honor-list li:last-child{border-bottom:0;}
 .honor-list .h-level{
-  flex:none;font-size:.76rem;letter-spacing:.1em;color:var(--rose);
-  border:1px solid rgba(232,160,168,.4);border-radius:999px;padding:2px 12px;
+  flex:none;font-size:.74rem;letter-spacing:.08em;color:#9e6357;
+  border:1px solid rgba(158,99,87,.36);border-radius:999px;padding:2px 11px;
+  white-space:nowrap;
 }
-.practice-list{margin:0;padding-left:1.2em;font-size:.92rem;}
+.practice-list{
+  margin:0;padding-left:1.15em;font-size:.92rem;line-height:1.9;
+  color:#3b4b62;position:relative;z-index:1;
+}
 .practice-list li{margin-bottom:8px;}
-.practice-list li::marker{content:'✦ ';color:var(--wheat);}
+.practice-list li::marker{content:'✦ ';color:#b08a4f;}
 
 /* ============================================================
    9. 作品星球（信封墙）—— 本次重点
@@ -884,35 +901,45 @@ main{position:relative;z-index:5;}
 .env-cta{font-size:.76rem;letter-spacing:.14em;color:#8a7448;white-space:nowrap;}
 
 /* ============================================================
-   10. 联系 / 页脚
+   10. 联系（第五颗星球）—— 明信片式页脚
    ============================================================ */
 .site-footer{
   position:relative;z-index:5;
-  border-top:1px solid rgba(245,230,200,.10);
-  background:rgba(10,20,35,.84);
-  padding:70px 24px 46px;text-align:center;
+  max-width:980px;margin:0 auto;
+  padding:var(--section-gap) 24px 70px;
+  text-align:left;
 }
-.contact-grid{
-  max-width:760px;margin:0 auto 40px;
-  display:flex;justify-content:center;gap:44px;flex-wrap:wrap;
+.site-footer .postcards{position:relative;z-index:1;}
+.contact-facts{position:relative;z-index:1;}
+.contact-facts dd a{
+  color:#22314a;text-decoration:none;
+  border-bottom:1px dashed rgba(158,99,87,.42);
+  transition:color .25s,border-color .25s;
 }
-.contact-item{font-size:.92rem;}
-.contact-item .c-label{
-  font-size:.74rem;letter-spacing:.24em;color:var(--wheat);display:block;margin-bottom:6px;
+.contact-facts dd a:hover{color:#9e6357;border-color:#9e6357;}
+.contact-qr{width:206px;justify-self:end;margin:0;text-align:center;}
+.contact-qr img{
+  display:block;width:206px;height:auto;
+  border-radius:12px;border:3px solid #dcb27d;
+  background:#fff;
+  box-shadow:0 10px 26px rgba(110,66,52,.28);
+  transform:rotate(-1.6deg);
 }
-.contact-item a{color:var(--ink-on-dark);text-decoration:none;border-bottom:1px dashed rgba(245,230,200,.4);}
-.contact-item a:hover{color:var(--wheat);}
-.wechat-qr{
-  width:96px;height:96px;margin:0 auto 8px;border-radius:12px;
-  border:1px dashed rgba(245,230,200,.35);
-  display:flex;align-items:center;justify-content:center;
-  font-size:.7rem;color:var(--muted);letter-spacing:.1em;
+.contact-qr figcaption{
+  font-family:var(--deco);font-size:.86rem;letter-spacing:.12em;
+  color:#93624a;margin-top:12px;
 }
-.closing{
-  font-family:var(--kai);font-size:1.02rem;letter-spacing:.14em;color:var(--star);
-  margin:0 0 26px;
+.copyright{
+  font-size:.74rem;color:rgba(245,230,200,.82);letter-spacing:.08em;
+  margin:26px 0 0;text-align:center;
+  text-shadow:0 1px 8px rgba(8,16,30,.85);
 }
-.copyright{font-size:.74rem;color:var(--muted);letter-spacing:.1em;margin:0;}
+.site-footer .continue-row{margin-top:36px;}
+@media (max-width:820px){
+  .site-footer{padding:var(--section-gap) 20px 60px;}
+  .contact-qr{width:158px;justify-self:start;}
+  .contact-qr img{width:158px;}
+}
 
 /* ============================================================
    11. 动效降级：prefers-reduced-motion 直接显示终态
@@ -1168,27 +1195,31 @@ main{position:relative;z-index:5;}
       <h2 class="sec-title" id="expTitle">经历与成绩</h2>
       <p class="sec-sub">Lamplighter · Planet</p>
     </header>
-    <div class="exp-grid">
-      <article class="exp-card rise">
-        <h3>学业</h3>
-        <div class="study-stats" id="studyStats"></div>
+    <div class="postcards">
+      <div class="exp-row">
+        <article class="postcard rise" aria-label="学业成绩">
+          <h3 class="pc-title"><span class="pc-no">01</span>学业</h3>
+          <div class="study-stats" id="studyStats"></div>
+        </article>
+        <article class="postcard rise" aria-label="核心课程">
+          <h3 class="pc-title"><span class="pc-no">02</span>核心课程</h3>
+          <ul class="course-list" id="courseList"></ul>
+        </article>
+      </div>
+      <article class="postcard rise" aria-label="成长故事">
+        <h3 class="pc-title"><span class="pc-no">03</span>成长故事</h3>
+        <div class="exp-story" id="expStory"></div>
       </article>
-      <article class="exp-card rise">
-        <h3>核心课程</h3>
-        <ul class="course-list" id="courseList"></ul>
-      </article>
-      <article class="exp-card wide rise">
-        <h3>成长故事</h3>
-        <p class="exp-story" id="expStory"></p>
-      </article>
-      <article class="exp-card rise">
-        <h3>实践与荣誉</h3>
-        <ul class="honor-list" id="honorList"></ul>
-      </article>
-      <article class="exp-card rise">
-        <h3>校园与社会实践</h3>
-        <ul class="practice-list" id="practiceList"></ul>
-      </article>
+      <div class="exp-row">
+        <article class="postcard rise" aria-label="实践与荣誉">
+          <h3 class="pc-title"><span class="pc-no">04</span>实践与荣誉</h3>
+          <ul class="honor-list" id="honorList"></ul>
+        </article>
+        <article class="postcard rise" aria-label="校园与社会实践">
+          <h3 class="pc-title"><span class="pc-no">05</span>校园与社会实践</h3>
+          <ul class="practice-list" id="practiceList"></ul>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -1203,10 +1234,27 @@ main{position:relative;z-index:5;}
   </section>
 </main>
 
-<!-- 6. 联系（页脚常驻） -->
+<!-- 6. 联系（第五颗星球） -->
 <footer class="site-footer" id="contact">
-  <div class="contact-grid" id="contactGrid"></div>
-  <p class="closing" id="closingLine"></p>
+  <header class="sec-head rise">
+    <p class="sec-quote" id="contactQuote"></p>
+    <h2 class="sec-title">联系</h2>
+    <p class="sec-sub">Stay · In · Touch</p>
+  </header>
+  <div class="postcards">
+    <article class="postcard rise" aria-label="联系我">
+      <h3 class="pc-title"><span class="pc-no">01</span>联系我</h3>
+      <div class="pc-info">
+        <div class="pc-main">
+          <dl class="pc-facts contact-facts" id="contactGrid"></dl>
+        </div>
+        <figure class="contact-qr">
+          <img src="wechat-qr.jpg" alt="罗娇的微信二维码" loading="lazy" decoding="async" />
+          <figcaption>SCAN · WECHAT</figcaption>
+        </figure>
+      </div>
+    </article>
+  </div>
   <p class="copyright">© 2026 罗娇 · 武汉理工大学经济学院 数字经济2502 ·《数智编程》结课作品</p>
 </footer>
 
@@ -1303,6 +1351,14 @@ function queueAboutTyping(tries){
     if ((tries || 0) < 20) queueAboutTyping((tries || 0) + 1);
   }, 200);
 }
+/* 无动效抵达：跳过打字机，直接把全文和光标状态摆好 */
+function completeAboutTyping(){
+  stopAboutTyping();
+  var box = $('aboutIntro'), out = $('typeText');
+  if (!box || !out) return;
+  out.textContent = D.about.intro;
+  box.classList.add('typed');
+}
 // 爱好小图标（inline SVG，手绘线条感）
 var hobbyIcons = {
   pot:  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a1f" stroke-width="1.4" aria-hidden="true"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-6z"/><path d="M2 10h20M9 6c1-1.5 3-1.5 4 0M12 3v2"/></svg>',
@@ -1367,7 +1423,7 @@ D.skills.dimensions.forEach(function(d, i){
 var skillSceneTimer = null;
 function playSkillsScene(){
   var card = $('skillsCard');
-  card.classList.remove('skills-play');
+  card.classList.remove('skills-play','skills-static');
   void card.offsetWidth;                 // 强制重排，保证每次进入都重新播放
   card.classList.add('skills-play');
 }
@@ -1381,7 +1437,15 @@ function queueSkillsScene(tries){
 function stopSkillsScene(){
   clearTimeout(skillSceneTimer);
   var card = $('skillsCard');
-  if (card) card.classList.remove('skills-play');
+  if (card) card.classList.remove('skills-play','skills-static');
+}
+/* 无动效抵达：跳过纸飞机与逐行动画，直接显示展开后的终态 */
+function showSkillsStatic(){
+  clearTimeout(skillSceneTimer);
+  var card = $('skillsCard');
+  if (!card) return;
+  card.classList.remove('skills-play');
+  card.classList.add('skills-static');
 }
 
 // 经历与成绩
@@ -1392,7 +1456,10 @@ $('studyStats').innerHTML = D.experience.study.map(function(s){
 $('courseList').innerHTML = D.experience.courses.map(function(c){
   return '<li><span>' + c.name + '</span><span class="c-score">' + c.score + '</span></li>';
 }).join('');
-$('expStory').textContent = D.experience.story;
+// 成长故事：按段落排版，长文不再挤成一块
+$('expStory').innerHTML = D.experience.story.map(function(p){
+  return '<p>' + p + '</p>';
+}).join('');
 $('honorList').innerHTML = D.experience.honors.map(function(h){
   return '<li><span>' + h.title + '</span><span class="h-level">' + h.level + '</span></li>';
 }).join('');
@@ -1424,10 +1491,11 @@ $('envWall').innerHTML = D.works.list.map(function(w){
 // 联系
 var c = D.contact;
 $('contactGrid').innerHTML =
-  '<div class="contact-item"><span class="c-label">邮箱</span><a href="mailto:' + c.email + '">' + c.email + '</a></div>' +
-  '<div class="contact-item"><span class="c-label">GitHub</span><a href="' + c.githubUrl + '" target="_blank" rel="noopener">' + c.github + '</a></div>' +
-  '<div class="contact-item"><div class="wechat-qr">二维码<br>【待填】</div><span class="c-label">微信</span>' + c.wechat + '</div>';
-$('closingLine').textContent = c.closing;
+  '<div class="fact"><dt>邮箱</dt><dd><a href="mailto:' + c.email + '">' + c.email + '</a></dd></div>' +
+  '<div class="fact"><dt>GitHub</dt><dd><a href="' + c.githubUrl + '" target="_blank" rel="noopener">' + c.github + '</a></dd></div>' +
+  '<div class="fact"><dt>电话</dt><dd><a href="tel:' + c.phone + '">' + c.phone + '</a></dd></div>' +
+  '<div class="fact"><dt>微信</dt><dd>' + c.wechat + '</dd></div>';
+$('contactQuote').textContent = c.closing;
 
 /* ============================================================
    二、导航：汉堡菜单 + 当前板块高亮
@@ -1477,21 +1545,27 @@ function clearTransitTimers(){
   transitTimers.forEach(clearTimeout);
   transitTimers = [];
 }
-function goToSection(key){
+function goToSection(key, instant){
   var el = $(key);
   if (!el) return;
   // 一次只开一颗星球：隐藏其余板块，滚回顶部，像真的抵达了另一颗星
   document.querySelectorAll('.section, .site-footer').forEach(function(s){ s.classList.remove('on'); });
   el.classList.add('on');
+  // instant：返回上一步时直接到位，不播放入场动效
+  el.classList.toggle('no-anim', !!instant);
   document.body.classList.add('planet-view');
   var back = $('backSky');
   if (back) back.hidden = false;
   window.scrollTo({ top: 0, behavior: 'auto' });
   stopSky();                       // 离开首页后停掉星空画布，省下每帧绘制
-  // 关于我：每次抵达都重新念一遍自我介绍（等穿越遮罩散场后开字）
-  if (key === 'about') queueAboutTyping(); else stopAboutTyping();
-  // 能力：每次抵达都重新放一遍纸飞机落纸 + 便签展开 + 星图点亮
-  if (key === 'skills') queueSkillsScene(); else stopSkillsScene();
+  // 关于我：每次抵达都重新念一遍自我介绍（返回上一步时直接显示全文）
+  if (key === 'about') {
+    if (instant) completeAboutTyping(); else queueAboutTyping();
+  } else stopAboutTyping();
+  // 能力：每次抵达都重新放一遍纸飞机落纸 + 便签展开 + 星图点亮（返回时直接给终态）
+  if (key === 'skills') {
+    if (instant) showSkillsStatic(); else queueSkillsScene();
+  } else stopSkillsScene();
   // 补触发一次入场（display 由 none 变 block 后 IntersectionObserver 才会命中）
   setTimeout(function(){
     el.querySelectorAll('.rise').forEach(function(r){ r.classList.add('in'); });
@@ -1575,7 +1649,8 @@ planetOrder.forEach(function(key, i){
     back.type = 'button';
     back.className = 'continue-btn back-btn';
     back.innerHTML = '<span class="arr">←</span> 返回上一步';
-    back.addEventListener('click', function(){ playTransit(planetOrder[i - 1]); });
+    // 返回上一步：不做转场动效，直接回到上一颗星球
+    back.addEventListener('click', function(){ goToSection(planetOrder[i - 1], true); });
     row.appendChild(back);
   }
   var btn = document.createElement('button');
@@ -1587,7 +1662,9 @@ planetOrder.forEach(function(key, i){
     else returnHome();
   });
   row.appendChild(btn);
-  el.appendChild(row);
+  // 版权行保持在最底部，按钮排在它上面
+  var copy = el.querySelector('.copyright');
+  if (copy) el.insertBefore(row, copy); else el.appendChild(row);
 });
 // 跳过：按钮 / 点击遮罩空白处 / Esc（Esc 在上面已绑定）
 $('transitSkip').addEventListener('click', function(e){
