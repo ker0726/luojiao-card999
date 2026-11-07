@@ -54,43 +54,23 @@ window.SITE_DATA = {
     }
   },
 
-  /* —— 能力（数星星的商人星球）—— */
+  /* —— 能力（数星星的商人星球）：纸飞机便签 + 五角星能力星图 —— */
   skills: {
     quote: '「如果你驯服了我，我们就彼此需要了。」',
-    // 熟练度 0~100，level 文案诚实标注「借助 AI 生成」与「独立编写」的区别
-    groups: [
-      {
-        title: '编程与数据',
-        items: [
-          { name: 'HTML / CSS', level: '借助 AI 生成', pct: 60 },
-          { name: 'JavaScript', level: '借助 AI 生成', pct: 55 },
-          { name: 'Python',     level: '会用',         pct: 70 },
-          { name: 'SQL',        level: '会用',         pct: 60 }
-        ]
-      },
-      {
-        title: '工具',
-        items: [
-          { name: 'Git / GitHub', level: '学习中', pct: 45 },
-          { name: 'Trae',         level: '会用',   pct: 70 },
-          { name: '提示词工程',   level: '会用',   pct: 75 },
-          { name: '剪映',         level: '会用',   pct: 70 },
-          { name: 'Photoshop',    level: '会用',   pct: 60 }
-        ]
-      },
-      {
-        title: '软技能',
-        items: [
-          { name: '写作', level: '独立输出', pct: 80 },
-          { name: '演讲', level: '校赛一等奖', pct: 85 }
-        ]
-      },
-      {
-        title: '语言',
-        items: [
-          { name: '英语', level: '四级 552（已过）', pct: 75 }
-        ]
-      }
+    /* 便签正文：一行一句，进入星球后逐行浮现 */
+    note: [
+      '在这个星球上谈能力，',
+      '我一下子想的是耍起的能力。',
+      '但是结合咱们这个课的性质，',
+      '我想写下一些关于AI工具使用的能力~'
+    ],
+    /* 五角星的五个角：从正上方起顺时针 01→05 */
+    dimensions: [
+      { no: '01', name: '基础篇' },
+      { no: '02', name: '如何做出有用的产品' },
+      { no: '03', name: '前端和后端' },
+      { no: '04', name: '实战' },
+      { no: '05', name: '经验技巧篇' }
     ]
   },
 

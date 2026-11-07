@@ -203,7 +203,6 @@ body.planet-view .sec-title{
 }
 body.planet-view .sec-quote{text-shadow:0 2px 12px rgba(8,16,30,.95);}
 body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);}
-body.planet-view .skill-group,
 body.planet-view .exp-card{
   background:rgba(14,26,44,.80);border-color:rgba(245,226,186,.16);
 }
@@ -909,30 +908,116 @@ main{position:relative;z-index:5;}
 }
 
 /* ============================================================
-   7. 能力（数星星的商人星球）
+   7. 能力（数星星的商人星球）—— 纸飞机便签 + 五角星能力星图
    ============================================================ */
-.skill-groups{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
-@media (max-width:760px){.skill-groups{grid-template-columns:1fr;}}
-.skill-group{
-  background:rgba(19,36,59,.60);border:1px solid rgba(245,230,200,.10);
-  border-radius:18px;padding:24px 26px;
+.skills-card{padding-bottom:26px;}
+.skill-note-wrap{position:relative;width:min(680px,100%);margin:0 auto 18px;}
+/* 纸飞机：从右上角飞入，落在便签右上角 */
+.skill-plane{
+  position:absolute;right:4px;top:-12px;width:64px;height:64px;z-index:3;
+  pointer-events:none;opacity:0;
+  filter:drop-shadow(0 6px 12px rgba(120,76,44,.24));
 }
-.skill-group h3{
-  font-family:var(--kai);font-weight:400;font-size:1.12rem;letter-spacing:.2em;
-  color:var(--star);margin:0 0 18px;
+.skills-play .skill-plane{animation:planeFly 1.05s var(--ease) both;}
+@keyframes planeFly{
+  0%{opacity:0;transform:translate(230px,-160px) rotate(26deg) scale(.92);}
+  22%{opacity:1;}
+  100%{opacity:1;transform:translate(0,0) rotate(-8deg) scale(1);}
 }
-.skill-item{margin-bottom:15px;}
-.skill-item:last-child{margin-bottom:0;}
-.skill-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
-.skill-row .s-name{font-size:.92rem;color:var(--ink-on-dark);}
-.skill-row .s-level{font-size:.74rem;letter-spacing:.08em;color:var(--wheat);opacity:.9;}
-.skill-bar{height:3px;border-radius:3px;background:rgba(245,230,200,.12);overflow:hidden;}
-.skill-bar i{
-  display:block;height:100%;border-radius:3px;
-  background:linear-gradient(90deg,var(--wheat),var(--star));
-  width:0;transition:width 1s var(--ease) .15s;
+/* 便签：从一条折线向下展开 */
+.skill-note{
+  position:relative;padding:24px 30px 26px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.70),rgba(255,255,255,.30)),
+    linear-gradient(154deg,#fdf6e4 0%,#f7ecd2 100%);
+  border:1px solid rgba(176,138,79,.30);
+  border-radius:14px 5px 12px 5px;
+  box-shadow:0 14px 30px rgba(110,72,44,.16);
+  transform-origin:50% 0;
+  opacity:0;transform:scaleY(.06) rotate(-1.4deg);
 }
-.rise.in .skill-bar i{width:var(--pct);}
+.skills-play .skill-note{animation:noteUnfold .68s var(--ease) .7s both;}
+@keyframes noteUnfold{
+  0%{opacity:0;transform:scaleY(.06) rotate(-1.4deg);}
+  55%{opacity:1;}
+  100%{opacity:1;transform:scaleY(1) rotate(-.5deg);}
+}
+/* 便签文字：逐行浮现 */
+.skill-note-line{
+  display:block;
+  font-family:var(--kai);font-size:clamp(.92rem,2.2vw,1.04rem);
+  line-height:2;letter-spacing:.03em;color:#3a4a63;
+  opacity:0;transform:translateY(7px);
+}
+.skill-note-line + .skill-note-line{margin-top:2px;}
+.skills-play .skill-note-line{animation:noteLine .5s var(--ease) both;}
+.skills-play .skill-note-line:nth-child(1){animation-delay:1.32s;}
+.skills-play .skill-note-line:nth-child(2){animation-delay:1.52s;}
+.skills-play .skill-note-line:nth-child(3){animation-delay:1.72s;}
+.skills-play .skill-note-line:nth-child(4){animation-delay:1.92s;}
+@keyframes noteLine{0%{opacity:0;transform:translateY(7px);}100%{opacity:1;transform:none;}}
+
+/* 五角星能力星图：中心贴小王子，五个角对应五个维度 */
+.skill-map{
+  position:relative;width:min(640px,100%);aspect-ratio:640/540;margin:6px auto 0;
+  opacity:0;transform:translateY(16px) scale(.96);
+}
+.skills-play .skill-map{animation:mapIn .8s var(--ease) 2.15s both;}
+@keyframes mapIn{0%{opacity:0;transform:translateY(16px) scale(.96);}100%{opacity:1;transform:none;}}
+.star-svg{position:absolute;inset:0;width:100%;height:100%;}
+.star-hub{
+  position:absolute;left:50%;top:50%;width:20.5%;aspect-ratio:1;
+  transform:translate(-50%,-50%);border-radius:50%;
+  object-fit:cover;object-position:50% 46%;
+  border:3px solid #dcb27d;background:#f3ead9;
+  box-shadow:0 10px 24px rgba(110,66,52,.30);
+}
+.skill-dim{
+  position:absolute;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  padding:5px 11px;border-radius:999px;
+  background:rgba(255,255,255,.76);border:1px solid rgba(176,138,79,.34);
+  font-family:var(--kai);font-size:clamp(.68rem,1.5vw,.8rem);letter-spacing:.06em;
+  color:#3a4a63;box-shadow:0 4px 12px rgba(110,72,44,.12);
+  opacity:0;
+}
+.skill-dim b{font-family:var(--deco);font-weight:400;font-size:.86em;color:#b08a4f;}
+.skill-dim.d1{left:50%;top:calc(18.52% - 15px);transform:translate(-50%,-100%);}
+.skill-dim.d2{left:calc(75.25% + 16px);top:40.26%;transform:translateY(-50%);}
+.skill-dim.d3{left:65.61%;top:calc(75.46% + 16px);transform:translateX(-50%);}
+.skill-dim.d4{left:34.39%;top:calc(75.46% + 16px);transform:translateX(-50%);}
+.skill-dim.d5{left:calc(24.75% - 16px);top:40.26%;transform:translate(-100%,-50%);}
+.skills-play .skill-dim{animation:dimIn .4s var(--ease) both;}
+.skills-play .skill-dim.d1{animation-delay:2.7s;}
+.skills-play .skill-dim.d2{animation-delay:2.82s;}
+.skills-play .skill-dim.d3{animation-delay:2.94s;}
+.skills-play .skill-dim.d4{animation-delay:3.06s;}
+.skills-play .skill-dim.d5{animation-delay:3.18s;}
+@keyframes dimIn{from{opacity:0;}to{opacity:1;}}
+
+/* 窄屏：星图标签改为下方图例，避免气泡互相挤压 */
+.skill-legend{display:none;}
+@media (max-width:620px){
+  .skill-dim{display:none;}
+  .skill-legend{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:8px 10px;
+    list-style:none;margin:14px 0 0;padding:0;
+  }
+  .skill-legend li{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 10px;border-radius:999px;
+    background:rgba(255,255,255,.72);border:1px solid rgba(176,138,79,.32);
+    font-family:var(--kai);font-size:.72rem;color:#3a4a63;
+  }
+  .skill-legend b{font-family:var(--deco);font-weight:400;color:#b08a4f;}
+  .skill-note-wrap{width:100%;}
+  .skill-plane{width:52px;height:52px;}
+  .star-hub{width:24%;}
+}
+@media (prefers-reduced-motion:reduce){
+  .skill-plane{display:none;}
+  .skill-note,.skill-map,.skill-note-line{opacity:1;transform:none;animation:none!important;}
+  .skill-dim{opacity:1;animation:none!important;}
+}
 
 /* ============================================================
    8. 经历与成绩（点灯人星球）
@@ -1108,7 +1193,6 @@ main{position:relative;z-index:5;}
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation:none !important;transition:none !important;}
   .rise{opacity:1;transform:none;}
-  .skill-bar i{width:var(--pct);}
   .sky-star .m-label{opacity:1;}
   #meteor-transition{display:none !important;}
 }
@@ -1241,7 +1325,35 @@ main{position:relative;z-index:5;}
       <h2 class="sec-title" id="skillsTitle">能力</h2>
       <p class="sec-sub">Merchant · Planet</p>
     </header>
-    <div class="skill-groups rise" id="skillGroups"></div>
+    <article class="postcard skills-card rise" id="skillsCard" aria-label="我的能力星图">
+      <h3 class="pc-title"><span class="pc-no">01</span>我的数智编程能力星图</h3>
+
+      <div class="skill-note-wrap">
+        <svg class="skill-plane" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M5 31 L59 5 L36 59 L28 37 Z" fill="#f5e6c8" stroke="#b08a4f" stroke-width="1.5" stroke-linejoin="round" />
+          <path d="M28 37 L59 5" fill="none" stroke="#b08a4f" stroke-width="1.2" stroke-opacity=".55" />
+        </svg>
+        <div class="skill-note" id="skillNote"></div>
+      </div>
+
+      <div class="skill-map" id="skillMap" role="img" aria-label="能力五维星图：基础篇、如何做出有用的产品、前端和后端、实战、经验技巧篇">
+        <svg class="star-svg" viewBox="0 0 640 540" aria-hidden="true" focusable="false">
+          <circle cx="320" cy="270" r="198" fill="none" stroke="#c69a4f" stroke-opacity=".26" stroke-dasharray="4 7" />
+          <polygon points="320,100 358.2,217.5 481.6,217.4 381.8,290.1 419.9,407.5 320,334.9 220.1,407.5 258.2,290.1 158.4,217.4 281.8,217.5"
+                   fill="#e6c468" fill-opacity=".13" stroke="#c69a4f" stroke-width="2" />
+          <g fill="#dcb27d">
+            <circle cx="320" cy="100" r="6" />
+            <circle cx="481.6" cy="217.4" r="6" />
+            <circle cx="419.9" cy="407.5" r="6" />
+            <circle cx="220.1" cy="407.5" r="6" />
+            <circle cx="158.4" cy="217.4" r="6" />
+          </g>
+        </svg>
+        <img class="star-hub" src="skills/prince.jpg" alt="小王子坐在玫瑰上" loading="lazy" decoding="async" />
+      </div>
+
+      <ul class="skill-legend" id="skillLegend"></ul>
+    </article>
   </section>
 
   <!-- 4. 经历与成绩（点灯人星球） -->
@@ -1487,16 +1599,41 @@ if (momentPhotos.length) {
   playMoments();
 }
 
-// 能力
+// 能力：便签逐行文字 + 五角星五个维度
 $('skillsQuote').textContent = D.skills.quote;
-$('skillGroups').innerHTML = D.skills.groups.map(function(g){
-  return '<section class="skill-group"><h3>' + g.title + '</h3>' + g.items.map(function(it){
-    return '<div class="skill-item"><div class="skill-row">' +
-      '<span class="s-name">' + it.name + '</span>' +
-      '<span class="s-level">' + it.level + '</span></div>' +
-      '<div class="skill-bar"><i style="--pct:' + it.pct + '%"></i></div></div>';
-  }).join('') + '</section>';
+$('skillNote').innerHTML = D.skills.note.map(function(line){
+  return '<span class="skill-note-line">' + line + '</span>';
 }).join('');
+$('skillLegend').innerHTML = D.skills.dimensions.map(function(d){
+  return '<li><b>' + d.no + '</b>' + d.name + '</li>';
+}).join('');
+D.skills.dimensions.forEach(function(d, i){
+  var tag = document.createElement('span');
+  tag.className = 'skill-dim d' + (i + 1);
+  tag.innerHTML = '<b>' + d.no + '</b>' + d.name;
+  $('skillMap').appendChild(tag);
+});
+
+// 进入能力星球：纸飞机飞入 → 便签展开 → 逐行浮现 → 星图点亮
+var skillSceneTimer = null;
+function playSkillsScene(){
+  var card = $('skillsCard');
+  card.classList.remove('skills-play');
+  void card.offsetWidth;                 // 强制重排，保证每次进入都重新播放
+  card.classList.add('skills-play');
+}
+function queueSkillsScene(tries){
+  clearTimeout(skillSceneTimer);
+  skillSceneTimer = setTimeout(function(){
+    if (overlay.hidden) { playSkillsScene(); return; }
+    if ((tries || 0) < 20) queueSkillsScene((tries || 0) + 1);
+  }, 200);
+}
+function stopSkillsScene(){
+  clearTimeout(skillSceneTimer);
+  var card = $('skillsCard');
+  if (card) card.classList.remove('skills-play');
+}
 
 // 经历与成绩
 $('expQuote').textContent = D.experience.quote;
@@ -1812,6 +1949,8 @@ function goToSection(key){
   window.scrollTo({ top: 0, behavior: 'auto' });
   // 关于我：每次抵达都重新念一遍自我介绍（等穿越遮罩散场后开字）
   if (key === 'about') queueAboutTyping(); else stopAboutTyping();
+  // 能力：每次抵达都重新放一遍纸飞机落纸 + 便签展开 + 星图点亮
+  if (key === 'skills') queueSkillsScene(); else stopSkillsScene();
   // 补触发一次入场（display 由 none 变 block 后 IntersectionObserver 才会命中）
   setTimeout(function(){
     el.querySelectorAll('.rise').forEach(function(r){ r.classList.add('in'); });
@@ -1824,6 +1963,7 @@ function returnHome(){
   });
   document.body.classList.remove('planet-view');
   stopAboutTyping();              // 离开玫瑰星球时收住打字机
+  stopSkillsScene();              // 离开能力星球时收起纸飞机场景
   var back = $('backSky');
   if (back) back.hidden = true;
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
