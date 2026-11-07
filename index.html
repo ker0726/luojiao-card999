@@ -69,8 +69,7 @@ img{max-width:100%;}
    ============================================================ */
 .site-header{
   position:fixed;top:0;left:0;right:0;z-index:60;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  background:rgba(13,27,42,.72);
+  background:rgba(10,20,34,.9);
   border-bottom:1px solid rgba(245,230,200,.10);
 }
 .nav-wrap{
@@ -107,7 +106,7 @@ img{max-width:100%;}
    ============================================================ */
 #bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:url('bg.jpg') center 40% / cover no-repeat;
+  background:url('bg.webp') center 40% / cover no-repeat;
   filter:brightness(1.17) saturate(1.08) contrast(1.02);
   transform:scale(1.05);transform-origin:50% 42%;
   animation:bgBreath 44s ease-in-out infinite alternate;
@@ -116,7 +115,7 @@ img{max-width:100%;}
 /* 银河流动：同图叠一层随呼吸缓慢旋进的星云，让画面里的银河真的在转 */
 .galaxy-live{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:url('bg.jpg') center 40% / cover no-repeat;
+  background:url('bg.webp') center 40% / cover no-repeat;
   opacity:.4;mix-blend-mode:screen;
   -webkit-mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
   mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
@@ -357,19 +356,6 @@ body.planet-view .hero{display:none;}
 .sky-star:hover,.sky-star:focus-visible{scale:1.14;}
 .sky-star:hover .s-glow,.sky-star:focus-visible .s-glow{opacity:1;}
 .sky-star:hover .m-label,.sky-star:focus-visible .m-label{opacity:1;}
-/* 点击起飞：被选中的星星先亮一下，再收进坠落的那颗流星里 */
-.sky-star.launch .s-star{animation:starLaunch .55s cubic-bezier(.4,.1,.6,1) both;}
-.sky-star.launch .s-glow{animation:starLaunchGlow .55s ease-out both;}
-@keyframes starLaunch{
-  0%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1;}
-  30%{transform:translate(-50%,-50%) scale(1.38) rotate(14deg);opacity:1;}
-  100%{transform:translate(-50%,-50%) scale(.08) rotate(70deg);opacity:0;}
-}
-@keyframes starLaunchGlow{
-  0%{opacity:.8;transform:translate(-50%,-50%) scale(1);}
-  35%{opacity:1;transform:translate(-50%,-50%) scale(1.5);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(.4);}
-}
 @media (max-width:760px){
   .sky-star{width:74px;height:100px;}
   .sky-star .s-star{width:54px;height:54px;top:30px;}
@@ -383,351 +369,41 @@ body.planet-view .hero{display:none;}
 }
 
 /* ============================================================
-   4. 坠落转场：一颗油画星坠向信息区，约 1 秒落地
+   4. 星球之门转场：小王子与狐狸所在的星球由远及近，约 1.15 秒
    ============================================================ */
 #meteor-transition{
   position:fixed;inset:0;z-index:90;
-  background:rgba(9,17,30,.86);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  opacity:0;transition:opacity .28s ease;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(246,220,160,.12) 0%, rgba(232,160,168,.06) 32%, rgba(5,10,19,.55) 62%, rgba(4,9,17,.97) 78%),
+    #050a13;
+  opacity:0;transition:opacity .22s ease;
 }
 #meteor-transition.on{opacity:1;}
 #meteor-transition[hidden]{display:none;}
 
-/* 坠落体：一个零尺寸定位点，内部所有部件相对它摆放（头在 0,0） */
-.t-meteor{
-  position:absolute;left:50%;top:0;width:0;height:0;opacity:0;
-  transform-origin:0 0;will-change:transform;
-}
-/* 油画笔触拖尾：三层叠出"颜料被拉长"的笔势，越远端越淡越散 */
-.tm-tail{
-  position:absolute;right:0;top:0;width:var(--tlen,250px);height:26px;
-  margin-top:-13px;
-  /* 用独立的 rotate 属性绕"星体所在点"旋转；布局用 right:0 把尾端钉在原点，
-     避免 translate 与 rotate 互相干扰 */
-  transform-origin:100% 50%;rotate:var(--fr,30deg);
-  background:linear-gradient(90deg,transparent 0%,rgba(240,207,126,.06) 20%,rgba(255,224,150,.24) 50%,rgba(255,232,176,.56) 80%,rgba(255,242,206,.80) 100%);
-  /* 双层遮罩：椭圆定形 + 右端淡出，让尾巴自然收束、边缘羽化，避免硬边纸条 */
-  -webkit-mask-image:
-    radial-gradient(ellipse 92% 62% at 100% 50%, #000 0%, rgba(0,0,0,.66) 46%, transparent 94%),
-    linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:
-    radial-gradient(ellipse 92% 62% at 100% 50%, #000 0%, rgba(0,0,0,.66) 46%, transparent 94%),
-    linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
-  mask-composite:intersect;
-  filter:blur(2.4px);
-  opacity:0;
-}
-.tm-tail.b{
-  height:12px;width:calc(var(--tlen,250px) * .66);margin-top:-6px;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,232,170,.18) 42%,rgba(255,250,232,.72) 100%);
-  -webkit-mask-image:
-    radial-gradient(ellipse 88% 58% at 100% 50%, #000 0%, rgba(0,0,0,.6) 44%, transparent 92%),
-    linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:
-    radial-gradient(ellipse 88% 58% at 100% 50%, #000 0%, rgba(0,0,0,.6) 44%, transparent 92%),
-    linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
-  mask-composite:intersect;
-  filter:blur(1.1px);
-  opacity:0;
-}
-/* 星体本身：油画星 + 暖光圈 */
-.tm-head{
-  position:absolute;left:0;top:0;width:46px;height:46px;
-  transform:translate(-50%,-50%) rotate(0deg);
-}
-.tm-head svg{display:block;width:100%;height:100%;
-  filter:drop-shadow(0 0 12px rgba(255,222,150,.9)) drop-shadow(0 0 30px rgba(230,196,104,.45));
-}
-/* 尾随余星：三颗逐级变小变淡，保证坠落途中每帧都有东西在动 */
-.tm-spark{
-  position:absolute;left:0;top:0;width:12px;height:12px;opacity:0;
-  transform:translate(-50%,-50%);
-}
-.tm-spark svg{display:block;width:100%;height:100%;opacity:.9;}
-.tm-spark.k1{width:12px;height:12px;--mx:1;}
-.tm-spark.k2{width:9px;height:9px;--mx:1.7;}
-.tm-spark.k3{width:6px;height:6px;--mx:2.4;}
-
-/* —— 0.02s 起步：先亮一下（点击反馈），再按重力加速坠落 —— */
-#meteor-transition.go .t-meteor{
-  animation:tFall .95s cubic-bezier(.38,.02,.82,.34) .04s both;
-}
-@keyframes tFall{
-  0%{transform:translate(var(--fx,-30vw),-12vh);opacity:0;}
-  9%{opacity:1;}
-  78%{opacity:1;}
-  100%{transform:translate(0,66vh);opacity:1;}
-}
-/* 拖尾：随坠落拉长、变亮，落地前最盛 */
-#meteor-transition.go .tm-tail{animation:tailGrow .9s ease-in .06s both;}
-#meteor-transition.go .tm-tail.b{animation-delay:.1s;}
-@keyframes tailGrow{
-  0%{opacity:0;scale:.35 1;}
-  20%{opacity:.55;scale:.6 1;}
-  80%{opacity:1;scale:1.08 1;}
-  100%{opacity:.9;scale:1 1;}
-}
-/* 星体自旋：像一颗真的星星翻滚着坠落 */
-#meteor-transition.go .tm-head{animation:headSpin .95s linear .04s both;}
-@keyframes headSpin{
-  0%{transform:translate(-50%,-50%) rotate(0deg) scale(.9);}
-  15%{transform:translate(-50%,-50%) rotate(30deg) scale(1.16);}
-  100%{transform:translate(-50%,-50%) rotate(320deg) scale(1);}
-}
-/* 余星沿反向拖尾排出，越远越暗 */
-#meteor-transition.go .tm-spark{animation:sparkLag .9s ease-out both;}
-#meteor-transition.go .tm-spark.k1{animation-delay:.05s;}
-#meteor-transition.go .tm-spark.k2{animation-delay:.11s;}
-#meteor-transition.go .tm-spark.k3{animation-delay:.17s;}
-@keyframes sparkLag{
-  0%{opacity:0;translate:0 0;scale:.4;}
-  18%{opacity:.95;scale:1;}
-  100%{opacity:0;translate:calc(var(--sx,-60px) * var(--mx,1)) calc(var(--sy,-44px) * var(--mx,1));scale:.5;}
-}
-/* 落地：星体炸开、光点湮灭 */
-#meteor-transition.boom .t-meteor{animation:tMeteorOut .22s ease-in both;}
-@keyframes tMeteorOut{
-  0%{opacity:1;filter:brightness(1.5);}
-  100%{opacity:0;filter:brightness(2.2);}
-}
-/* 穿越星球：下坠途中迎面掠过又远去的两颗星球（靛蓝大行星 + 玫瑰小星） */
-.t-planet{
-  position:absolute;border-radius:50%;opacity:0;pointer-events:none;
-}
-.t-planet.p1{
-  left:14%;top:34vh;width:190px;height:190px;
-  background:radial-gradient(circle at 34% 30%,#33507f,#1a2c50 60%,#101c38);
-  box-shadow:inset -20px -16px 44px rgba(0,0,0,.5),0 0 44px rgba(70,110,180,.28);
-}
-.t-planet.p2{
-  right:12%;top:50vh;width:116px;height:116px;
-  background:radial-gradient(circle at 36% 32%,#e8a0a8,#a85a68 62%,#5c2f3c);
-  box-shadow:inset -12px -10px 30px rgba(0,0,0,.45),0 0 36px rgba(232,160,168,.32);
-}
-#meteor-transition.go .t-planet{animation:tPass .9s ease-in both;}
-#meteor-transition.go .t-planet.p2{animation-delay:.16s;}
-@keyframes tPass{
-  0%{opacity:0;transform:scale(.55);}
-  40%{opacity:.9;}
-  100%{opacity:0;transform:scale(1.7);}
-}
-/* —— 穿越：落地后镜头继续冲刺，星轨拉成光带，目标星球扑面而来 —— */
-.t-warp{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
-.t-streak{
-  position:absolute;left:50%;top:55vh;width:15vmax;height:2px;margin-top:-1px;
-  transform-origin:0 50%;border-radius:2px;opacity:0;
-  background:linear-gradient(90deg,rgba(255,244,214,.95),rgba(255,244,214,0));
-}
-.t-streak.far{width:9vmax;height:1px;margin-top:-.5px;
-  background:linear-gradient(90deg,rgba(255,244,214,.7),rgba(255,244,214,0));}
-.t-streak.rose{background:linear-gradient(90deg,rgba(240,180,190,.85),rgba(240,180,190,0));}
-#meteor-transition.warp .t-streak{animation:streakFly 1.15s cubic-bezier(.45,.05,.85,.45) var(--d,0s) both;}
-@keyframes streakFly{
-  0%{opacity:0;transform:rotate(var(--a)) translateX(3vmin) scaleX(.1);}
-  16%{opacity:1;}
-  100%{opacity:0;transform:rotate(var(--a)) translateX(72vmax) scaleX(1);}
-}
-/* 目标星球：从前方扑面而来，减速停在画面上半部（配色由 JS 按板块注入，取深沉色调避免压字） */
-.t-dest{
-  position:absolute;left:50%;top:54vh;width:38vmin;height:38vmin;border-radius:50%;
-  transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none;
-  background:radial-gradient(circle at 34% 30%, var(--pc1,#d9b45e) 0%, var(--pc2,#6f5420) 78%);
-  box-shadow:inset -4vmin -5vmin 10vmin rgba(6,12,24,.72), 0 0 10vmin rgba(245,230,200,.18);
-}
-/* 穿越途中的暗角：速度越快暗角越紧，抵达时松开（Fernhollow 式冲刺感） */
-.t-rush{position:absolute;inset:0;pointer-events:none;opacity:0;}
-#meteor-transition.warp .t-rush{animation:tRush 2s ease-in-out both;}
-@keyframes tRush{
-  0%{opacity:0;box-shadow:inset 0 0 18vmax 4vmax rgba(6,12,24,0);}
-  45%{opacity:1;box-shadow:inset 0 0 26vmax 12vmax rgba(6,12,24,.88);}
-  100%{opacity:1;box-shadow:inset 0 0 18vmax 6vmax rgba(6,12,24,.38);}
-}
-/* —— 穿越之门：小王子与狐狸的星球之门（抠图素材，羽化圆形）由远及近扑面而来 —— */
+/* 星球之门：圆形油画星球，从远处浮出、短暂停留、再放大穿过 */
 .t-portal{
-  position:absolute;left:50%;top:54vh;width:56vmin;height:56vmin;z-index:1;
+  position:absolute;left:50%;top:50%;width:min(70vmin,600px);aspect-ratio:1;
   transform:translate(-50%,-50%) scale(.2);opacity:0;pointer-events:none;
-  border-radius:50%;will-change:transform,opacity,filter;
+  border-radius:50%;will-change:transform,opacity;
 }
 .t-portal img{
   width:100%;height:100%;display:block;border-radius:50%;
-  filter:drop-shadow(0 0 26px rgba(246,220,160,.5));
+  filter:drop-shadow(0 0 30px rgba(246,220,160,.55));
 }
+/* 星球外圈一层呼吸的暖光，让球体像悬在夜空里 */
 .t-portal::before{
-  content:'';position:absolute;inset:-7%;border-radius:50%;
-  background:conic-gradient(from 0deg,rgba(246,220,160,0),rgba(246,220,160,.45),rgba(232,160,168,.3),rgba(246,220,160,0));
-  filter:blur(12px);opacity:.5;pointer-events:none;
-  animation:portalRing 4s linear infinite;
+  content:'';position:absolute;inset:-7%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(246,220,160,.34) 0%,rgba(232,160,168,.20) 46%,rgba(246,220,160,0) 72%);
+  opacity:.7;filter:blur(10px);
 }
-@keyframes portalRing{to{rotate:360deg;}}
-#meteor-transition.warp .t-portal{
-  animation:portalOpen 2s cubic-bezier(.3,.05,.35,1) both, portalBlur 2s ease-in both;
-}
-#meteor-transition.warp .t-portal img{
-  animation:portalSpin 2s ease-in both;
-}
+#meteor-transition.go .t-portal{animation:portalOpen 1.15s cubic-bezier(.18,.62,.26,1) both;}
 @keyframes portalOpen{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.18);}
-  20%{opacity:1;transform:translate(-50%,-50%) scale(.96);}
-  54%{opacity:1;transform:translate(-50%,-50%) scale(1.03);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(2.35);}
-}
-@keyframes portalBlur{
-  0%{filter:blur(0);}
-  56%{filter:blur(0);}
-  100%{filter:blur(11px);}
-}
-@keyframes portalSpin{
-  0%{rotate:-6deg;scale:1;}
-  100%{rotate:14deg;scale:1.06;}
-}
-.t-dest::before{ /* 星球轨道环 */
-  content:'';position:absolute;left:-24%;top:38%;width:148%;height:26%;
-  border:1.5px solid rgba(245,230,200,.38);border-radius:50%;
-  transform:rotate(-14deg);
-}
-.t-dest::after{ /* 大气辉光 */
-  content:'';position:absolute;inset:-9%;border-radius:50%;
-  background:radial-gradient(circle,transparent 58%,var(--pc1,#ffe9a8) 82%,transparent 78%);
-  opacity:.35;filter:blur(6px);
-}
-#meteor-transition.warp .t-dest{animation:destIn 1.6s cubic-bezier(.16,.72,.24,1) .12s both;}
-@keyframes destIn{
-  0%{transform:translate(-50%,-50%) scale(0);opacity:0;}
-  16%{opacity:1;}
-  72%{transform:translate(-50%,-50%) scale(1.05);}
-  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
-}
-/* 触底时随星尘一起飘散的玫瑰花瓣 */
-.t-petal{
-  position:absolute;left:50%;top:66vh;width:13px;height:9px;opacity:0;
-  background:radial-gradient(ellipse at 30% 30%,#f3bcc2,var(--rose));
-  border-radius:62% 38% 55% 45%;
-}
-#meteor-transition.boom .t-petal{animation:tPetal .85s ease-out var(--dl,0s) both;}
-@keyframes tPetal{
-  0%{transform:translate(0,0) rotate(0deg);opacity:0;}
-  16%{opacity:.95;}
-  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rr,120deg));opacity:0;}
-}
-/* 触底闪光：一点爆开的暖白金光 */
-.t-flash{
-  position:absolute;left:50%;top:66vh;width:120px;height:120px;
-  margin:-60px 0 0 -60px;border-radius:50%;opacity:0;
-  background:radial-gradient(circle,rgba(255,248,228,.95) 0%,rgba(245,230,200,.55) 32%,rgba(230,196,104,.18) 58%,transparent 74%);
-  mix-blend-mode:screen;
-}
-#meteor-transition.boom .t-flash{animation:tFlash .38s ease-out both;}
-@keyframes tFlash{
-  0%{transform:scale(.15);opacity:1;}
-  100%{transform:scale(1.5);opacity:0;}
-}
-/* 触底：三环涟漪错开扩散（细环+微模糊更柔） */
-.t-ripple{
-  position:absolute;left:50%;top:calc(66vh + 2px);width:30px;height:30px;
-  margin:-15px 0 0 -15px;border-radius:50%;
-  border:2px solid rgba(245,230,200,.85);opacity:0;
-  filter:blur(.4px);
-}
-.t-ripple.r2{border-width:1.4px;border-color:rgba(230,196,104,.6);}
-.t-ripple.r3{border-width:1px;border-color:rgba(232,160,168,.45);}
-#meteor-transition.boom .t-ripple{animation:tRipple .58s ease-out both;}
-#meteor-transition.boom .t-ripple.r2{animation-delay:.09s;}
-#meteor-transition.boom .t-ripple.r3{animation-delay:.18s;}
-@keyframes tRipple{
-  0%{transform:scale(.2);opacity:1;}
-  70%{opacity:.55;}
-  100%{transform:scale(9.5);opacity:0;}
-}
-/* 星尘：大小/时序各异，个别加柔焦，像溅起的星屑 */
-.t-dust{
-  position:absolute;left:50%;top:66vh;width:var(--s,5px);height:var(--s,5px);
-  margin:calc(var(--s,5px) / -2) 0 0 calc(var(--s,5px) / -2);
-  border-radius:50%;background:var(--star);opacity:0;
-}
-.t-dust.soft{filter:blur(1.2px);}
-#meteor-transition.boom .t-dust{animation:tDust .68s cubic-bezier(.16,.7,.36,1) var(--dl,0s) both;}
-@keyframes tDust{
-  0%{transform:translate(0,0) scale(1);opacity:1;}
-  60%{opacity:.9;}
-  100%{transform:translate(var(--dx),var(--dy)) scale(.25);opacity:0;}
-}
-/* 信息卡片：背后先晕开一团暖光，文字再逐行淡入 */
-.t-glow{
-  position:absolute;left:50%;top:66vh;width:64vmin;height:34vmin;
-  transform:translate(-50%,-50%) scale(.6);border-radius:50%;
-  background:radial-gradient(ellipse,rgba(230,196,104,.16) 0%,rgba(230,196,104,.05) 48%,transparent 72%);
-  opacity:0;mix-blend-mode:screen;pointer-events:none;
-}
-#meteor-transition.card-in .t-glow{
-  transform:translate(-50%,-50%) scale(1);opacity:1;
-  transition:transform .7s var(--ease),opacity .6s ease;
-}
-.t-card{
-  position:absolute;left:50%;top:75vh;transform:translate(-50%,-50%) translateY(26px);
-  text-align:center;opacity:0;max-width:86vw;z-index:2;padding:0 8px;
-}
-/* 卡片身后的暗色衬底：保证文字不被星球或星空吃掉 */
-.t-card::before{
-  content:'';position:absolute;left:50%;top:50%;z-index:-1;
-  width:170%;height:210%;transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse,rgba(9,17,30,.86) 0%,rgba(9,17,30,.56) 52%,transparent 76%);
-  filter:blur(5px);pointer-events:none;
-}
-#meteor-transition.card-in .t-card{
-  transform:translate(-50%,-50%) translateY(0);opacity:1;
-  transition:transform .5s var(--ease),opacity .5s ease;
-}
-/* 卡片上方的线稿玫瑰：随卡片一同绽放 */
-.t-rose{
-  display:block;width:46px;height:46px;margin:0 auto 14px;
-  opacity:0;transform:scale(.5) rotate(-14deg);
-  filter:drop-shadow(0 0 10px rgba(232,160,168,.45));
-}
-#meteor-transition.card-in .t-rose{animation:tRoseIn .6s var(--ease) .06s both;}
-@keyframes tRoseIn{
-  0%{opacity:0;transform:scale(.5) rotate(-14deg);}
-  100%{opacity:1;transform:scale(1) rotate(0deg);}
-}
-.t-card .t-quote{
-  font-family:var(--kai);font-size:clamp(1.04rem,2.6vw,1.3rem);
-  color:#f4dc9f;line-height:1.75;letter-spacing:.08em;margin:0 0 12px;
-  text-shadow:0 1px 12px rgba(9,17,30,.98),0 0 4px rgba(9,17,30,.9);
-}
-.t-card .t-title{
-  font-family:var(--kai);font-weight:400;font-size:clamp(1.9rem,5.2vw,2.9rem);
-  letter-spacing:.18em;color:#fdf2da;margin:0;line-height:1.25;
-  text-shadow:0 2px 20px rgba(9,17,30,.98),0 0 8px rgba(9,17,30,.85);
-}
-/* 逐行淡入：引言先行，标题稍候，金线最后扫入 */
-#meteor-transition.card-in .t-card .t-quote,
-#meteor-transition.card-in .t-card .t-title,
-#meteor-transition.card-in .t-card .t-line{
-  animation:tLineIn .55s var(--ease) both;
-}
-#meteor-transition.card-in .t-card .t-title{animation-delay:.14s;}
-#meteor-transition.card-in .t-card .t-line{animation-delay:.3s;}
-@keyframes tLineIn{
-  0%{opacity:0;transform:translateY(10px);}
-  100%{opacity:1;transform:none;}
-}
-.t-line{
-  width:72px;height:2px;margin:18px auto 0;border-radius:2px;
-  background:linear-gradient(90deg,transparent,var(--wheat),transparent);
-  transform-origin:center;
-}
-#meteor-transition.card-in .t-card .t-line{
-  animation-name:tLineIn,tLineGrow;
-  animation-duration:.55s,.6s;
-  animation-delay:.3s,.3s;
-  animation-fill-mode:both,both;
-  animation-timing-function:var(--ease),ease-out;
-}
-@keyframes tLineGrow{
-  0%{transform:scaleX(0);}
-  100%{transform:scaleX(1);}
+  0%  {opacity:0;transform:translate(-50%,-50%) scale(.16);}
+  14% {opacity:1;}
+  36% {opacity:1;transform:translate(-50%,-50%) scale(1);}
+  64% {opacity:1;transform:translate(-50%,-50%) scale(1.03);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(2.45);}
 }
 .t-skip{
   position:absolute;top:18px;right:20px;z-index:2;
@@ -736,7 +412,6 @@ body.planet-view .hero{display:none;}
   font-size:.84rem;letter-spacing:.14em;cursor:pointer;font-family:var(--sans);
 }
 .t-skip:hover{background:rgba(245,230,200,.16);}
-
 /* ============================================================
    5. 内容板块公共
    ============================================================ */
@@ -939,7 +614,7 @@ main{position:relative;z-index:5;}
   transform-origin:50% 0;
   opacity:0;transform:scaleY(.06) rotate(-1.4deg);
 }
-.skills-play .skill-note{animation:noteUnfold .68s var(--ease) .7s both;}
+.skills-play .skill-note{animation:noteUnfold .68s var(--ease) .35s both;}
 @keyframes noteUnfold{
   0%{opacity:0;transform:scaleY(.06) rotate(-1.4deg);}
   55%{opacity:1;}
@@ -954,19 +629,28 @@ main{position:relative;z-index:5;}
 }
 .skill-note-line + .skill-note-line{margin-top:2px;}
 .skills-play .skill-note-line{animation:noteLine .5s var(--ease) both;}
-.skills-play .skill-note-line:nth-child(1){animation-delay:1.32s;}
-.skills-play .skill-note-line:nth-child(2){animation-delay:1.52s;}
-.skills-play .skill-note-line:nth-child(3){animation-delay:1.72s;}
-.skills-play .skill-note-line:nth-child(4){animation-delay:1.92s;}
+.skills-play .skill-note-line:nth-child(1){animation-delay:.55s;}
+.skills-play .skill-note-line:nth-child(2){animation-delay:.72s;}
+.skills-play .skill-note-line:nth-child(3){animation-delay:.89s;}
+.skills-play .skill-note-line:nth-child(4){animation-delay:1.06s;}
 @keyframes noteLine{0%{opacity:0;transform:translateY(7px);}100%{opacity:1;transform:none;}}
 
-/* 五角星能力星图：中心贴小王子，五个角对应五个维度 */
-.skill-map{
-  position:relative;width:min(640px,100%);aspect-ratio:640/540;margin:6px auto 0;
-  opacity:0;transform:translateY(16px) scale(.96);
+/* 五维星图：中间金色五角星，五个角各引出一张对应维度的注解卡 */
+#skills.section{max-width:1180px;}
+.skill-stage{
+  position:relative;width:100%;max-width:1060px;margin:6px auto 0;
+  aspect-ratio:1060/720;
 }
-.skills-play .skill-map{animation:mapIn .8s var(--ease) 2.15s both;}
-@keyframes mapIn{0%{opacity:0;transform:translateY(16px) scale(.96);}100%{opacity:1;transform:none;}}
+.skill-map{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:52.8%;aspect-ratio:640/540;
+  opacity:0;
+}
+.skills-play .skill-map{animation:mapIn .6s var(--ease) .45s both;}
+@keyframes mapIn{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.94);}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+}
 .star-svg{position:absolute;inset:0;width:100%;height:100%;}
 .star-hub{
   position:absolute;left:50%;top:50%;width:20.5%;aspect-ratio:1;
@@ -975,43 +659,53 @@ main{position:relative;z-index:5;}
   border:3px solid #dcb27d;background:#f3ead9;
   box-shadow:0 10px 24px rgba(110,66,52,.30);
 }
+.skill-dims{position:absolute;inset:0;pointer-events:none;}
 .skill-dim{
-  position:absolute;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
-  padding:5px 11px;border-radius:999px;
-  background:rgba(255,255,255,.76);border:1px solid rgba(176,138,79,.34);
-  font-family:var(--kai);font-size:clamp(.68rem,1.5vw,.8rem);letter-spacing:.06em;
-  color:#3a4a63;box-shadow:0 4px 12px rgba(110,72,44,.12);
-  opacity:0;
+  position:absolute;width:min(300px,28%);padding:10px 14px 12px;
+  border-radius:12px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.60)),
+    linear-gradient(154deg,#fdf7e8 0%,#f6ecd6 100%);
+  border:1px solid rgba(176,138,79,.32);
+  box-shadow:0 6px 16px rgba(110,72,44,.13);
+  font-family:var(--kai);color:#3a4a63;
+  opacity:0;pointer-events:auto;
 }
-.skill-dim b{font-family:var(--deco);font-weight:400;font-size:.86em;color:#b08a4f;}
-.skill-dim.d1{left:50%;top:calc(18.52% - 15px);transform:translate(-50%,-100%);}
-.skill-dim.d2{left:calc(75.25% + 16px);top:40.26%;transform:translateY(-50%);}
-.skill-dim.d3{left:65.61%;top:calc(75.46% + 16px);transform:translateX(-50%);}
-.skill-dim.d4{left:34.39%;top:calc(75.46% + 16px);transform:translateX(-50%);}
-.skill-dim.d5{left:calc(24.75% - 16px);top:40.26%;transform:translate(-100%,-50%);}
-.skills-play .skill-dim{animation:dimIn .4s var(--ease) both;}
-.skills-play .skill-dim.d1{animation-delay:2.7s;}
-.skills-play .skill-dim.d2{animation-delay:2.82s;}
-.skills-play .skill-dim.d3{animation-delay:2.94s;}
-.skills-play .skill-dim.d4{animation-delay:3.06s;}
-.skills-play .skill-dim.d5{animation-delay:3.18s;}
-@keyframes dimIn{from{opacity:0;}to{opacity:1;}}
+.skill-dim .dim-head{display:flex;align-items:baseline;gap:7px;margin-bottom:3px;white-space:nowrap;}
+.skill-dim b{font-family:var(--deco);font-weight:400;font-size:.76rem;letter-spacing:.12em;color:#b08a4f;}
+.skill-dim .dim-name{font-size:.88rem;letter-spacing:.1em;color:#22314a;}
+.skill-dim p{
+  margin:0;font-size:clamp(.7rem,1.02vw,.79rem);line-height:1.75;
+  color:#4a5a72;text-align:justify;text-justify:inter-ideograph;
+}
+/* 五张注解卡沿五角星的五个角向外排布（百分比与星图顶点对齐） */
+.skill-dim.d1{left:50%;top:calc(29.35% - 12px);transform:translate(-50%,-100%);width:min(390px,37%);}
+.skill-dim.d2{left:calc(63.33% + 14px);top:43.61%;transform:translateY(-50%);}
+.skill-dim.d3{left:calc(58.24% + 12px);top:calc(66.70% + 12px);}
+.skill-dim.d4{left:calc(41.76% - 12px);top:calc(66.70% + 12px);transform:translateX(-100%);}
+.skill-dim.d5{left:calc(36.67% - 14px);top:43.61%;transform:translate(-100%,-50%);}
+.skills-play .skill-dim{animation:dimIn .45s var(--ease) both;}
+.skills-play .skill-dim.d1{animation-delay:.8s;}
+.skills-play .skill-dim.d2{animation-delay:.9s;}
+.skills-play .skill-dim.d3{animation-delay:1s;}
+.skills-play .skill-dim.d4{animation-delay:1.1s;}
+.skills-play .skill-dim.d5{animation-delay:1.2s;}
+@keyframes dimIn{from{opacity:0;translate:0 8px;}to{opacity:1;translate:0 0;}}
 
-/* 窄屏：星图标签改为下方图例，避免气泡互相挤压 */
-.skill-legend{display:none;}
+/* 窄屏：星图居中，注解卡改为下方双列 / 单列，避免互相挤压 */
+@media (max-width:1000px){
+  .skill-stage{aspect-ratio:auto;}
+  .skill-map{
+    position:relative;left:auto;top:auto;transform:none;
+    width:min(560px,100%);margin:0 auto;opacity:1;
+  }
+  .skills-play .skill-map{animation:none;}
+  .skill-dims{position:static;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+  .skill-dim{position:static;width:auto;transform:none!important;translate:0;margin:0;}
+  .skill-dim.d1{width:auto;}
+}
 @media (max-width:620px){
-  .skill-dim{display:none;}
-  .skill-legend{
-    display:flex;flex-wrap:wrap;justify-content:center;gap:8px 10px;
-    list-style:none;margin:14px 0 0;padding:0;
-  }
-  .skill-legend li{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:4px 10px;border-radius:999px;
-    background:rgba(255,255,255,.72);border:1px solid rgba(176,138,79,.32);
-    font-family:var(--kai);font-size:.72rem;color:#3a4a63;
-  }
-  .skill-legend b{font-family:var(--deco);font-weight:400;color:#b08a4f;}
+  .skill-dims{grid-template-columns:1fr;}
   .skill-note-wrap{width:100%;}
   .skill-plane{width:52px;height:52px;}
   .star-hub{width:24%;}
@@ -1019,7 +713,7 @@ main{position:relative;z-index:5;}
 @media (prefers-reduced-motion:reduce){
   .skill-plane{display:none;}
   .skill-note,.skill-map,.skill-note-line{opacity:1;transform:none;animation:none!important;}
-  .skill-dim{opacity:1;animation:none!important;}
+  .skill-dim{opacity:1;animation:none!important;translate:0;}
 }
 
 /* ============================================================
@@ -1164,7 +858,7 @@ main{position:relative;z-index:5;}
 .site-footer{
   position:relative;z-index:5;
   border-top:1px solid rgba(245,230,200,.10);
-  background:rgba(10,20,35,.72);backdrop-filter:blur(10px);
+  background:rgba(10,20,35,.84);
   padding:70px 24px 46px;text-align:center;
 }
 .contact-grid{
@@ -1271,7 +965,7 @@ main{position:relative;z-index:5;}
 <main>
   <!-- 1. 首页 / B-612 星球 -->
   <section class="hero" id="home">
-    <img class="prince-cut" src="prince.png" alt="小王子站在星球上守护着玻璃罩里的玫瑰" />
+    <img class="prince-cut" src="prince.webp" alt="小王子站在星球上守护着玻璃罩里的玫瑰" fetchpriority="high" />
     <div class="hero-inner">
       <p class="planet-tag" id="planetTag">B-612 · PLANET</p>
       <h1 id="heroName"></h1>
@@ -1332,23 +1026,26 @@ main{position:relative;z-index:5;}
         <div class="skill-note" id="skillNote"></div>
       </div>
 
-      <div class="skill-map" id="skillMap" role="img" aria-label="能力五维星图：基础篇、如何做出有用的产品、前端和后端、实战、经验技巧篇">
-        <svg class="star-svg" viewBox="0 0 640 540" aria-hidden="true" focusable="false">
-          <circle cx="320" cy="270" r="198" fill="none" stroke="#c69a4f" stroke-opacity=".26" stroke-dasharray="4 7" />
-          <polygon points="320,100 358.2,217.5 481.6,217.4 381.8,290.1 419.9,407.5 320,334.9 220.1,407.5 258.2,290.1 158.4,217.4 281.8,217.5"
-                   fill="#e6c468" fill-opacity=".13" stroke="#c69a4f" stroke-width="2" />
-          <g fill="#dcb27d">
-            <circle cx="320" cy="100" r="6" />
-            <circle cx="481.6" cy="217.4" r="6" />
-            <circle cx="419.9" cy="407.5" r="6" />
-            <circle cx="220.1" cy="407.5" r="6" />
-            <circle cx="158.4" cy="217.4" r="6" />
-          </g>
-        </svg>
-        <img class="star-hub" src="skills/prince.jpg" alt="小王子坐在玫瑰上" loading="lazy" decoding="async" />
+      <!-- 五维星图：中间是金色五角星，五个角向外延伸出对应维度的文字注解 -->
+      <div class="skill-stage">
+        <div class="skill-map" role="img" aria-label="能力五维星图：基础篇、如何做出有用的产品、前端和后端、实战、经验技巧篇">
+          <svg class="star-svg" viewBox="0 0 640 540" aria-hidden="true" focusable="false">
+            <circle cx="320" cy="270" r="198" fill="none" stroke="#c69a4f" stroke-opacity=".26" stroke-dasharray="4 7" />
+            <polygon points="320,100 358.2,217.5 481.6,217.4 381.8,290.1 419.9,407.5 320,334.9 220.1,407.5 258.2,290.1 158.4,217.4 281.8,217.5"
+                     fill="#e6c468" fill-opacity=".13" stroke="#c69a4f" stroke-width="2" />
+            <g fill="#dcb27d">
+              <circle cx="320" cy="100" r="6" />
+              <circle cx="481.6" cy="217.4" r="6" />
+              <circle cx="419.9" cy="407.5" r="6" />
+              <circle cx="220.1" cy="407.5" r="6" />
+              <circle cx="158.4" cy="217.4" r="6" />
+            </g>
+          </svg>
+          <img class="star-hub" src="skills/prince.jpg" alt="小王子坐在玫瑰上" loading="lazy" decoding="async" />
+        </div>
+        <div class="skill-dims" id="skillDims"></div>
       </div>
 
-      <ul class="skill-legend" id="skillLegend"></ul>
     </article>
   </section>
 
@@ -1404,57 +1101,10 @@ main{position:relative;z-index:5;}
 <!-- 回到星空：只在星球视图里出现 -->
 <button class="back-sky" id="backSky" type="button" hidden>← 回到星空</button>
 
-<!-- 流星转场层 -->
-<div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
+<!-- 星球之门转场层：只保留小王子与狐狸的星球由远及近的动效 -->
+<div id="meteor-transition" hidden role="dialog" aria-label="星球之门转场动画">
   <button class="t-skip" id="transitSkip">跳过 ✕</button>
-  <div class="t-meteor" id="tMeteor">
-    <span class="tm-tail"></span>
-    <span class="tm-tail b"></span>
-    <span class="tm-spark k1"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
-    <span class="tm-spark k2"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
-    <span class="tm-spark k3"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
-    <span class="tm-head"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
-  </div>
-  <div class="t-planet p1"></div>
-  <div class="t-planet p2"></div>
-  <div class="t-flash"></div>
-  <div class="t-ripple"></div>
-  <div class="t-ripple r2"></div>
-  <div class="t-ripple r3"></div>
-  <div class="t-dust" style="--dx:-70px;--dy:-46px;--s:5px;"></div>
-  <div class="t-dust soft" style="--dx:64px;--dy:-60px;--s:7px;--dl:.04s;background:var(--wheat);"></div>
-  <div class="t-dust" style="--dx:-44px;--dy:56px;--s:4px;--dl:.02s;background:var(--rose);"></div>
-  <div class="t-dust" style="--dx:78px;--dy:40px;--s:5px;--dl:.06s;"></div>
-  <div class="t-dust soft" style="--dx:0px;--dy:-84px;--s:6px;--dl:.03s;background:var(--wheat);"></div>
-  <div class="t-dust" style="--dx:-92px;--dy:6px;--s:4px;--dl:.05s;background:var(--rose);"></div>
-  <div class="t-dust" style="--dx:36px;--dy:70px;--s:3px;--dl:.08s;"></div>
-  <div class="t-dust soft" style="--dx:-24px;--dy:-30px;--s:6px;--dl:.01s;"></div>
-  <div class="t-dust" style="--dx:96px;--dy:-18px;--s:3px;--dl:.07s;background:var(--wheat);"></div>
-  <div class="t-dust" style="--dx:-58px;--dy:28px;--s:3px;--dl:.09s;"></div>
-  <div class="t-petal" style="--dx:-52px;--dy:-72px;--rr:150deg;--dl:.02s;"></div>
-  <div class="t-petal" style="--dx:64px;--dy:-50px;--rr:-130deg;--dl:.06s;"></div>
-  <div class="t-petal" style="--dx:34px;--dy:78px;--rr:200deg;--dl:.1s;"></div>
-  <div class="t-petal" style="--dx:-86px;--dy:20px;--rr:-170deg;--dl:.04s;"></div>
-  <div class="t-petal" style="--dx:12px;--dy:-90px;--rr:110deg;--dl:.08s;"></div>
-  <div class="t-warp" id="tWarp" aria-hidden="true"></div>
   <div class="t-portal" aria-hidden="true"><img src="portal.webp" alt="" /></div>
-  <div class="t-dest" id="tDest" aria-hidden="true"></div>
-  <div class="t-rush" aria-hidden="true"></div>
-  <div class="t-glow"></div>
-  <div class="t-card">
-    <svg class="t-rose" viewBox="0 0 48 48" aria-hidden="true">
-      <g fill="none" stroke="#e8a0a8" stroke-width="1.7" stroke-linecap="round">
-        <path d="M24 21c-3.4 0-6-2.8-6-6.4C18 10 20.8 7 24 7s6 3 6 7.6c0 3.6-2.6 6.4-6 6.4z"/>
-        <path d="M24 13.6c1.7 0 3 1.3 3 3 0 2-1.7 3.4-3.8 3.4-2.6 0-4.7-2.1-4.7-4.9"/>
-        <path d="M14.5 22.5c2.9 3.5 6.2 5 9.5 5s6.6-1.5 9.5-5"/>
-        <path d="M24 27.5V41"/>
-        <path d="M24 34c-3.2 0-5.8-1.5-7-3.8M24 37.5c3.2 0 5.8-1.5 7-3.8"/>
-      </g>
-    </svg>
-    <p class="t-quote" id="tQuote"></p>
-    <h2 class="t-title" id="tTitle"></h2>
-    <div class="t-line"></div>
-  </div>
 </div>
 
 <script src="data.js"></script>
@@ -1591,14 +1241,14 @@ $('skillsQuote').textContent = D.skills.quote;
 $('skillNote').innerHTML = D.skills.note.map(function(line){
   return '<span class="skill-note-line">' + line + '</span>';
 }).join('');
-$('skillLegend').innerHTML = D.skills.dimensions.map(function(d){
-  return '<li><b>' + d.no + '</b>' + d.name + '</li>';
-}).join('');
+// 五张维度注解卡：编号 + 维度名 + 这段学习收获，按五角星的五个角排布
 D.skills.dimensions.forEach(function(d, i){
-  var tag = document.createElement('span');
-  tag.className = 'skill-dim d' + (i + 1);
-  tag.innerHTML = '<b>' + d.no + '</b>' + d.name;
-  $('skillMap').appendChild(tag);
+  var card = document.createElement('div');
+  card.className = 'skill-dim d' + (i + 1);
+  card.innerHTML =
+    '<div class="dim-head"><b>' + d.no + '</b><span class="dim-name">' + d.name + '</span></div>' +
+    '<p>' + d.text + '</p>';
+  $('skillDims').appendChild(card);
 });
 
 // 进入能力星球：纸飞机飞入 → 便签展开 → 逐行浮现 → 星图点亮
@@ -1705,48 +1355,11 @@ var riseObs = new IntersectionObserver(function(entries){
 document.querySelectorAll('.rise').forEach(function(el){ riseObs.observe(el); });
 
 /* ============================================================
-   四、流星转场（坠落→炸开→穿越→抵达并停留，约 6s / 可跳过 / 降级直显）
+   四、星球之门转场（星球浮出→停留→放大穿过，约 1.15s / 可跳过 / 降级直显）
    ============================================================ */
 var overlay = $('meteor-transition');
-var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
-var tWarp = $('tWarp'), tDest = $('tDest');
 var transitTimers = [];
 var transitOpen = false;
-
-/* 穿越星轨：两波光带从行进方向向四周放射——近处宽亮的第一波，远处细密的第二波 */
-(function buildStreaks(){
-  var html = '';
-  for (var i = 0; i < 26; i++) {
-    var a = (i * 360 / 26) + (i % 3) * 5;
-    var d = (i % 7) * 0.055;
-    html += '<i class="t-streak' + (i % 4 === 0 ? ' rose' : '') +
-      '" style="--a:' + a.toFixed(1) + 'deg;--d:' + d.toFixed(2) + 's"></i>';
-  }
-  for (var j = 0; j < 18; j++) {
-    var a2 = (j * 360 / 18) + 9;
-    var d2 = 0.75 + (j % 6) * 0.09;
-    html += '<i class="t-streak far" style="--a:' + a2.toFixed(1) + 'deg;--d:' + d2.toFixed(2) + 's"></i>';
-  }
-  tWarp.innerHTML = html;
-})();
-
-/* 五颗许愿星各自的坠落轨迹：左三颗向右下坠，右两颗向左下坠
-   fr = 拖尾指向（沿轨迹回头看的方向）；sx/sy = 余星散开的反方向 */
-var dirVars = {
-  s1: { fx:'-34vw', fr:'30deg',   sx:'-58px',  sy:'-42px'  },
-  s2: { fx:'-18vw', fr:'44deg',   sx:'-44px',  sy:'-62px'  },
-  s3: { fx:'0vw',   fr:'60deg',   sx:'-24px',  sy:'-76px'  },
-  s4: { fx:'18vw',  fr:'-132deg', sx:'44px',   sy:'-62px'  },
-  s5: { fx:'34vw',  fr:'-150deg', sx:'58px',   sy:'-42px'  }
-};
-/* 每个板块对应一颗星球：玫瑰 / 麦田 / 琥珀 / 信纸 / 星光（取深沉色调，不压字） */
-var secMeta = {
-  about:      { title:'关于我',     quote:D.about.quote,      c1:'#d98f9b', c2:'#6e3644' },
-  skills:     { title:'能力',       quote:D.skills.quote,     c1:'#d9b45e', c2:'#6f5420' },
-  experience: { title:'经历与成绩', quote:D.experience.quote, c1:'#d99a52', c2:'#6e441c' },
-  works:      { title:'作品星球',   quote:D.works.quote,      c1:'#d9c9a3', c2:'#6e5f42' },
-  contact:    { title:'联系',       quote:D.contact.closing,  c1:'#9fb6d4', c2:'#3f5578' }
-};
 
 function clearTransitTimers(){
   transitTimers.forEach(clearTimeout);
@@ -1762,6 +1375,7 @@ function goToSection(key){
   var back = $('backSky');
   if (back) back.hidden = false;
   window.scrollTo({ top: 0, behavior: 'auto' });
+  stopSky();                       // 离开首页后停掉星空画布，省下每帧绘制
   // 关于我：每次抵达都重新念一遍自我介绍（等穿越遮罩散场后开字）
   if (key === 'about') queueAboutTyping(); else stopAboutTyping();
   // 能力：每次抵达都重新放一遍纸飞机落纸 + 便签展开 + 星图点亮
@@ -1784,17 +1398,16 @@ function returnHome(){
   var back = $('backSky');
   if (back) back.hidden = true;
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  startSky();                      // 回到星空时恢复星空画布
 }
 function endTransit(key, instant){
   clearTransitTimers();
-  var launched = document.querySelector('.sky-star.launch');
-  if (launched) launched.classList.remove('launch');
   if (key) goToSection(key);
-  overlay.classList.remove('on','go','boom','warp','card-in');
+  overlay.classList.remove('on','go');
   if (instant) {
     overlay.hidden = true;
   } else {
-    transitTimers.push(setTimeout(function(){ overlay.hidden = true; }, 300));
+    transitTimers.push(setTimeout(function(){ overlay.hidden = true; }, 220));
   }
   transitOpen = false;
   document.removeEventListener('keydown', onTransitKey);
@@ -1804,52 +1417,30 @@ function onTransitKey(e){
 }
 var currentTarget = null;
 
-function playTransit(key, from, starEl){
+function playTransit(key){
   if (reduceMotion) { goToSection(key); return; }   // 降级：减少动效时直接到位
   if (transitOpen) return;
   currentTarget = key;
   transitOpen = true;
-  if (starEl) starEl.classList.add('launch');       // 被选中的星星先亮一下再收进流星
-  var meta = secMeta[key] || { title:'', quote:'', c1:'#ffe9a8', c2:'#c6963f' };
-  tQuote.textContent = meta.quote;
-  tTitle.textContent = meta.title;
-  tDest.style.setProperty('--pc1', meta.c1);        // 目标星球换上该板块的配色
-  tDest.style.setProperty('--pc2', meta.c2);
-  var dv = dirVars[from] || dirVars.s3;
-  tMeteor.style.setProperty('--fx', dv.fx);
-  tMeteor.style.setProperty('--fr', dv.fr);
-  tMeteor.style.setProperty('--sx', dv.sx);
-  tMeteor.style.setProperty('--sy', dv.sy);
 
   overlay.hidden = false;
-  overlay.classList.remove('go','boom','warp','card-in');
+  overlay.classList.remove('on','go');
   void overlay.offsetWidth; // 强制回流，重启动画
   overlay.classList.add('on');
-
   document.addEventListener('keydown', onTransitKey);
 
-  // 0.03s 起飞：点击即时反馈，星体按重力加速坠落
+  // 0.03s 星球浮出；0.78s 球体开始放大时切页；1.15s 动画结束收场
   transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); }, 30));
-  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); }, 990));
-  // 1.20s 穿越：两波星轨光带 + 路过星球迎面掠过 + 暗角收紧
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('warp'); }, 1200));
-  // 3.20s 抵达：星球减速停在上半空，卡片在下方夜空浮出
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 3200));
-  // 5.30s 切换滚动位置（在遮罩后完成，用户无感知）
   transitTimers.push(setTimeout(function(){
     goToSection(key);
     localStorage.setItem('luojiao-meteor-' + key, '1');
-  }, 5300));
-  // 6.00s 收场（卡片停留约 2.8s，够读完引言）
-  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 6000));
+  }, 780));
+  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1150));
 }
 
 // 绑定五颗许愿星
 document.querySelectorAll('.sky-star').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    playTransit(btn.dataset.target, btn.className.match(/s\d/)[0], btn);
-  });
+  btn.addEventListener('click', function(){ playTransit(btn.dataset.target); });
 });
 
 // 回到星空：按钮 + 导航里的「星球首页」
@@ -1871,7 +1462,7 @@ planetOrder.forEach(function(key, i){
   btn.className = 'continue-btn';
   btn.innerHTML = next ? ('继续前行 <span class="arr">→</span>') : ('回到星空 <span class="arr">↺</span>');
   btn.addEventListener('click', function(){
-    if (next) playTransit(next, 's3', null);
+    if (next) playTransit(next);
     else returnHome();
   });
   row.appendChild(btn);
@@ -1910,9 +1501,10 @@ document.querySelectorAll('.envelope').forEach(function(env){
 var canvas = $('sky'), ctx = canvas.getContext('2d');
 var W = 0, H = 0, stars = [], dust = [], ambMeteors = [];
 function resize(){
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // 星空画布按 1.5 倍上限渲染：视觉几乎无差别，显存与填充开销明显下降
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   W = window.innerWidth; H = window.innerHeight;
-  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   buildStars();
@@ -1920,7 +1512,7 @@ function resize(){
 function rand(a,b){ return a + Math.random() * (b - a); }
 function buildStars(){
   stars = [];
-  var n = Math.floor(W * H / 8500);
+  var n = Math.floor(W * H / 12000);
   for (var i = 0; i < n; i++) {
     stars.push({ x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), p:Math.random()*Math.PI*2, s:rand(1.0,2.2), a:rand(.55,1), flare:Math.random()<.09 });
   }
@@ -1986,6 +1578,7 @@ function drawSky(t){
   ctx.globalAlpha = 1;
 }
 function spawnMeteor(){
+  if (document.body.classList.contains('planet-view')) return;
   var fromLeft = Math.random() < .6;
   var ang = fromLeft ? rand(.42,.82) : rand(Math.PI*.72, Math.PI*.92);
   var sp = rand(420, 760);
@@ -1998,13 +1591,29 @@ function spawnMeteor(){
   });
 }
 var nextAmb = 1200;
-var wasOnHome = true;
+var rafId = 0, lastPaint = 0, skyRunning = false;
+
+/* 星空只在首页、且页面可见时运行；进入星球或切到后台立即停掉，省电省内存 */
+function startSky(){
+  if (reduceMotion || skyRunning) return;
+  skyRunning = true;
+  nextAmb = Math.max(nextAmb, performance.now() + 1000);
+  rafId = requestAnimationFrame(loop);
+}
+function stopSky(){
+  skyRunning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+  ambMeteors = [];
+  if (W && H) ctx.clearRect(0, 0, W, H);
+}
 function loop(t){
-  var onHome = !document.body.classList.contains('planet-view');
-  // 进入星球时清空环境流星，避免返回首页时一拥而出
-  if (wasOnHome && !onHome) ambMeteors = [];
-  wasOnHome = onHome;
-  if (!reduceMotion && onHome && t >= nextAmb) {
+  if (!skyRunning) return;
+  rafId = requestAnimationFrame(loop);
+  if (document.hidden) return;
+  // 限到约 30fps：星星闪烁的观感不变，绘制开销减半
+  if (t - lastPaint < 32) return;
+  lastPaint = t;
+  if (t >= nextAmb) {
     nextAmb = t + rand(1100, 2600);
     spawnMeteor();
     // 偶尔来一场小小的流星雨（两到三颗先后划过）
@@ -2015,14 +1624,16 @@ function loop(t){
       }
     }
   }
-  if (!reduceMotion && onHome) drawSky(t);
-
-  requestAnimationFrame(loop);
+  drawSky(t);
 }
 resize();
-window.addEventListener('resize', resize);
+window.addEventListener('resize', function(){ resize(); if (reduceMotion) drawSky(0); });
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden) stopSky();
+  else if (!document.body.classList.contains('planet-view')) startSky();
+});
 if (reduceMotion) { drawSky(0); } // 降级：静态星空一帧
-else { requestAnimationFrame(loop); }
+else { startSky(); }
 })();
 </script>
 </body>
