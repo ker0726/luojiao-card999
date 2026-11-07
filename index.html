@@ -292,7 +292,18 @@ body.planet-view .hero{display:none;}
 .continue-btn:hover{background:rgba(245,230,200,.14);border-color:rgba(245,230,200,.5);transform:translateY(-2px);}
 .continue-btn .arr{transition:transform .25s;}
 .continue-btn:hover .arr{transform:translateX(4px);}
-.section .continue-row{text-align:center;margin-top:10px;}
+.section .continue-row,.site-footer .continue-row{
+  display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:14px;
+  margin-top:40px;
+}
+.continue-row .continue-btn{margin:0;}
+/* 从第二颗星球起，底部多一个「返回上一步」的次要按钮 */
+.back-btn{
+  background:transparent;border-color:rgba(245,230,200,.22);
+  color:rgba(245,230,200,.82);letter-spacing:.12em;
+}
+.back-btn:hover{background:rgba(245,230,200,.10);border-color:rgba(245,230,200,.44);}
+.back-btn:hover .arr{transform:translateX(-4px);}
 
 /* 小王子抠图：英雄区左侧意境 */
 .prince-cut{
@@ -1550,7 +1561,7 @@ document.querySelectorAll('[data-nav="home"]').forEach(function(a){
   a.addEventListener('click', function(e){ e.preventDefault(); returnHome(); });
 });
 
-/* 每个星球底部「继续前行」按钮：按顺序前往下一颗星球，最后一颗回到星空 */
+/* 每个星球底部：继续前行；从第二颗星球起再加一个「返回上一步」 */
 var planetOrder = ['about','skills','experience','works','contact'];
 planetOrder.forEach(function(key, i){
   var el = $(key);
@@ -1558,6 +1569,15 @@ planetOrder.forEach(function(key, i){
   var next = planetOrder[i + 1];
   var row = document.createElement('div');
   row.className = 'continue-row';
+  // 返回上一步（第一颗星球没有上一步，不显示）
+  if (i > 0) {
+    var back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'continue-btn back-btn';
+    back.innerHTML = '<span class="arr">←</span> 返回上一步';
+    back.addEventListener('click', function(){ playTransit(planetOrder[i - 1]); });
+    row.appendChild(back);
+  }
   var btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'continue-btn';
