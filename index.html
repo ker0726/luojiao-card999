@@ -75,13 +75,8 @@ img{max-width:100%;}
 }
 .nav-wrap{
   max-width:1180px;margin:0 auto;padding:0 24px;
-  height:60px;display:flex;align-items:center;justify-content:space-between;
+  height:60px;display:flex;align-items:center;justify-content:flex-end;gap:8px;
 }
-.brand{
-  font-family:var(--kai);font-size:1.12rem;letter-spacing:.14em;
-  color:var(--star);text-decoration:none;display:flex;align-items:center;gap:9px;
-}
-.brand svg{flex:none;}
 .nav-links{display:flex;gap:6px;list-style:none;margin:0 0 0 auto;padding:0;}
 .nav-links a{
   display:block;padding:7px 14px;border-radius:999px;
@@ -128,7 +123,52 @@ img{max-width:100%;}
 #bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background:url('bg.jpg') center 40% / cover no-repeat;
-  filter:brightness(1.05) saturate(1.05);
+  filter:brightness(1.17) saturate(1.08) contrast(1.02);
+  transform:scale(1.05);transform-origin:50% 42%;
+  animation:bgBreath 44s ease-in-out infinite alternate;
+  will-change:transform;
+}
+/* 银河流动：同图叠一层随呼吸缓慢旋进的星云，让画面里的银河真的在转 */
+.galaxy-live{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url('bg.jpg') center 40% / cover no-repeat;
+  opacity:.4;mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
+  mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
+  animation:galaxySwirl 28s ease-in-out infinite alternate;
+  will-change:transform;
+}
+/* 星云光带：极缓的极光式环流，混合模式叠加 */
+.galaxy-flow{
+  position:fixed;left:50%;top:40%;width:118vmax;height:118vmax;
+  margin:-59vmax 0 0 -59vmax;z-index:0;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 0deg,
+    transparent 0deg, rgba(130,170,225,.16) 42deg, rgba(246,220,160,.13) 96deg,
+    transparent 150deg, rgba(190,150,210,.13) 218deg, rgba(150,200,235,.10) 266deg, transparent 320deg);
+  filter:blur(30px);opacity:.5;mix-blend-mode:screen;
+  animation:galaxySpin 72s linear infinite;
+  will-change:transform;transform:translateZ(0);
+}
+.galaxy-flow.b{
+  width:88vmax;height:88vmax;margin:-44vmax 0 0 -44vmax;top:50%;
+  background:conic-gradient(from 180deg,
+    transparent 0deg, rgba(232,160,168,.12) 70deg, transparent 130deg,
+    rgba(246,220,160,.11) 210deg, transparent 300deg);
+  filter:blur(42px);opacity:.38;
+  animation:galaxySpin 118s linear infinite reverse;
+  transform:translateZ(0);
+}
+@keyframes bgBreath{
+  0%{transform:scale(1.05) rotate(-.25deg) translate3d(-.6%,.4%,0);}
+  100%{transform:scale(1.13) rotate(.25deg) translate3d(.6%,-.4%,0);}
+}
+@keyframes galaxySwirl{
+  0%{transform:scale(1.04) rotate(-1.1deg);}
+  100%{transform:scale(1.16) rotate(1.1deg);}
+}
+@keyframes galaxySpin{to{rotate:360deg;}}
+@media (prefers-reduced-motion:reduce){
+  #bg,.galaxy-live,.galaxy-flow{animation:none;}
 }
 #sky{position:fixed;inset:0;z-index:1;pointer-events:none;}
 .vig{
@@ -957,6 +997,9 @@ main{position:relative;z-index:5;}
 
 <!-- 背景层 -->
 <div id="bg" aria-hidden="true"></div>
+<div class="galaxy-live" aria-hidden="true"></div>
+<div class="galaxy-flow" aria-hidden="true"></div>
+<div class="galaxy-flow b" aria-hidden="true"></div>
 <canvas id="sky" aria-hidden="true"></canvas>
 <div class="read-veil" aria-hidden="true"></div>
 <div class="vig" aria-hidden="true"></div>
@@ -964,10 +1007,6 @@ main{position:relative;z-index:5;}
 <!-- 常驻导航 -->
 <header class="site-header">
   <nav class="nav-wrap" aria-label="主导航">
-    <a class="brand" href="#home">
-      <svg width="18" height="18" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 L57 43 L92 50 L57 57 L50 92 L43 57 L8 50 L43 43 Z" fill="#e6c468"/></svg>
-      星之星球
-    </a>
     <button class="nav-toggle" aria-label="展开导航菜单" aria-expanded="false">
       <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="1.6"/></svg>
     </button>
@@ -1670,7 +1709,7 @@ function drawSky(t){
     ctx.globalAlpha = d.a;
     ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
   }
-  // 环境流星（纯装饰，与五颗可点击许愿星区分：更细更淡）
+  // 环境流星（纯装饰，与五颗可点击许愿星区分：从画面上方横穿而过）
   for (var k = ambMeteors.length - 1; k >= 0; k--) {
     var m = ambMeteors[k];
     m.life += 16; m.x += m.vx * .016; m.y += m.vy * .016;
@@ -1678,27 +1717,46 @@ function drawSky(t){
     var sp = Math.sqrt(m.vx * m.vx + m.vy * m.vy);
     var tx = m.x - m.vx / sp * m.len, ty = m.y - m.vy / sp * m.len;
     var g = ctx.createLinearGradient(m.x, m.y, tx, ty);
-    g.addColorStop(0, 'rgba(245,230,200,' + (.7 * fade) + ')');
-    g.addColorStop(1, 'rgba(245,230,200,0)');
-    ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    g.addColorStop(0, 'rgba(255,246,220,' + (.92 * fade) + ')');
+    g.addColorStop(.45, 'rgba(246,220,160,' + (.40 * fade) + ')');
+    g.addColorStop(1, 'rgba(246,220,160,0)');
+    // 先铺一层宽而淡的光晕，再叠一条细亮的核心线
+    ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineCap = 'round';
+    ctx.lineWidth = m.w * 3.2; ctx.globalAlpha = .30 * fade;
     ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.lineWidth = m.w;
+    ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
+    // 头部一点星火
+    ctx.globalAlpha = .9 * fade; ctx.fillStyle = '#fff8e4';
+    ctx.beginPath(); ctx.arc(m.x, m.y, m.w * 1.5, 0, Math.PI * 2); ctx.fill();
     if (m.life > m.max) ambMeteors.splice(k, 1);
   }
   ctx.globalAlpha = 1;
 }
-var nextAmb = 2000;
+function spawnMeteor(){
+  var fromLeft = Math.random() < .6;
+  var ang = fromLeft ? rand(.42,.82) : rand(Math.PI*.72, Math.PI*.92);
+  var sp = rand(420, 760);
+  ambMeteors.push({
+    x: fromLeft ? rand(-120, W*.6) : rand(W*.4, W+120),
+    y: rand(-160, H*.3),
+    vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp,
+    len: rand(170, 320), w: rand(1.4, 2.6),
+    life: 0, max: rand(1100, 1800)
+  });
+}
+var nextAmb = 1200;
 function loop(t){
   if (!reduceMotion && t >= nextAmb) {
-    nextAmb = t + rand(2600, 5200);
-    var fromLeft = Math.random() < .6;
-    var ang = fromLeft ? rand(.5,.9) : rand(Math.PI*.72, Math.PI*.9);
-    var sp = rand(380, 640);
-    ambMeteors.push({
-      x: fromLeft ? rand(-100, W*.55) : rand(W*.45, W+100),
-      y: rand(-140, H*.35),
-      vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp,
-      len: rand(120, 220), life: 0, max: rand(900, 1500)
-    });
+    nextAmb = t + rand(1100, 2600);
+    spawnMeteor();
+    // 偶尔来一场小小的流星雨（两到三颗先后划过）
+    if (Math.random() < .28) {
+      var extra = 1 + Math.floor(Math.random() * 2);
+      for (var e = 0; e < extra; e++) {
+        (function(delay){ setTimeout(spawnMeteor, delay); })(rand(160, 520));
+      }
+    }
   }
   if (!reduceMotion) drawSky(t); 
   requestAnimationFrame(loop);
