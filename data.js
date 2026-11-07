@@ -41,9 +41,9 @@ window.SITE_DATA = {
     intro: '我是罗娇，很高兴以这样的方式和你见面！在“关于我”的这颗星球上，我设置了三张明信片，一是“我的个人信息”，二是“我的爱好”，三是“我的生活碎片”，这样的方式你可以更加清晰的了解我。同时首页还有四颗星球可以去探索我，这个作品集网站是我用一学期时间，通过vibecoding、秒哒、trae、dsh等等工具结合github或者是老师上课时提到的idea不断优化迭代，最终呈现在你面前的。为什么会选择以小王子为背景呢，因为原著里写“正因为你为你的玫瑰花费了时间，这才使你的玫瑰变得如此重要”。而对于我的网站，我想说的也是这样，正是因为我为我的个人作品集网站花费了时间，这才使我的网站变得如此重要与特别。',
     /* 明信片 02 · 我的爱好（img 填图片路径即可显示，留空则保留虚线空框） */
     hobbies: [
-      { name: '烹饪',   desc: '创意川菜，厨房是我的第二个实验室', icon: 'pot',      img: 'hobbies/cooking.jpg' },
-      { name: '打麻将', desc: '和朋友砌一桌，放松也是社交场',     icon: 'tile',     img: 'hobbies/mahjong.jpg' },
-      { name: '搞抽象', desc: '抽离现实，给生活加点荒诞与浪漫',   icon: 'abstract', img: 'hobbies/abstract.jpg' }
+      { name: '烹饪',   icon: 'pot',      img: 'hobbies/cooking.jpg' },
+      { name: '打麻将', icon: 'tile',     img: 'hobbies/mahjong.jpg' },
+      { name: '搞抽象', icon: 'abstract', img: 'hobbies/abstract.jpg' }
     ],
     /* 明信片 03 · 我的生活碎片：把朋友圈图片路径填进 photos 数组即可 */
     moments: {

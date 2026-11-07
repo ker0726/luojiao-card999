@@ -845,8 +845,6 @@ main{position:relative;z-index:5;}
   display:block;font-family:var(--kai);font-weight:400;font-size:1rem;
   letter-spacing:.14em;color:#22314a;
 }
-/* 描述固定两行的高度，三张照片方框在同一条基线上 */
-.hobby span{display:block;font-size:.8rem;line-height:1.65;color:#5f6e86;margin-top:2px;min-height:3.3em;}
 .hobby-shot{
   aspect-ratio:4/3;border-radius:10px;
   border:1.5px dashed rgba(158,120,96,.34);
@@ -1455,7 +1453,7 @@ $('hobbyList').innerHTML = D.about.hobbies.map(function(h){
     ? '<img src="' + h.img + '" alt="' + h.name + '" loading="lazy" />'
     : '';
   return '<div class="hobby"><div class="hobby-head">' + (hobbyIcons[h.icon] || '') +
-    '<div><b>' + h.name + '</b><span>' + h.desc + '</span></div></div>' +
+    '<div><b>' + h.name + '</b></div></div>' +
     '<div class="hobby-shot">' + shot + '</div></div>';
 }).join('');
 // 生活碎片：手风琴式轮播（前六张朋友圈照片），每 5.2 秒自动翻一张
