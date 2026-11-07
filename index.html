@@ -165,8 +165,9 @@ img{max-width:100%;}
   text-shadow:0 0 34px rgba(245,230,200,.22);
 }
 .hero .pinyin{
-  font-family:var(--deco);font-size:.92rem;letter-spacing:.55em;
-  color:var(--muted);margin-bottom:30px;
+  font-family:var(--deco);font-size:clamp(1.35rem,3.4vw,1.75rem);
+  letter-spacing:.4em;color:#c9d4e6;margin-bottom:24px;
+  text-shadow:0 0 22px rgba(245,230,200,.18);
 }
 .hero .slogan{
   font-family:var(--kai);font-size:clamp(1.05rem,2.6vw,1.32rem);
@@ -175,7 +176,7 @@ img{max-width:100%;}
 }
 .hero .tags{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px;}
 .hero .tags span{
-  font-size:.82rem;letter-spacing:.16em;padding:6px 16px;border-radius:999px;
+  font-family:var(--kai);font-size:.96rem;letter-spacing:.22em;padding:8px 28px;border-radius:999px;
   border:1px solid rgba(245,230,200,.28);color:var(--star);
   background:rgba(245,230,200,.06);
 }
@@ -189,6 +190,23 @@ img{max-width:100%;}
   transition:transform .3s var(--ease),box-shadow .3s var(--ease);
 }
 .portal-btn:hover{transform:translateY(-3px);box-shadow:0 14px 38px rgba(230,196,104,.42);}
+
+/* —— 星球视图：一次只开一颗星球，进入方式只有点星，不再瀑布流下滑 —— */
+.section,.site-footer{display:none;}
+.section.on,.site-footer.on{display:block;animation:viewIn .55s var(--ease) both;}
+body.planet-view .hero{display:none;}
+@keyframes viewIn{0%{opacity:0;transform:translateY(16px);}100%{opacity:1;transform:none;}}
+.back-sky{
+  position:fixed;left:22px;bottom:22px;z-index:70;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(245,230,200,.28);background:rgba(13,27,42,.78);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--star);font-family:var(--kai);font-size:.92rem;letter-spacing:.12em;
+  transition:background .25s,transform .25s;
+}
+.back-sky:hover{background:rgba(245,230,200,.14);transform:translateY(-2px);}
+.back-sky[hidden]{display:none;}
 
 /* 小王子抠图：英雄区左侧意境 */
 .prince-cut{
@@ -422,7 +440,7 @@ img{max-width:100%;}
 }
 /* 目标星球：从前方扑面而来，减速停在画面上半部（配色由 JS 按板块注入，取深沉色调避免压字） */
 .t-dest{
-  position:absolute;left:50%;top:52vh;width:38vmin;height:38vmin;border-radius:50%;
+  position:absolute;left:50%;top:54vh;width:38vmin;height:38vmin;border-radius:50%;
   transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none;
   background:radial-gradient(circle at 34% 30%, var(--pc1,#d9b45e) 0%, var(--pc2,#6f5420) 78%);
   box-shadow:inset -4vmin -5vmin 10vmin rgba(6,12,24,.72), 0 0 10vmin rgba(245,230,200,.18);
@@ -435,13 +453,43 @@ img{max-width:100%;}
   45%{opacity:1;box-shadow:inset 0 0 26vmax 12vmax rgba(6,12,24,.88);}
   100%{opacity:1;box-shadow:inset 0 0 18vmax 6vmax rgba(6,12,24,.38);}
 }
-/* 穿越途中迎面掠过又远去的路过星球 */
-#meteor-transition.warp .t-planet{animation:tFlyby 1.05s ease-in .12s both;}
-#meteor-transition.warp .t-planet.p2{animation-delay:.62s;}
-@keyframes tFlyby{
-  0%{opacity:0;transform:scale(.4);}
-  35%{opacity:.95;}
-  100%{opacity:0;transform:scale(2.8) translateY(6vh);}
+/* —— 穿越之门：小王子与狐狸的星球之门（抠图素材，羽化圆形）由远及近扑面而来 —— */
+.t-portal{
+  position:absolute;left:50%;top:54vh;width:56vmin;height:56vmin;z-index:1;
+  transform:translate(-50%,-50%) scale(.2);opacity:0;pointer-events:none;
+  border-radius:50%;will-change:transform,opacity,filter;
+}
+.t-portal img{
+  width:100%;height:100%;display:block;border-radius:50%;
+  filter:drop-shadow(0 0 26px rgba(246,220,160,.5));
+}
+.t-portal::before{
+  content:'';position:absolute;inset:-7%;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(246,220,160,0),rgba(246,220,160,.45),rgba(232,160,168,.3),rgba(246,220,160,0));
+  filter:blur(12px);opacity:.5;pointer-events:none;
+  animation:portalRing 4s linear infinite;
+}
+@keyframes portalRing{to{rotate:360deg;}}
+#meteor-transition.warp .t-portal{
+  animation:portalOpen 2s cubic-bezier(.3,.05,.35,1) both, portalBlur 2s ease-in both;
+}
+#meteor-transition.warp .t-portal img{
+  animation:portalSpin 2s ease-in both;
+}
+@keyframes portalOpen{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.18);}
+  20%{opacity:1;transform:translate(-50%,-50%) scale(.96);}
+  54%{opacity:1;transform:translate(-50%,-50%) scale(1.03);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(2.35);}
+}
+@keyframes portalBlur{
+  0%{filter:blur(0);}
+  56%{filter:blur(0);}
+  100%{filter:blur(11px);}
+}
+@keyframes portalSpin{
+  0%{rotate:-6deg;scale:1;}
+  100%{rotate:14deg;scale:1.06;}
 }
 .t-dest::before{ /* 星球轨道环 */
   content:'';position:absolute;left:-24%;top:38%;width:148%;height:26%;
@@ -944,7 +992,6 @@ main{position:relative;z-index:5;}
       <p class="pinyin" id="heroPinyin"></p>
       <p class="slogan" id="heroSlogan"></p>
       <div class="tags" id="heroTags"></div>
-      <a class="portal-btn" href="#works" id="portalBtn"></a>
     </div>
     <!-- 五颗可点击许愿星：由 data.js 渲染 -->
     <div id="skyMeteors"></div>
@@ -1023,6 +1070,9 @@ main{position:relative;z-index:5;}
   <p class="copyright">© 2026 罗娇 · 武汉理工大学经济学院 数字经济2502 ·《数智编程》结课作品</p>
 </footer>
 
+<!-- 回到星空：只在星球视图里出现 -->
+<button class="back-sky" id="backSky" type="button" hidden>← 回到星空</button>
+
 <!-- 流星转场层 -->
 <div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
   <button class="t-skip" id="transitSkip">跳过 ✕</button>
@@ -1056,6 +1106,7 @@ main{position:relative;z-index:5;}
   <div class="t-petal" style="--dx:-86px;--dy:20px;--rr:-170deg;--dl:.04s;"></div>
   <div class="t-petal" style="--dx:12px;--dy:-90px;--rr:110deg;--dl:.08s;"></div>
   <div class="t-warp" id="tWarp" aria-hidden="true"></div>
+  <div class="t-portal" aria-hidden="true"><img src="portal.png" alt="" /></div>
   <div class="t-dest" id="tDest" aria-hidden="true"></div>
   <div class="t-rush" aria-hidden="true"></div>
   <div class="t-glow"></div>
@@ -1096,7 +1147,6 @@ $('heroName').textContent   = D.home.name.split('').join(' ');
 $('heroPinyin').textContent = D.home.nameEn;
 $('heroSlogan').textContent = D.home.slogan;
 $('heroTags').innerHTML = D.home.tags.map(function(t){ return '<span>' + t + '</span>'; }).join('');
-$('portalBtn').textContent = D.home.portalText;
 
 // 首页五颗金色许愿星：按 data 顺序依次编号 s1..s5
 $('skyMeteors').innerHTML = D.home.meteors.map(function(m, i){
@@ -1452,7 +1502,28 @@ function clearTransitTimers(){
 }
 function goToSection(key){
   var el = $(key);
-  if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block:'start' });
+  if (!el) return;
+  // 一次只开一颗星球：隐藏其余板块，滚回顶部，像真的抵达了另一颗星
+  document.querySelectorAll('.section, .site-footer').forEach(function(s){ s.classList.remove('on'); });
+  el.classList.add('on');
+  document.body.classList.add('planet-view');
+  var back = $('backSky');
+  if (back) back.hidden = false;
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  // 补触发一次入场（display 由 none 变 block 后 IntersectionObserver 才会命中）
+  setTimeout(function(){
+    el.querySelectorAll('.rise').forEach(function(r){ r.classList.add('in'); });
+  }, 60);
+}
+/* 回到星空：收起当前星球，回到五颗星 */
+function returnHome(){
+  document.querySelectorAll('.on').forEach(function(s){
+    if (s.classList.contains('section') || s.classList.contains('site-footer')) s.classList.remove('on');
+  });
+  document.body.classList.remove('planet-view');
+  var back = $('backSky');
+  if (back) back.hidden = true;
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 }
 function endTransit(key, instant){
   clearTransitTimers();
@@ -1521,6 +1592,12 @@ document.querySelectorAll('.sky-star').forEach(function(btn){
   btn.addEventListener('click', function(){
     playTransit(btn.dataset.target, btn.className.match(/s\d/)[0], btn);
   });
+});
+
+// 回到星空：按钮 + 导航里的「星球首页」
+$('backSky').addEventListener('click', returnHome);
+document.querySelectorAll('[data-nav="home"]').forEach(function(a){
+  a.addEventListener('click', function(e){ e.preventDefault(); returnHome(); });
 });
 // 跳过：按钮 / 点击遮罩空白处 / Esc（Esc 在上面已绑定）
 $('transitSkip').addEventListener('click', function(e){

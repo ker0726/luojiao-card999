@@ -8,9 +8,9 @@ window.SITE_DATA = {
   /* —— 首页 / B-612 星球 —— */
   home: {
     name: '罗娇',
-    nameEn: 'LUO JIAO',
+    nameEn: 'LUOJIAO',
     slogan: '我是罗娇，在数智编程的星球上，用代码点亮我的玫瑰。',
-    tags: ['数字经济', 'Vibecoding', '视觉叙事'],
+    tags: ['数字经济2502'],
     // 五颗金色许愿星：按从左到右顺序对应五个板块，点击穿越星球前往
     meteors: [
       { key: 'about',      label: '关于我'     },
@@ -18,18 +18,12 @@ window.SITE_DATA = {
       { key: 'experience', label: '经历与成绩' },
       { key: 'works',      label: '作品'       },
       { key: 'contact',    label: '联系'       }
-    ],
-    portalText: '星星入口 · 出发'
+    ]
   },
 
-  /* —— 顶部导航 —— */
+  /* —— 顶部导航（五个板块只从首页点星进入，导航只保留回星空）—— */
   nav: [
-    { key: 'home',       label: '星球首页' },
-    { key: 'about',      label: '关于我'   },
-    { key: 'skills',     label: '能力'     },
-    { key: 'experience', label: '经历与成绩' },
-    { key: 'works',      label: '作品'     },
-    { key: 'contact',    label: '联系'     }
+    { key: 'home', label: '星球首页' }
   ],
 
   /* —— 关于我（玫瑰星球）—— */
