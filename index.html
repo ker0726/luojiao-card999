@@ -189,6 +189,10 @@ img{max-width:100%;}
   position:absolute;z-index:6;border:0;background:none;cursor:pointer;
   width:170px;height:44px;padding:0;
   /* 让点击区域覆盖流星本体 */
+  /* 入场：沿各自轨迹反方向疾掠入场（--ed 错峰），落定后转入呼吸微动 */
+  animation:
+    meteorEnter 1s cubic-bezier(.3,.75,.3,1) var(--ed,1s) both,
+    meteorIdle 4.5s ease-in-out calc(var(--ed,1s) + 1s) infinite;
 }
 .sky-meteor .tail{
   position:absolute;top:50%;left:0;width:150px;height:2px;
@@ -201,6 +205,8 @@ img{max-width:100%;}
   transform:translateY(-50%);
   background:radial-gradient(circle,#fff8e8 0%,var(--star) 45%,rgba(245,230,200,0) 75%);
   box-shadow:0 0 14px 4px rgba(245,230,200,.55);
+  /* 入场瞬间弹头爆亮一次，再收回常态 */
+  animation:headIn 1s ease-out var(--ed,1s) both;
   transition:box-shadow .3s;
 }
 .sky-meteor .m-label{
@@ -209,31 +215,68 @@ img{max-width:100%;}
   opacity:0;transform:translateY(4px);
   transition:opacity .3s,transform .3s var(--ease);
 }
-/* 三个起飞方位：左上 / 正上 / 右上，轨迹方向各异，像箭头 */
-.sky-meteor.m-left {left:8%;  top:24%;--rot:32deg;}
-.sky-meteor.m-top  {left:46%; top:13%;--rot:58deg;}
-.sky-meteor.m-right{right:6%; top:22%;--rot:148deg;}
+/* 三个起飞方位：左上 / 正上 / 右上，轨迹方向各异，像箭头
+   --ex/--ey = 沿轨迹反方向的入场位移，让流星"飞进来"而不是"凭空出现" */
+.sky-meteor.m-left {left:8%;  top:24%;--rot:32deg; --ex:-224px;--ey:-140px;--ed:1s;}
+.sky-meteor.m-top  {left:46%; top:13%;--rot:58deg; --ex:-138px;--ey:-224px;--ed:1.9s;}
+.sky-meteor.m-right{right:6%; top:22%;--rot:148deg;--ex:224px; --ey:-140px;--ed:2.8s;}
 .sky-meteor .tail{transform:rotate(var(--rot));}
-.sky-meteor.m-right .m-label{right:auto;left:-10px;}
+
+/* 入场关键帧：从轨迹远端高速掠入 + 由亮到稳 */
+@keyframes meteorEnter{
+  0%{translate:var(--ex) var(--ey);opacity:0;}
+  10%{opacity:1;}
+  100%{translate:0 0;opacity:1;}
+}
+@keyframes headIn{
+  0%{box-shadow:0 0 30px 12px rgba(245,230,200,.95);}
+  100%{box-shadow:0 0 14px 4px rgba(245,230,200,.55);}
+}
+@keyframes meteorIdle{
+  0%,100%{translate:0 0;}
+  50%{translate:6px 4px;}
+}
+
+/* —— 第三颗流星（右上）是主角：更大、更金、带呼吸光晕 —— */
+.sky-meteor.m-right{width:210px;}
+.sky-meteor.m-right .tail{
+  width:190px;height:3px;
+  background:linear-gradient(90deg,transparent 0%,rgba(245,230,200,.4) 45%,rgba(255,222,150,.95) 100%);
+  filter:drop-shadow(0 0 6px rgba(230,196,104,.5));
+}
+.sky-meteor.m-right .head{
+  width:13px;height:13px;right:10px;
+  background:radial-gradient(circle,#fffdf4 0%,#ffe4a8 42%,rgba(230,196,104,0) 78%);
+  box-shadow:0 0 22px 8px rgba(230,196,104,.7);
+  /* 入场爆亮（金色版）→ 收回金色常态 → 呼吸光晕接力 */
+  animation:
+    headInHero 1s ease-out var(--ed) both,
+    heroPulse 2.6s ease-in-out calc(var(--ed) + 1s) infinite;
+}
+@keyframes headInHero{
+  0%{box-shadow:0 0 36px 16px rgba(255,222,150,.95);}
+  100%{box-shadow:0 0 22px 8px rgba(230,196,104,.7);}
+}
+@keyframes heroPulse{
+  0%,100%{box-shadow:0 0 16px 6px rgba(230,196,104,.5);}
+  50%{box-shadow:0 0 26px 10px rgba(230,196,104,.85);}
+}
+/* 主角流星的标签默认半显，像路标一样指引 */
+.sky-meteor.m-right .m-label{opacity:.62;transform:none;color:var(--wheat);}
+
 /* 悬停微动预览 + 变亮提示 */
 .sky-meteor:hover .head,.sky-meteor:focus-visible .head{
   box-shadow:0 0 22px 8px rgba(230,196,104,.75);
 }
 .sky-meteor:hover .m-label,.sky-meteor:focus-visible .m-label{opacity:1;transform:none;}
-@keyframes meteorIdle{
-  0%,100%{translate:0 0;}
-  50%{translate:6px 4px;}
-}
-.sky-meteor{animation:meteorIdle 4.5s ease-in-out infinite;}
-.sky-meteor.m-top{animation-delay:-1.6s;}
-.sky-meteor.m-right{animation-delay:-3s;}
 @media (max-width:760px){
   .sky-meteor{width:120px;}
   .sky-meteor .tail{width:100px;}
   .sky-meteor .m-label{opacity:1;transform:none;font-size:.78rem;} /* 移动端常显标签，保证可达 */
   .sky-meteor.m-left{left:4%;top:18%;}
   .sky-meteor.m-top{left:40%;top:9%;}
-  .sky-meteor.m-right{right:2%;top:17%;}
+  .sky-meteor.m-right{right:2%;top:17%;width:150px;}
+  .sky-meteor.m-right .tail{width:130px;}
 }
 
 /* ============================================================
