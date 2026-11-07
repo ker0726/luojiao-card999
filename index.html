@@ -202,7 +202,7 @@ img{max-width:100%;}
 /* —— 五颗金色许愿星（用户创意核心）：手绘水彩金星，按序对应五个板块 —— */
 .sky-star{
   position:absolute;z-index:6;border:0;background:none;cursor:pointer;
-  width:76px;height:100px;padding:0;
+  width:98px;height:126px;padding:0;
   /* 入场：缩放+旋转弹入（--ed 错峰），落定后缓慢浮动 */
   animation:
     starIn .9s var(--ease) var(--ed,1s) both,
@@ -210,20 +210,20 @@ img{max-width:100%;}
 }
 /* 星辉光晕（独立图层做呼吸，避免动 filter 触发重绘开销） */
 .sky-star .s-glow{
-  position:absolute;left:50%;top:32px;width:96px;height:96px;
+  position:absolute;left:50%;top:40px;width:122px;height:122px;
   transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
   background:radial-gradient(circle,rgba(240,207,126,.5) 0%,rgba(240,207,126,.14) 45%,transparent 70%);
   animation:starTwinkle 3.4s ease-in-out calc(var(--ed,1s) + .9s) infinite;
 }
 .sky-star .s-star{
-  position:absolute;left:50%;top:32px;width:58px;height:58px;
+  position:absolute;left:50%;top:40px;width:74px;height:74px;
   transform:translate(-50%,-50%);
   filter:drop-shadow(0 0 10px rgba(240,207,126,.55));
   pointer-events:none;
 }
 .sky-star .m-label{
-  position:absolute;top:66px;left:50%;transform:translateX(-50%);white-space:nowrap;
-  font-family:var(--kai);font-size:.88rem;letter-spacing:.18em;color:var(--star);
+  position:absolute;top:84px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--kai);font-size:.95rem;letter-spacing:.18em;color:var(--star);
   opacity:.55;transition:opacity .3s;
   text-shadow:0 1px 8px rgba(9,17,30,.9);
 }
@@ -247,11 +247,24 @@ img{max-width:100%;}
 .sky-star:hover,.sky-star:focus-visible{scale:1.14;}
 .sky-star:hover .s-glow,.sky-star:focus-visible .s-glow{opacity:1;}
 .sky-star:hover .m-label,.sky-star:focus-visible .m-label{opacity:1;}
+/* 点击起飞：被选中的星星先亮一下，再收进坠落的那颗流星里 */
+.sky-star.launch .s-star{animation:starLaunch .55s cubic-bezier(.4,.1,.6,1) both;}
+.sky-star.launch .s-glow{animation:starLaunchGlow .55s ease-out both;}
+@keyframes starLaunch{
+  0%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1;}
+  30%{transform:translate(-50%,-50%) scale(1.38) rotate(14deg);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(.08) rotate(70deg);opacity:0;}
+}
+@keyframes starLaunchGlow{
+  0%{opacity:.8;transform:translate(-50%,-50%) scale(1);}
+  35%{opacity:1;transform:translate(-50%,-50%) scale(1.5);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.4);}
+}
 @media (max-width:760px){
-  .sky-star{width:58px;height:82px;}
-  .sky-star .s-star{width:42px;height:42px;top:24px;}
-  .sky-star .s-glow{width:70px;height:70px;top:24px;}
-  .sky-star .m-label{top:52px;font-size:.74rem;opacity:1;} /* 移动端常显标签，保证可达 */
+  .sky-star{width:74px;height:100px;}
+  .sky-star .s-star{width:54px;height:54px;top:30px;}
+  .sky-star .s-glow{width:88px;height:88px;top:30px;}
+  .sky-star .m-label{top:64px;font-size:.8rem;opacity:1;} /* 移动端常显标签，保证可达 */
   .sky-star.s1{left:2%; top:9%;}
   .sky-star.s2{left:32%;top:5%;}
   .sky-star.s3{left:62%;top:10%;}
@@ -390,6 +403,44 @@ img{max-width:100%;}
   0%{opacity:0;transform:scale(.55);}
   40%{opacity:.9;}
   100%{opacity:0;transform:scale(1.7);}
+}
+/* —— 穿越：落地后镜头继续冲刺，星轨拉成光带，目标星球扑面而来 —— */
+.t-warp{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.t-streak{
+  position:absolute;left:50%;top:66vh;width:15vmax;height:2px;margin-top:-1px;
+  transform-origin:0 50%;border-radius:2px;opacity:0;
+  background:linear-gradient(90deg,rgba(255,244,214,.95),rgba(255,244,214,0));
+}
+.t-streak.rose{background:linear-gradient(90deg,rgba(240,180,190,.85),rgba(240,180,190,0));}
+#meteor-transition.warp .t-streak{animation:streakFly 1.15s cubic-bezier(.45,.05,.85,.45) var(--d,0s) both;}
+@keyframes streakFly{
+  0%{opacity:0;transform:rotate(var(--a)) translateX(3vmin) scaleX(.1);}
+  16%{opacity:1;}
+  100%{opacity:0;transform:rotate(var(--a)) translateX(72vmax) scaleX(1);}
+}
+/* 目标星球：从落点处扑面而来，最后停在卡片身后（配色由 JS 按板块注入） */
+.t-dest{
+  position:absolute;left:50%;top:66vh;width:46vmin;height:46vmin;border-radius:50%;
+  transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none;
+  background:radial-gradient(circle at 34% 30%, var(--pc1,#ffe9a8) 0%, var(--pc2,#c6963f) 78%);
+  box-shadow:inset -3vmin -4vmin 9vmin rgba(9,17,30,.5), 0 0 12vmin rgba(245,230,200,.28);
+}
+.t-dest::before{ /* 星球轨道环 */
+  content:'';position:absolute;left:-24%;top:38%;width:148%;height:26%;
+  border:1.5px solid rgba(245,230,200,.38);border-radius:50%;
+  transform:rotate(-14deg);
+}
+.t-dest::after{ /* 大气辉光 */
+  content:'';position:absolute;inset:-9%;border-radius:50%;
+  background:radial-gradient(circle,transparent 58%,var(--pc1,#ffe9a8) 82%,transparent 78%);
+  opacity:.35;filter:blur(6px);
+}
+#meteor-transition.warp .t-dest{animation:destIn 1.6s cubic-bezier(.16,.72,.24,1) .12s both;}
+@keyframes destIn{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0;}
+  16%{opacity:1;}
+  72%{transform:translate(-50%,-50%) scale(1.05);}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
 }
 /* 触底时随星尘一起飘散的玫瑰花瓣 */
 .t-petal{
@@ -977,6 +1028,8 @@ main{position:relative;z-index:5;}
   <div class="t-petal" style="--dx:34px;--dy:78px;--rr:200deg;--dl:.1s;"></div>
   <div class="t-petal" style="--dx:-86px;--dy:20px;--rr:-170deg;--dl:.04s;"></div>
   <div class="t-petal" style="--dx:12px;--dy:-90px;--rr:110deg;--dl:.08s;"></div>
+  <div class="t-warp" id="tWarp" aria-hidden="true"></div>
+  <div class="t-dest" id="tDest" aria-hidden="true"></div>
   <div class="t-glow"></div>
   <div class="t-card">
     <svg class="t-rose" viewBox="0 0 48 48" aria-hidden="true">
@@ -1025,6 +1078,18 @@ $('skyMeteors').innerHTML = D.home.meteors.map(function(m, i){
     '<svg class="s-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#oilStar"/></svg>' +
     '<span class="m-label">' + m.label + '</span></button>';
 }).join('');
+
+/* 星星登场铃音：浏览器要求先有一次交互才允许出声，
+   因此在第一次轻触页面后，为尚未登场的星星补上各自的音 */
+var userGestured = false;
+window.addEventListener('pointerdown', function(){ userGestured = true; }, { once:true, capture:true });
+window.addEventListener('keydown',     function(){ userGestured = true; }, { once:true, capture:true });
+var starChimeTimes = [.9, 1.5, 2.1, 2.7, 3.3];  // 与 .sky-star.s1..s5 的 --ed 一致
+starChimeTimes.forEach(function(t, i){
+  setTimeout(function(){
+    if (userGestured && !reduceMotion) sfxStarChime(i);
+  }, (t + 0.4) * 1000);
+});
 
 // 关于我
 $('aboutQuote').textContent = D.about.quote;
@@ -1227,6 +1292,66 @@ function sfxImpact(){
   src.connect(hp); hp.connect(hg); hg.connect(sfxMaster);
   src.start(t0 + 0.02); src.stop(t0 + 0.24);
 }
+/* 星星登场铃音：五声音阶一颗星一个音，基音 + 很轻的高八度泛音，温暖不刺耳 */
+var starNotes = [523.25, 587.33, 659.25, 783.99, 880.0];  // C5 D5 E5 G5 A5
+function sfxStarChime(i){
+  var ac = sfxEnsure(); if (!ac) return;
+  var t0 = ac.currentTime + 0.01, f = starNotes[i % starNotes.length];
+  [f, f * 2].forEach(function(fr, k){
+    var o = ac.createOscillator(); o.type = k ? 'sine' : 'triangle'; o.frequency.value = fr;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(k ? 0.05 : 0.16, t0 + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.9);
+    o.connect(g); g.connect(sfxMaster);
+    o.start(t0); o.stop(t0 + 0.95);
+  });
+}
+/* 穿越推进：两枚微失谐锯齿波过低通，滤波从"闷"扫到"亮"，像掠过星球表面的风 */
+var warpNodes = null;
+function sfxWarp(){
+  var ac = sfxEnsure(); if (!ac) return;
+  sfxStopWarp();
+  var t0 = ac.currentTime + 0.01, dur = 1.55;
+  var o1 = ac.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 98;
+  var o2 = ac.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = 98 * 1.008;
+  var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 1.1;
+  lp.frequency.setValueAtTime(220, t0);
+  lp.frequency.exponentialRampToValueAtTime(2400, t0 + dur * 0.8);
+  var g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(0.11, t0 + dur * 0.5);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(sfxMaster);
+  o1.start(t0); o2.start(t0); o1.stop(t0 + dur); o2.stop(t0 + dur);
+  warpNodes = { osc:[o1, o2], gain:g };
+}
+function sfxStopWarp(){
+  if (!warpNodes || !actx) return;
+  try {
+    var now = actx.currentTime;
+    warpNodes.gain.gain.cancelScheduledValues(now);
+    warpNodes.gain.gain.setValueAtTime(Math.max(warpNodes.gain.gain.value, 0.0001), now);
+    warpNodes.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+    warpNodes.osc.forEach(function(o){ o.stop(now + 0.16); });
+  } catch(e){}
+  warpNodes = null;
+}
+/* 抵达星球：温暖的大三和弦轻轻落定（C-E-G-C 依次进入） */
+function sfxLand(){
+  var ac = sfxEnsure(); if (!ac) return;
+  var t0 = ac.currentTime + 0.01;
+  [[261.63, .1], [329.63, .08], [392.0, .08], [523.25, .05]].forEach(function(p, i){
+    var o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = p[0];
+    var g = ac.createGain();
+    var a = t0 + i * 0.05;
+    g.gain.setValueAtTime(0.0001, a);
+    g.gain.linearRampToValueAtTime(p[1], a + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001, a + 1.3);
+    o.connect(g); g.connect(sfxMaster);
+    o.start(a); o.stop(a + 1.35);
+  });
+}
 /* 音效开关：记住选择，关掉时立刻静音并挂起音频上下文 */
 var sfxBtn = $('sfxToggle');
 function renderSfx(){
@@ -1250,12 +1375,25 @@ sfxBtn.addEventListener('click', function(){
 });
 
 /* ============================================================
-   五、流星转场（1.2s / 可跳过 / 可记忆 / 降级直显）
+   五、流星转场（坠落→炸开→穿越→抵达星球，约 3.3s / 可跳过 / 降级直显）
    ============================================================ */
 var overlay = $('meteor-transition');
 var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
+var tWarp = $('tWarp'), tDest = $('tDest');
 var transitTimers = [];
 var transitOpen = false;
+
+/* 穿越星轨：26 条光带从落点向四周放射（每 4 条掺 1 条玫瑰色） */
+(function buildStreaks(){
+  var html = '';
+  for (var i = 0; i < 26; i++) {
+    var a = (i * 360 / 26) + (i % 3) * 5;
+    var d = (i % 7) * 0.055;
+    html += '<i class="t-streak' + (i % 4 === 0 ? ' rose' : '') +
+      '" style="--a:' + a.toFixed(1) + 'deg;--d:' + d.toFixed(2) + 's"></i>';
+  }
+  tWarp.innerHTML = html;
+})();
 
 /* 五颗许愿星各自的坠落轨迹：左三颗向右下坠，右两颗向左下坠
    fr = 拖尾指向（沿轨迹回头看的方向）；sx/sy = 余星散开的反方向 */
@@ -1266,12 +1404,13 @@ var dirVars = {
   s4: { fx:'18vw',  fr:'-132deg', sx:'44px',   sy:'-62px'  },
   s5: { fx:'34vw',  fr:'-150deg', sx:'58px',   sy:'-42px'  }
 };
+/* 每个板块对应一颗星球：玫瑰 / 麦田 / 琥珀 / 信纸 / 星光 */
 var secMeta = {
-  about:      { title:'关于我',     quote:D.about.quote },
-  skills:     { title:'能力',       quote:D.skills.quote },
-  experience: { title:'经历与成绩', quote:D.experience.quote },
-  works:      { title:'作品星球',   quote:D.works.quote },
-  contact:    { title:'联系',       quote:D.contact.closing }
+  about:      { title:'关于我',     quote:D.about.quote,      c1:'#f4c3c8', c2:'#a85a68' },
+  skills:     { title:'能力',       quote:D.skills.quote,     c1:'#ffe9a8', c2:'#b8902f' },
+  experience: { title:'经历与成绩', quote:D.experience.quote, c1:'#ffd2a0', c2:'#a5682c' },
+  works:      { title:'作品星球',   quote:D.works.quote,      c1:'#f7ecd2', c2:'#b39b6b' },
+  contact:    { title:'联系',       quote:D.contact.closing,  c1:'#d8e6f5', c2:'#7e97bb' }
 };
 
 function clearTransitTimers(){
@@ -1285,8 +1424,11 @@ function goToSection(key){
 function endTransit(key, instant){
   clearTransitTimers();
   sfxStopWhoosh();  // 跳过 / 收场时截断仍在响的风声
+  sfxStopWarp();
+  var launched = document.querySelector('.sky-star.launch');
+  if (launched) launched.classList.remove('launch');
   if (key) goToSection(key);
-  overlay.classList.remove('on','go','boom','card-in');
+  overlay.classList.remove('on','go','boom','warp','card-in');
   if (instant) {
     overlay.hidden = true;
   } else {
@@ -1300,17 +1442,17 @@ function onTransitKey(e){
 }
 var currentTarget = null;
 
-function playTransit(key, from){
-  // 已观看过 → 直接显示内容（localStorage 记忆）
-  if (reduceMotion || localStorage.getItem('luojiao-meteor-' + key) === '1') {
-    goToSection(key);
-    return;
-  }
+function playTransit(key, from, starEl){
+  if (reduceMotion) { goToSection(key); return; }   // 降级：减少动效时直接到位
+  if (transitOpen) return;
   currentTarget = key;
   transitOpen = true;
-  var meta = secMeta[key] || { title:'', quote:'' };
+  if (starEl) starEl.classList.add('launch');       // 被选中的星星先亮一下再收进流星
+  var meta = secMeta[key] || { title:'', quote:'', c1:'#ffe9a8', c2:'#c6963f' };
   tQuote.textContent = meta.quote;
   tTitle.textContent = meta.title;
+  tDest.style.setProperty('--pc1', meta.c1);        // 目标星球换上该板块的配色
+  tDest.style.setProperty('--pc2', meta.c2);
   var dv = dirVars[from] || dirVars.s3;
   tMeteor.style.setProperty('--fx', dv.fx);
   tMeteor.style.setProperty('--fr', dv.fr);
@@ -1318,31 +1460,33 @@ function playTransit(key, from){
   tMeteor.style.setProperty('--sy', dv.sy);
 
   overlay.hidden = false;
-  overlay.classList.remove('go','boom','card-in');
+  overlay.classList.remove('go','boom','warp','card-in');
   void overlay.offsetWidth; // 强制回流，重启动画
   overlay.classList.add('on');
 
   document.addEventListener('keydown', onTransitKey);
 
-  // 0.03s 起飞：点击即时反馈（星体先亮，风声同时起，再按重力加速坠落，全程约 1 秒）
+  // 0.03s 起飞：点击即时反馈，风声起，星体按重力加速坠落
   transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); sfxWhoosh(); }, 30));
-  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣，同时落下音效
+  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣
   transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); sfxImpact(); }, 990));
-  // 1.12s 信息卡片从落地点的光晕里浮出
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 1120));
-  // 1.26s 切换滚动位置（在遮罩后完成，用户无感知）
+  // 1.20s 穿越：星轨拉成光带，目标星球扑面而来，滤波风从闷到亮
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('warp'); sfxWarp(); }, 1200));
+  // 2.70s 抵达：星球落定在卡片身后，引言标题浮出，和弦轻轻落定
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); sfxLand(); }, 2700));
+  // 2.95s 切换滚动位置（在遮罩后完成，用户无感知）
   transitTimers.push(setTimeout(function(){
     goToSection(key);
     localStorage.setItem('luojiao-meteor-' + key, '1');
-  }, 1260));
-  // 1.46s 收场
-  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1460));
+  }, 2950));
+  // 3.30s 收场
+  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 3300));
 }
 
 // 绑定五颗许愿星
 document.querySelectorAll('.sky-star').forEach(function(btn){
   btn.addEventListener('click', function(){
-    playTransit(btn.dataset.target, btn.className.match(/s\d/)[0]);
+    playTransit(btn.dataset.target, btn.className.match(/s\d/)[0], btn);
   });
 });
 // 跳过：按钮 / 点击遮罩空白处 / Esc（Esc 在上面已绑定）
