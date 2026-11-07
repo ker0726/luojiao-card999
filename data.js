@@ -11,11 +11,13 @@ window.SITE_DATA = {
     nameEn: 'LUO JIAO',
     slogan: '我是罗娇，在数智编程的星球上，用代码点亮我的玫瑰。',
     tags: ['数字经济', 'Vibecoding', '视觉叙事'],
-    // 三颗可点击流星：target 为板块锚点，from 决定起飞方位（左上/正上/右上）
+    // 五颗金色许愿星：按从左到右顺序对应五个板块，点击穿越星球前往
     meteors: [
-      { key: 'about',      label: '关于我',     from: 'left'   },
-      { key: 'skills',     label: '能力',       from: 'top'    },
-      { key: 'experience', label: '经历与成绩', from: 'right'  }
+      { key: 'about',      label: '关于我'     },
+      { key: 'skills',     label: '能力'       },
+      { key: 'experience', label: '经历与成绩' },
+      { key: 'works',      label: '作品'       },
+      { key: 'contact',    label: '联系'       }
     ],
     portalText: '星星入口 · 出发'
   },

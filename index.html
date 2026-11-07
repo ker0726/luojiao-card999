@@ -184,99 +184,64 @@ img{max-width:100%;}
 }
 @media (max-width:900px){.prince-cut{width:42vw;opacity:.5;left:-4vw;}}
 
-/* —— 三颗可点击流星（用户创意核心）—— */
-.sky-meteor{
+/* —— 五颗金色许愿星（用户创意核心）：手绘水彩金星，按序对应五个板块 —— */
+.sky-star{
   position:absolute;z-index:6;border:0;background:none;cursor:pointer;
-  width:170px;height:44px;padding:0;
-  /* 让点击区域覆盖流星本体 */
-  /* 入场：沿各自轨迹反方向疾掠入场（--ed 错峰），落定后转入呼吸微动 */
+  width:76px;height:100px;padding:0;
+  /* 入场：缩放+旋转弹入（--ed 错峰），落定后缓慢浮动 */
   animation:
-    meteorEnter 1s cubic-bezier(.3,.75,.3,1) var(--ed,1s) both,
-    meteorIdle 4.5s ease-in-out calc(var(--ed,1s) + 1s) infinite;
+    starIn .9s var(--ease) var(--ed,1s) both,
+    starFloat 5.2s ease-in-out calc(var(--ed,1s) + .9s) infinite;
 }
-.sky-meteor .tail{
-  position:absolute;top:50%;left:0;width:150px;height:2px;
-  transform-origin:right center;
-  background:linear-gradient(90deg,transparent,rgba(245,230,200,.85));
-  border-radius:2px;
+/* 星辉光晕（独立图层做呼吸，避免动 filter 触发重绘开销） */
+.sky-star .s-glow{
+  position:absolute;left:50%;top:32px;width:96px;height:96px;
+  transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(240,207,126,.5) 0%,rgba(240,207,126,.14) 45%,transparent 70%);
+  animation:starTwinkle 3.4s ease-in-out calc(var(--ed,1s) + .9s) infinite;
 }
-.sky-meteor .head{
-  position:absolute;top:50%;right:8px;width:9px;height:9px;border-radius:50%;
-  transform:translateY(-50%);
-  background:radial-gradient(circle,#fff8e8 0%,var(--star) 45%,rgba(245,230,200,0) 75%);
-  box-shadow:0 0 14px 4px rgba(245,230,200,.55);
-  /* 入场瞬间弹头爆亮一次，再收回常态 */
-  animation:headIn 1s ease-out var(--ed,1s) both;
-  transition:box-shadow .3s;
+.sky-star .s-star{
+  position:absolute;left:50%;top:32px;width:58px;height:58px;
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 10px rgba(240,207,126,.55));
+  pointer-events:none;
 }
-.sky-meteor .m-label{
-  position:absolute;top:26px;right:-6px;white-space:nowrap;
-  font-family:var(--kai);font-size:.86rem;letter-spacing:.18em;color:var(--star);
-  opacity:0;transform:translateY(4px);
-  transition:opacity .3s,transform .3s var(--ease);
+.sky-star .m-label{
+  position:absolute;top:66px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--kai);font-size:.88rem;letter-spacing:.18em;color:var(--star);
+  opacity:.55;transition:opacity .3s;
+  text-shadow:0 1px 8px rgba(9,17,30,.9);
 }
-/* 三个起飞方位：左上 / 正上 / 右上，轨迹方向各异，像箭头
-   --ex/--ey = 沿轨迹反方向的入场位移，让流星"飞进来"而不是"凭空出现" */
-.sky-meteor.m-left {left:8%;  top:24%;--rot:32deg; --ex:-224px;--ey:-140px;--ed:1s;}
-.sky-meteor.m-top  {left:46%; top:13%;--rot:58deg; --ex:-138px;--ey:-224px;--ed:1.9s;}
-.sky-meteor.m-right{right:6%; top:22%;--rot:148deg;--ex:224px; --ey:-140px;--ed:2.8s;}
-.sky-meteor .tail{transform:rotate(var(--rot));}
+/* 五颗星从左到右依次点亮：关于我 / 能力 / 经历与成绩 / 作品 / 联系 */
+.sky-star.s1{left:7%;  top:21%;--ed:.9s;}
+.sky-star.s2{left:26%; top:10%;--ed:1.5s;}
+.sky-star.s3{left:45%; top:7%; --ed:2.1s;}
+.sky-star.s4{left:64%; top:11%;--ed:2.7s;}
+.sky-star.s5{left:82%; top:21%;--ed:3.3s;}
 
-/* 入场关键帧：从轨迹远端高速掠入 + 由亮到稳 */
-@keyframes meteorEnter{
-  0%{translate:var(--ex) var(--ey);opacity:0;}
-  10%{opacity:1;}
-  100%{translate:0 0;opacity:1;}
+/* 入场：像被点亮一样弹出来 */
+@keyframes starIn{
+  0%{opacity:0;scale:.2;rotate:-40deg;}
+  55%{opacity:1;scale:1.18;}
+  100%{opacity:1;scale:1;rotate:0deg;}
 }
-@keyframes headIn{
-  0%{box-shadow:0 0 30px 12px rgba(245,230,200,.95);}
-  100%{box-shadow:0 0 14px 4px rgba(245,230,200,.55);}
-}
-@keyframes meteorIdle{
-  0%,100%{translate:0 0;}
-  50%{translate:6px 4px;}
-}
+@keyframes starFloat{0%,100%{translate:0 0;}50%{translate:0 -7px;}}
+@keyframes starTwinkle{0%,100%{opacity:.55;}50%{opacity:1;}}
 
-/* —— 第三颗流星（右上）是主角：更大、更金、带呼吸光晕 —— */
-.sky-meteor.m-right{width:210px;}
-.sky-meteor.m-right .tail{
-  width:190px;height:3px;
-  background:linear-gradient(90deg,transparent 0%,rgba(245,230,200,.4) 45%,rgba(255,222,150,.95) 100%);
-  filter:drop-shadow(0 0 6px rgba(230,196,104,.5));
-}
-.sky-meteor.m-right .head{
-  width:13px;height:13px;right:10px;
-  background:radial-gradient(circle,#fffdf4 0%,#ffe4a8 42%,rgba(230,196,104,0) 78%);
-  box-shadow:0 0 22px 8px rgba(230,196,104,.7);
-  /* 入场爆亮（金色版）→ 收回金色常态 → 呼吸光晕接力 */
-  animation:
-    headInHero 1s ease-out var(--ed) both,
-    heroPulse 2.6s ease-in-out calc(var(--ed) + 1s) infinite;
-}
-@keyframes headInHero{
-  0%{box-shadow:0 0 36px 16px rgba(255,222,150,.95);}
-  100%{box-shadow:0 0 22px 8px rgba(230,196,104,.7);}
-}
-@keyframes heroPulse{
-  0%,100%{box-shadow:0 0 16px 6px rgba(230,196,104,.5);}
-  50%{box-shadow:0 0 26px 10px rgba(230,196,104,.85);}
-}
-/* 主角流星的标签默认半显，像路标一样指引 */
-.sky-meteor.m-right .m-label{opacity:.62;transform:none;color:var(--wheat);}
-
-/* 悬停微动预览 + 变亮提示 */
-.sky-meteor:hover .head,.sky-meteor:focus-visible .head{
-  box-shadow:0 0 22px 8px rgba(230,196,104,.75);
-}
-.sky-meteor:hover .m-label,.sky-meteor:focus-visible .m-label{opacity:1;transform:none;}
+/* 悬停：星星放大 + 星辉变亮 + 标签浮现 */
+.sky-star:hover,.sky-star:focus-visible{scale:1.14;}
+.sky-star:hover .s-glow,.sky-star:focus-visible .s-glow{opacity:1;}
+.sky-star:hover .m-label,.sky-star:focus-visible .m-label{opacity:1;}
 @media (max-width:760px){
-  .sky-meteor{width:120px;}
-  .sky-meteor .tail{width:100px;}
-  .sky-meteor .m-label{opacity:1;transform:none;font-size:.78rem;} /* 移动端常显标签，保证可达 */
-  .sky-meteor.m-left{left:4%;top:18%;}
-  .sky-meteor.m-top{left:40%;top:9%;}
-  .sky-meteor.m-right{right:2%;top:17%;width:150px;}
-  .sky-meteor.m-right .tail{width:130px;}
+  .sky-star{width:58px;height:82px;}
+  .sky-star .s-star{width:42px;height:42px;top:24px;}
+  .sky-star .s-glow{width:70px;height:70px;top:24px;}
+  .sky-star .m-label{top:52px;font-size:.74rem;opacity:1;} /* 移动端常显标签，保证可达 */
+  .sky-star.s1{left:3%; top:13%;}
+  .sky-star.s2{left:35%;top:7%;}
+  .sky-star.s3{left:56%;top:11%;}
+  .sky-star.s4{left:16%;top:26%;}
+  .sky-star.s5{left:58%;top:27%;}
 }
 
 /* ============================================================
@@ -299,9 +264,45 @@ img{max-width:100%;}
   filter:drop-shadow(0 0 10px rgba(245,230,200,.75)) drop-shadow(0 0 26px rgba(230,196,104,.35));
 }
 .t-meteor::after{
-  content:"";position:absolute;right:-7px;top:50%;width:16px;height:16px;
-  border-radius:50%;transform:translateY(-50%);
-  background:radial-gradient(circle,#fff 0%,var(--star) 45%,rgba(245,230,200,0) 78%);
+  /* 弹头就是那颗金色许愿星 */
+  content:"";position:absolute;right:-15px;top:50%;width:28px;height:28px;
+  transform:translateY(-50%);
+  background:radial-gradient(circle at 40% 35%,#ffeeb8,#f0cf7e 55%,#d9a94e);
+  clip-path:polygon(50% 0%,63% 33%,97% 36%,70% 58%,80% 93%,50% 73%,20% 93%,30% 58%,3% 36%,37% 33%);
+  filter:drop-shadow(0 0 8px rgba(240,207,126,.9));
+}
+/* 穿越星球：下坠途中迎面掠过又远去的两颗星球（靛蓝大行星 + 玫瑰小星） */
+.t-planet{
+  position:absolute;border-radius:50%;opacity:0;pointer-events:none;
+}
+.t-planet.p1{
+  left:14%;top:34vh;width:190px;height:190px;
+  background:radial-gradient(circle at 34% 30%,#33507f,#1a2c50 60%,#101c38);
+  box-shadow:inset -20px -16px 44px rgba(0,0,0,.5),0 0 44px rgba(70,110,180,.28);
+}
+.t-planet.p2{
+  right:12%;top:50vh;width:116px;height:116px;
+  background:radial-gradient(circle at 36% 32%,#e8a0a8,#a85a68 62%,#5c2f3c);
+  box-shadow:inset -12px -10px 30px rgba(0,0,0,.45),0 0 36px rgba(232,160,168,.32);
+}
+#meteor-transition.go .t-planet{animation:tPass .72s ease-in both;}
+#meteor-transition.go .t-planet.p2{animation-delay:.12s;}
+@keyframes tPass{
+  0%{opacity:0;transform:scale(.55);}
+  38%{opacity:.9;}
+  100%{opacity:0;transform:scale(1.55);}
+}
+/* 触底时随星尘一起飘散的玫瑰花瓣 */
+.t-petal{
+  position:absolute;left:50%;top:66vh;width:13px;height:9px;opacity:0;
+  background:radial-gradient(ellipse at 30% 30%,#f3bcc2,var(--rose));
+  border-radius:62% 38% 55% 45%;
+}
+#meteor-transition.boom .t-petal{animation:tPetal .85s ease-out var(--dl,0s) both;}
+@keyframes tPetal{
+  0%{transform:translate(0,0) rotate(0deg);opacity:0;}
+  16%{opacity:.95;}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rr,120deg));opacity:0;}
 }
 /* 点击即时反馈：弹头先一亮（缩放脉冲），再加速下坠 */
 #meteor-transition.go .t-meteor{animation:tFall .48s cubic-bezier(.55,.06,.84,.32) .06s both;}
@@ -381,6 +382,17 @@ img{max-width:100%;}
 #meteor-transition.card-in .t-card{
   transform:translate(-50%,-50%) translateY(0);opacity:1;
   transition:transform .5s var(--ease),opacity .5s ease;
+}
+/* 卡片上方的线稿玫瑰：随卡片一同绽放 */
+.t-rose{
+  display:block;width:46px;height:46px;margin:0 auto 14px;
+  opacity:0;transform:scale(.5) rotate(-14deg);
+  filter:drop-shadow(0 0 10px rgba(232,160,168,.45));
+}
+#meteor-transition.card-in .t-rose{animation:tRoseIn .6s var(--ease) .06s both;}
+@keyframes tRoseIn{
+  0%{opacity:0;transform:scale(.5) rotate(-14deg);}
+  100%{opacity:1;transform:scale(1) rotate(0deg);}
 }
 .t-card .t-quote{
   font-family:var(--kai);font-size:clamp(.95rem,2.4vw,1.14rem);
@@ -684,12 +696,25 @@ main{position:relative;z-index:5;}
   *,*::before,*::after{animation:none !important;transition:none !important;}
   .rise{opacity:1;transform:none;}
   .skill-bar i{width:var(--pct);}
-  .sky-meteor .m-label{opacity:1;transform:none;}
+  .sky-star .m-label{opacity:1;}
   #meteor-transition{display:none !important;}
 }
 </style>
 </head>
 <body>
+
+<!-- 全站共用的手绘感金色五角星（首页许愿星 + 转场弹头的母版） -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="goldStarGrad" cx="42%" cy="36%" r="78%">
+      <stop offset="0%" stop-color="#ffeeb8"/>
+      <stop offset="55%" stop-color="#f0cf7e"/>
+      <stop offset="100%" stop-color="#d9a94e"/>
+    </radialGradient>
+    <!-- 略微不规则的五角星曲线，模拟水彩手绘的边缘抖动 -->
+    <path id="goldStar" d="M50 4 C53 20 57 30 62 35 C74 36 88 38 95 42 C87 51 76 57 70 62 C73 74 77 87 75 94 C67 86 58 80 51 75 C43 81 33 88 25 91 C28 80 31 69 31 61 C23 55 13 50 6 44 C17 40 30 38 38 35 C42 25 46 12 50 4 Z"/>
+  </defs>
+</svg>
 
 <!-- 背景层 -->
 <div id="bg" aria-hidden="true"></div>
@@ -723,7 +748,7 @@ main{position:relative;z-index:5;}
       <div class="tags" id="heroTags"></div>
       <a class="portal-btn" href="#works" id="portalBtn"></a>
     </div>
-    <!-- 三颗可点击流星：由 data.js 渲染 -->
+    <!-- 五颗可点击许愿星：由 data.js 渲染 -->
     <div id="skyMeteors"></div>
   </section>
 
@@ -804,6 +829,8 @@ main{position:relative;z-index:5;}
 <div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
   <button class="t-skip" id="transitSkip">跳过 ✕</button>
   <div class="t-meteor" id="tMeteor"></div>
+  <div class="t-planet p1"></div>
+  <div class="t-planet p2"></div>
   <div class="t-flash"></div>
   <div class="t-ripple"></div>
   <div class="t-ripple r2"></div>
@@ -818,8 +845,22 @@ main{position:relative;z-index:5;}
   <div class="t-dust soft" style="--dx:-24px;--dy:-30px;--s:6px;--dl:.01s;"></div>
   <div class="t-dust" style="--dx:96px;--dy:-18px;--s:3px;--dl:.07s;background:var(--wheat);"></div>
   <div class="t-dust" style="--dx:-58px;--dy:28px;--s:3px;--dl:.09s;"></div>
+  <div class="t-petal" style="--dx:-52px;--dy:-72px;--rr:150deg;--dl:.02s;"></div>
+  <div class="t-petal" style="--dx:64px;--dy:-50px;--rr:-130deg;--dl:.06s;"></div>
+  <div class="t-petal" style="--dx:34px;--dy:78px;--rr:200deg;--dl:.1s;"></div>
+  <div class="t-petal" style="--dx:-86px;--dy:20px;--rr:-170deg;--dl:.04s;"></div>
+  <div class="t-petal" style="--dx:12px;--dy:-90px;--rr:110deg;--dl:.08s;"></div>
   <div class="t-glow"></div>
   <div class="t-card">
+    <svg class="t-rose" viewBox="0 0 48 48" aria-hidden="true">
+      <g fill="none" stroke="#e8a0a8" stroke-width="1.7" stroke-linecap="round">
+        <path d="M24 21c-3.4 0-6-2.8-6-6.4C18 10 20.8 7 24 7s6 3 6 7.6c0 3.6-2.6 6.4-6 6.4z"/>
+        <path d="M24 13.6c1.7 0 3 1.3 3 3 0 2-1.7 3.4-3.8 3.4-2.6 0-4.7-2.1-4.7-4.9"/>
+        <path d="M14.5 22.5c2.9 3.5 6.2 5 9.5 5s6.6-1.5 9.5-5"/>
+        <path d="M24 27.5V41"/>
+        <path d="M24 34c-3.2 0-5.8-1.5-7-3.8M24 37.5c3.2 0 5.8-1.5 7-3.8"/>
+      </g>
+    </svg>
     <p class="t-quote" id="tQuote"></p>
     <h2 class="t-title" id="tTitle"></h2>
     <div class="t-line"></div>
@@ -849,12 +890,12 @@ $('heroSlogan').textContent = D.home.slogan;
 $('heroTags').innerHTML = D.home.tags.map(function(t){ return '<span>' + t + '</span>'; }).join('');
 $('portalBtn').textContent = D.home.portalText;
 
-// 三颗可点击流星
-var dirClass = { left:'m-left', top:'m-top', right:'m-right' };
-$('skyMeteors').innerHTML = D.home.meteors.map(function(m){
-  return '<button type="button" class="sky-meteor ' + dirClass[m.from] + '" data-target="' + m.key + '"' +
-    ' aria-label="乘流星前往：' + m.label + '">' +
-    '<span class="tail"></span><span class="head"></span>' +
+// 首页五颗金色许愿星：按 data 顺序依次编号 s1..s5
+$('skyMeteors').innerHTML = D.home.meteors.map(function(m, i){
+  return '<button type="button" class="sky-star s' + (i + 1) + '" data-target="' + m.key + '"' +
+    ' aria-label="乘许愿星前往：' + m.label + '">' +
+    '<span class="s-glow" aria-hidden="true"></span>' +
+    '<svg class="s-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#goldStar" fill="url(#goldStarGrad)"/></svg>' +
     '<span class="m-label">' + m.label + '</span></button>';
 }).join('');
 
@@ -977,16 +1018,20 @@ var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
 var transitTimers = [];
 var transitOpen = false;
 
-// 流星方位 → 起飞位置与角度（左上 / 正上 / 右上）
+/* 五颗许愿星各自的穿越轨迹：左侧三颗向右下坠，右侧两颗向左下坠 */
 var dirVars = {
-  left:  { fx:'-34vw', fr:'30deg'  },
-  top:   { fx:'-6vw',  fr:'55deg'  },
-  right: { fx:'24vw',  fr:'-138deg'}
+  s1: { fx:'-34vw', fr:'30deg'  },
+  s2: { fx:'-18vw', fr:'44deg'  },
+  s3: { fx:'0vw',   fr:'60deg'  },
+  s4: { fx:'18vw',  fr:'-132deg'},
+  s5: { fx:'34vw',  fr:'-150deg'}
 };
 var secMeta = {
   about:      { title:'关于我',     quote:D.about.quote },
   skills:     { title:'能力',       quote:D.skills.quote },
-  experience: { title:'经历与成绩', quote:D.experience.quote }
+  experience: { title:'经历与成绩', quote:D.experience.quote },
+  works:      { title:'作品星球',   quote:D.works.quote },
+  contact:    { title:'联系',       quote:D.contact.closing }
 };
 
 function clearTransitTimers(){
@@ -1025,7 +1070,7 @@ function playTransit(key, from){
   var meta = secMeta[key] || { title:'', quote:'' };
   tQuote.textContent = meta.quote;
   tTitle.textContent = meta.title;
-  var dv = dirVars[from] || dirVars.top;
+  var dv = dirVars[from] || dirVars.s3;
   tMeteor.style.setProperty('--fx', dv.fx);
   tMeteor.style.setProperty('--fr', dv.fr);
 
@@ -1051,10 +1096,10 @@ function playTransit(key, from){
   transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1250));
 }
 
-// 绑定三颗流星
-document.querySelectorAll('.sky-meteor').forEach(function(btn){
+// 绑定五颗许愿星
+document.querySelectorAll('.sky-star').forEach(function(btn){
   btn.addEventListener('click', function(){
-    playTransit(btn.dataset.target, btn.className.match(/m-(left|top|right)/)[1]);
+    playTransit(btn.dataset.target, btn.className.match(/s\d/)[0]);
   });
 });
 // 跳过：按钮 / 点击遮罩空白处 / Esc（Esc 在上面已绑定）
@@ -1128,7 +1173,7 @@ function drawSky(t){
     ctx.globalAlpha = d.a;
     ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
   }
-  // 环境流星（纯装饰，与三颗可点击流星区分：更细更淡）
+  // 环境流星（纯装饰，与五颗可点击许愿星区分：更细更淡）
   for (var k = ambMeteors.length - 1; k >= 0; k--) {
     var m = ambMeteors[k];
     m.life += 16; m.x += m.vx * .016; m.y += m.vy * .016;
