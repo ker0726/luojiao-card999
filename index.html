@@ -237,15 +237,15 @@ img{max-width:100%;}
   .sky-star .s-star{width:42px;height:42px;top:24px;}
   .sky-star .s-glow{width:70px;height:70px;top:24px;}
   .sky-star .m-label{top:52px;font-size:.74rem;opacity:1;} /* 移动端常显标签，保证可达 */
-  .sky-star.s1{left:3%; top:13%;}
-  .sky-star.s2{left:35%;top:7%;}
-  .sky-star.s3{left:56%;top:11%;}
-  .sky-star.s4{left:16%;top:26%;}
-  .sky-star.s5{left:58%;top:27%;}
+  .sky-star.s1{left:2%; top:9%;}
+  .sky-star.s2{left:32%;top:5%;}
+  .sky-star.s3{left:62%;top:10%;}
+  .sky-star.s4{left:5%;top:18%;}
+  .sky-star.s5{left:61%;top:18%;}
 }
 
 /* ============================================================
-   4. 流星转场层（1.2s 内，可跳过，可记忆）
+   4. 坠落转场：一颗油画星坠向信息区，约 1 秒落地
    ============================================================ */
 #meteor-transition{
   position:fixed;inset:0;z-index:90;
@@ -255,21 +255,105 @@ img{max-width:100%;}
 }
 #meteor-transition.on{opacity:1;}
 #meteor-transition[hidden]{display:none;}
-/* 流星本体：楔形拖尾（clip-path 收窄尾端）+ 双层光晕弹头 */
+
+/* 坠落体：一个零尺寸定位点，内部所有部件相对它摆放（头在 0,0） */
 .t-meteor{
-  position:absolute;width:230px;height:7px;left:50%;top:0;opacity:0;
-  background:linear-gradient(90deg,transparent 0%,rgba(245,230,200,.25) 42%,rgba(255,246,223,.95) 88%,#fff 100%);
-  clip-path:polygon(0 50%,100% 0,100% 100%);   /* 尾细头粗，像真正的光迹 */
-  border-radius:3px;
-  filter:drop-shadow(0 0 10px rgba(245,230,200,.75)) drop-shadow(0 0 26px rgba(230,196,104,.35));
+  position:absolute;left:50%;top:0;width:0;height:0;opacity:0;
+  transform-origin:0 0;will-change:transform;
 }
-.t-meteor::after{
-  /* 弹头就是那颗金色许愿星 */
-  content:"";position:absolute;right:-15px;top:50%;width:28px;height:28px;
-  transform:translateY(-50%);
-  background:radial-gradient(circle at 40% 35%,#ffeeb8,#f0cf7e 55%,#d9a94e);
-  clip-path:polygon(50% 0%,63% 33%,97% 36%,70% 58%,80% 93%,50% 73%,20% 93%,30% 58%,3% 36%,37% 33%);
-  filter:drop-shadow(0 0 8px rgba(240,207,126,.9));
+/* 油画笔触拖尾：三层叠出"颜料被拉长"的笔势，越远端越淡越散 */
+.tm-tail{
+  position:absolute;right:0;top:0;width:var(--tlen,250px);height:26px;
+  margin-top:-13px;
+  /* 用独立的 rotate 属性绕"星体所在点"旋转；布局用 right:0 把尾端钉在原点，
+     避免 translate 与 rotate 互相干扰 */
+  transform-origin:100% 50%;rotate:var(--fr,30deg);
+  background:linear-gradient(90deg,transparent 0%,rgba(240,207,126,.06) 20%,rgba(255,224,150,.24) 50%,rgba(255,232,176,.56) 80%,rgba(255,242,206,.80) 100%);
+  /* 双层遮罩：椭圆定形 + 右端淡出，让尾巴自然收束、边缘羽化，避免硬边纸条 */
+  -webkit-mask-image:
+    radial-gradient(ellipse 92% 62% at 100% 50%, #000 0%, rgba(0,0,0,.66) 46%, transparent 94%),
+    linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    radial-gradient(ellipse 92% 62% at 100% 50%, #000 0%, rgba(0,0,0,.66) 46%, transparent 94%),
+    linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
+  mask-composite:intersect;
+  filter:blur(2.4px);
+  opacity:0;
+}
+.tm-tail.b{
+  height:12px;width:calc(var(--tlen,250px) * .66);margin-top:-6px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,232,170,.18) 42%,rgba(255,250,232,.72) 100%);
+  -webkit-mask-image:
+    radial-gradient(ellipse 88% 58% at 100% 50%, #000 0%, rgba(0,0,0,.6) 44%, transparent 92%),
+    linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    radial-gradient(ellipse 88% 58% at 100% 50%, #000 0%, rgba(0,0,0,.6) 44%, transparent 92%),
+    linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
+  mask-composite:intersect;
+  filter:blur(1.1px);
+  opacity:0;
+}
+/* 星体本身：油画星 + 暖光圈 */
+.tm-head{
+  position:absolute;left:0;top:0;width:46px;height:46px;
+  transform:translate(-50%,-50%) rotate(0deg);
+}
+.tm-head svg{display:block;width:100%;height:100%;
+  filter:drop-shadow(0 0 12px rgba(255,222,150,.9)) drop-shadow(0 0 30px rgba(230,196,104,.45));
+}
+/* 尾随余星：三颗逐级变小变淡，保证坠落途中每帧都有东西在动 */
+.tm-spark{
+  position:absolute;left:0;top:0;width:12px;height:12px;opacity:0;
+  transform:translate(-50%,-50%);
+}
+.tm-spark svg{display:block;width:100%;height:100%;opacity:.9;}
+.tm-spark.k1{width:12px;height:12px;--mx:1;}
+.tm-spark.k2{width:9px;height:9px;--mx:1.7;}
+.tm-spark.k3{width:6px;height:6px;--mx:2.4;}
+
+/* —— 0.02s 起步：先亮一下（点击反馈），再按重力加速坠落 —— */
+#meteor-transition.go .t-meteor{
+  animation:tFall .95s cubic-bezier(.38,.02,.82,.34) .04s both;
+}
+@keyframes tFall{
+  0%{transform:translate(var(--fx,-30vw),-12vh);opacity:0;}
+  9%{opacity:1;}
+  78%{opacity:1;}
+  100%{transform:translate(0,66vh);opacity:1;}
+}
+/* 拖尾：随坠落拉长、变亮，落地前最盛 */
+#meteor-transition.go .tm-tail{animation:tailGrow .9s ease-in .06s both;}
+#meteor-transition.go .tm-tail.b{animation-delay:.1s;}
+@keyframes tailGrow{
+  0%{opacity:0;scale:.35 1;}
+  20%{opacity:.55;scale:.6 1;}
+  80%{opacity:1;scale:1.08 1;}
+  100%{opacity:.9;scale:1 1;}
+}
+/* 星体自旋：像一颗真的星星翻滚着坠落 */
+#meteor-transition.go .tm-head{animation:headSpin .95s linear .04s both;}
+@keyframes headSpin{
+  0%{transform:translate(-50%,-50%) rotate(0deg) scale(.9);}
+  15%{transform:translate(-50%,-50%) rotate(30deg) scale(1.16);}
+  100%{transform:translate(-50%,-50%) rotate(320deg) scale(1);}
+}
+/* 余星沿反向拖尾排出，越远越暗 */
+#meteor-transition.go .tm-spark{animation:sparkLag .9s ease-out both;}
+#meteor-transition.go .tm-spark.k1{animation-delay:.05s;}
+#meteor-transition.go .tm-spark.k2{animation-delay:.11s;}
+#meteor-transition.go .tm-spark.k3{animation-delay:.17s;}
+@keyframes sparkLag{
+  0%{opacity:0;translate:0 0;scale:.4;}
+  18%{opacity:.95;scale:1;}
+  100%{opacity:0;translate:calc(var(--sx,-60px) * var(--mx,1)) calc(var(--sy,-44px) * var(--mx,1));scale:.5;}
+}
+/* 落地：星体炸开、光点湮灭 */
+#meteor-transition.boom .t-meteor{animation:tMeteorOut .22s ease-in both;}
+@keyframes tMeteorOut{
+  0%{opacity:1;filter:brightness(1.5);}
+  100%{opacity:0;filter:brightness(2.2);}
 }
 /* 穿越星球：下坠途中迎面掠过又远去的两颗星球（靛蓝大行星 + 玫瑰小星） */
 .t-planet{
@@ -285,12 +369,12 @@ img{max-width:100%;}
   background:radial-gradient(circle at 36% 32%,#e8a0a8,#a85a68 62%,#5c2f3c);
   box-shadow:inset -12px -10px 30px rgba(0,0,0,.45),0 0 36px rgba(232,160,168,.32);
 }
-#meteor-transition.go .t-planet{animation:tPass .72s ease-in both;}
-#meteor-transition.go .t-planet.p2{animation-delay:.12s;}
+#meteor-transition.go .t-planet{animation:tPass .9s ease-in both;}
+#meteor-transition.go .t-planet.p2{animation-delay:.16s;}
 @keyframes tPass{
   0%{opacity:0;transform:scale(.55);}
-  38%{opacity:.9;}
-  100%{opacity:0;transform:scale(1.55);}
+  40%{opacity:.9;}
+  100%{opacity:0;transform:scale(1.7);}
 }
 /* 触底时随星尘一起飘散的玫瑰花瓣 */
 .t-petal{
@@ -303,24 +387,6 @@ img{max-width:100%;}
   0%{transform:translate(0,0) rotate(0deg);opacity:0;}
   16%{opacity:.95;}
   100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rr,120deg));opacity:0;}
-}
-/* 点击即时反馈：弹头先一亮（缩放脉冲），再加速下坠 */
-#meteor-transition.go .t-meteor{animation:tFall .48s cubic-bezier(.55,.06,.84,.32) .06s both;}
-#meteor-transition.go .t-meteor::after{animation:tHeadPulse .18s ease-out 2;}
-@keyframes tHeadPulse{
-  50%{transform:translateY(-50%) scale(1.45);}
-}
-@keyframes tFall{
-  0%{transform:translate(var(--fx,-30vw),-6vh) rotate(var(--fr,28deg));opacity:0;}
-  10%{opacity:1;}
-  82%{opacity:1;}
-  100%{transform:translate(0vw,66vh) rotate(var(--fr,28deg));opacity:1;}
-}
-/* 触底瞬间：流星本体快速湮灭，把舞台让给涟漪 */
-#meteor-transition.boom .t-meteor{animation:tMeteorOut .2s ease-in both;}
-@keyframes tMeteorOut{
-  0%{opacity:1;filter:drop-shadow(0 0 10px rgba(245,230,200,.75)) brightness(1.6);}
-  100%{opacity:0;filter:drop-shadow(0 0 2px transparent) brightness(2);}
 }
 /* 触底闪光：一点爆开的暖白金光 */
 .t-flash{
@@ -703,16 +769,48 @@ main{position:relative;z-index:5;}
 </head>
 <body>
 
-<!-- 全站共用的手绘感金色五角星（首页许愿星 + 转场弹头的母版） -->
+<!-- 全站共用的油画质感金色五角星（首页许愿星 + 转场坠落星的母版） -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <radialGradient id="goldStarGrad" cx="42%" cy="36%" r="78%">
-      <stop offset="0%" stop-color="#ffeeb8"/>
-      <stop offset="55%" stop-color="#f0cf7e"/>
-      <stop offset="100%" stop-color="#d9a94e"/>
+    <!-- 厚涂底色：左上暖白高光 → 右下暗金，模拟颜料的堆叠 -->
+    <radialGradient id="goldStarGrad" cx="38%" cy="30%" r="84%">
+      <stop offset="0%" stop-color="#fff2c6"/>
+      <stop offset="36%" stop-color="#f2d68c"/>
+      <stop offset="70%" stop-color="#e2bd6a"/>
+      <stop offset="100%" stop-color="#c6963f"/>
     </radialGradient>
-    <!-- 略微不规则的五角星曲线，模拟水彩手绘的边缘抖动 -->
+    <!-- 油面罩染：亮部更亮、暗部更深，做出油画特有的透明层 -->
+    <linearGradient id="goldStarSheen" x1="10%" y1="4%" x2="88%" y2="96%">
+      <stop offset="0%" stop-color="#fffbe9" stop-opacity=".88"/>
+      <stop offset="30%" stop-color="#fff2c4" stop-opacity=".26"/>
+      <stop offset="56%" stop-color="#e9c473" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#a97b32" stop-opacity=".45"/>
+    </linearGradient>
+    <!-- 略微不规则的五角星：边缘本来就带手绘抖动 -->
     <path id="goldStar" d="M50 4 C53 20 57 30 62 35 C74 36 88 38 95 42 C87 51 76 57 70 62 C73 74 77 87 75 94 C67 86 58 80 51 75 C43 81 33 88 25 91 C28 80 31 69 31 61 C23 55 13 50 6 44 C17 40 30 38 38 35 C42 25 46 12 50 4 Z"/>
+    <!-- 笔触抖动：用噪声位移把边缘推成画笔勾线的毛边 -->
+    <filter id="oilEdge" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.048" numOctaves="3" seed="12" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="6.5" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="0.75"/>
+    </filter>
+    <!-- 颜料颗粒：叠在星形内部，去掉纯色塑料感 -->
+    <filter id="oilGrain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" seed="5"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <clipPath id="goldStarClip"><use href="#goldStar"/></clipPath>
+
+    <!-- 合成一颗油画星：底稿 + 罩染 + 颗粒 -->
+    <g id="oilStar">
+      <g filter="url(#oilEdge)">
+        <use href="#goldStar" fill="url(#goldStarGrad)"/>
+        <use href="#goldStar" fill="url(#goldStarSheen)"/>
+      </g>
+      <g clip-path="url(#goldStarClip)" opacity=".26" style="mix-blend-mode:multiply">
+        <rect x="0" y="0" width="100" height="100" filter="url(#oilGrain)"/>
+      </g>
+    </g>
   </defs>
 </svg>
 
@@ -828,7 +926,14 @@ main{position:relative;z-index:5;}
 <!-- 流星转场层 -->
 <div id="meteor-transition" hidden role="dialog" aria-label="流星转场动画">
   <button class="t-skip" id="transitSkip">跳过 ✕</button>
-  <div class="t-meteor" id="tMeteor"></div>
+  <div class="t-meteor" id="tMeteor">
+    <span class="tm-tail"></span>
+    <span class="tm-tail b"></span>
+    <span class="tm-spark k1"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
+    <span class="tm-spark k2"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
+    <span class="tm-spark k3"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
+    <span class="tm-head"><svg viewBox="0 0 100 100"><use href="#oilStar"/></svg></span>
+  </div>
   <div class="t-planet p1"></div>
   <div class="t-planet p2"></div>
   <div class="t-flash"></div>
@@ -895,7 +1000,7 @@ $('skyMeteors').innerHTML = D.home.meteors.map(function(m, i){
   return '<button type="button" class="sky-star s' + (i + 1) + '" data-target="' + m.key + '"' +
     ' aria-label="乘许愿星前往：' + m.label + '">' +
     '<span class="s-glow" aria-hidden="true"></span>' +
-    '<svg class="s-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#goldStar" fill="url(#goldStarGrad)"/></svg>' +
+    '<svg class="s-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#oilStar"/></svg>' +
     '<span class="m-label">' + m.label + '</span></button>';
 }).join('');
 
@@ -1018,13 +1123,14 @@ var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
 var transitTimers = [];
 var transitOpen = false;
 
-/* 五颗许愿星各自的穿越轨迹：左侧三颗向右下坠，右侧两颗向左下坠 */
+/* 五颗许愿星各自的坠落轨迹：左三颗向右下坠，右两颗向左下坠
+   fr = 拖尾指向（沿轨迹回头看的方向）；sx/sy = 余星散开的反方向 */
 var dirVars = {
-  s1: { fx:'-34vw', fr:'30deg'  },
-  s2: { fx:'-18vw', fr:'44deg'  },
-  s3: { fx:'0vw',   fr:'60deg'  },
-  s4: { fx:'18vw',  fr:'-132deg'},
-  s5: { fx:'34vw',  fr:'-150deg'}
+  s1: { fx:'-34vw', fr:'30deg',   sx:'-58px',  sy:'-42px'  },
+  s2: { fx:'-18vw', fr:'44deg',   sx:'-44px',  sy:'-62px'  },
+  s3: { fx:'0vw',   fr:'60deg',   sx:'-24px',  sy:'-76px'  },
+  s4: { fx:'18vw',  fr:'-132deg', sx:'44px',   sy:'-62px'  },
+  s5: { fx:'34vw',  fr:'-150deg', sx:'58px',   sy:'-42px'  }
 };
 var secMeta = {
   about:      { title:'关于我',     quote:D.about.quote },
@@ -1073,6 +1179,8 @@ function playTransit(key, from){
   var dv = dirVars[from] || dirVars.s3;
   tMeteor.style.setProperty('--fx', dv.fx);
   tMeteor.style.setProperty('--fr', dv.fr);
+  tMeteor.style.setProperty('--sx', dv.sx);
+  tMeteor.style.setProperty('--sy', dv.sy);
 
   overlay.hidden = false;
   overlay.classList.remove('go','boom','card-in');
@@ -1081,19 +1189,19 @@ function playTransit(key, from){
 
   document.addEventListener('keydown', onTransitKey);
 
-  // 0.0s 流星加速下坠（点击反馈 = overlay 一出现流星即亮）
+  // 0.03s 起飞：点击即时反馈（星体先亮，再按重力加速坠落，全程约 1 秒）
   transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); }, 30));
-  // 0.4s 触底：光点炸开成星尘涟漪
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); }, 480));
-  // 0.6s 信息卡片从涟漪中心浮出
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 640));
-  // 1.0s 稳定：切换滚动位置（在遮罩后完成，用户无感知）
+  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); }, 990));
+  // 1.12s 信息卡片从落地点的光晕里浮出
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 1120));
+  // 1.26s 切换滚动位置（在遮罩后完成，用户无感知）
   transitTimers.push(setTimeout(function(){
     goToSection(key);
     localStorage.setItem('luojiao-meteor-' + key, '1');
-  }, 1000));
-  // 1.2s 收场
-  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1250));
+  }, 1260));
+  // 1.46s 收场
+  transitTimers.push(setTimeout(function(){ endTransit(null, false); }, 1460));
 }
 
 // 绑定五颗许愿星
