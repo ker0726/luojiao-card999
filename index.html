@@ -765,13 +765,14 @@ main{position:relative;z-index:5;}
   gap:26px 24px;position:relative;z-index:1;
 }
 .stat{min-width:0;}
-.stat b{
-  display:block;font-family:var(--kai);font-weight:400;
-  font-size:clamp(1.32rem,2.2vw,1.6rem);line-height:1.3;
-  letter-spacing:.02em;color:#9d6b34;white-space:nowrap;
-}
 .stat span{
-  display:block;margin-top:5px;font-size:.74rem;letter-spacing:.18em;color:#9e6357;
+  display:block;font-size:.78rem;letter-spacing:.16em;line-height:1.4;
+  color:#9e6357;white-space:nowrap;
+}
+.stat b{
+  display:block;margin-top:6px;font-family:var(--kai);font-weight:400;
+  font-size:clamp(1.42rem,2.4vw,1.85rem);line-height:1.3;
+  letter-spacing:.02em;color:#9d6b34;white-space:nowrap;
 }
 .course-list{margin:0;padding:0;list-style:none;position:relative;z-index:1;}
 .course-list li{
@@ -1451,7 +1452,7 @@ function showSkillsStatic(){
 // 经历与成绩
 $('expQuote').textContent = D.experience.quote;
 $('studyStats').innerHTML = D.experience.study.map(function(s){
-  return '<div class="stat"><b>' + s.v + '</b><span>' + s.k + '</span></div>';
+  return '<div class="stat"><span>' + s.k + '</span><b>' + s.v + '</b></div>';
 }).join('');
 $('courseList').innerHTML = D.experience.courses.map(function(c){
   return '<li><span>' + c.name + '</span><span class="c-score">' + c.score + '</span></li>';
