@@ -82,7 +82,7 @@ img{max-width:100%;}
   color:var(--star);text-decoration:none;display:flex;align-items:center;gap:9px;
 }
 .brand svg{flex:none;}
-.nav-links{display:flex;gap:6px;list-style:none;margin:0;padding:0;}
+.nav-links{display:flex;gap:6px;list-style:none;margin:0 0 0 auto;padding:0;}
 .nav-links a{
   display:block;padding:7px 14px;border-radius:999px;
   font-size:.86rem;letter-spacing:.08em;color:var(--ink-on-dark);
@@ -95,6 +95,21 @@ img{max-width:100%;}
   display:none;background:none;border:1px solid rgba(245,230,200,.25);
   border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--star);
 }
+/* 转场音效开关 */
+.sfx-toggle{
+  display:flex;align-items:center;justify-content:center;flex:none;
+  width:34px;height:34px;margin-left:10px;
+  background:none;border:1px solid rgba(245,230,200,.22);border-radius:999px;
+  color:var(--star);opacity:.8;cursor:pointer;
+  transition:opacity .25s,border-color .25s,background-color .25s;
+}
+.sfx-toggle:hover,.sfx-toggle:focus-visible{
+  opacity:1;border-color:rgba(245,230,200,.42);background:rgba(245,230,200,.08);
+}
+.sfx-toggle .slash{opacity:0;transition:opacity .2s;}
+.sfx-toggle.muted{opacity:.55;}
+.sfx-toggle.muted .wave{opacity:0;}
+.sfx-toggle.muted .slash{opacity:1;}
 @media (max-width:760px){
   .nav-toggle{display:block;}
   .nav-links{
@@ -831,6 +846,13 @@ main{position:relative;z-index:5;}
       <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="1.6"/></svg>
     </button>
     <ul class="nav-links" id="navLinks"><!-- 由 data.js 渲染 --></ul>
+    <button class="sfx-toggle" id="sfxToggle" type="button" aria-pressed="true" aria-label="关闭转场音效" title="转场音效">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9.5h3.2L13 5v14l-5.8-4.5H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <path class="wave" d="M16 9a4.2 4.2 0 0 1 0 6M18.6 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path class="slash" d="M16.4 8.4l5.2 7.2" stroke="currentColor" stroke-width="1.6"/>
+      </svg>
+    </button>
   </nav>
 </header>
 
@@ -1116,7 +1138,119 @@ var riseObs = new IntersectionObserver(function(entries){
 document.querySelectorAll('.rise').forEach(function(el){ riseObs.observe(el); });
 
 /* ============================================================
-   四、流星转场（1.2s / 可跳过 / 可记忆 / 降级直显）
+   四、转场音效：Web Audio 现场合成（不引入外部音频文件）
+   ============================================================ */
+var SFX_KEY = 'luojiao-sfx';
+var sfxOn = localStorage.getItem(SFX_KEY) !== 'off';
+var actx = null, sfxMaster = null, whooshSrc = null, whooshGain = null;
+
+function sfxEnsure(){
+  if (!sfxOn) return null;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!actx) {
+    actx = new AC();
+    sfxMaster = actx.createGain();
+    sfxMaster.gain.value = 0.32;   // 整体音量克制，不抢内容
+    sfxMaster.connect(actx.destination);
+  }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function sfxNoise(dur){
+  var n = Math.floor(actx.sampleRate * dur);
+  var buf = actx.createBuffer(1, n, actx.sampleRate);
+  var d = buf.getChannelData(0);
+  for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+/* 坠落风声：带通噪声从低到高再回落，贴着 0.95s 的坠落 */
+function sfxWhoosh(){
+  var ac = sfxEnsure(); if (!ac) return;
+  sfxStopWhoosh();
+  var t0 = ac.currentTime + 0.02, dur = 0.95;
+  var src = ac.createBufferSource(); src.buffer = sfxNoise(dur);
+  var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9;
+  bp.frequency.setValueAtTime(240, t0);
+  bp.frequency.exponentialRampToValueAtTime(1250, t0 + dur * 0.72);
+  bp.frequency.exponentialRampToValueAtTime(520, t0 + dur);
+  var g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(0.45, t0 + dur * 0.55);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(bp); bp.connect(g); g.connect(sfxMaster);
+  src.start(t0); src.stop(t0 + dur);
+  whooshSrc = src; whooshGain = g;
+}
+function sfxStopWhoosh(){
+  if (!whooshSrc) return;
+  try {
+    if (actx && whooshGain) {
+      var now = actx.currentTime;
+      whooshGain.gain.cancelScheduledValues(now);
+      whooshGain.gain.setValueAtTime(Math.max(whooshGain.gain.value, 0.0001), now);
+      whooshGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+    }
+    whooshSrc.stop(actx ? actx.currentTime + 0.14 : 0);
+  } catch(e){}
+  whooshSrc = null; whooshGain = null;
+}
+/* 落地：一声低沉的落点 + 三枚上行的星尘铃音 + 一点细沙 */
+function sfxImpact(){
+  var ac = sfxEnsure(); if (!ac) return;
+  var t0 = ac.currentTime + 0.01;
+
+  var thump = ac.createOscillator(); thump.type = 'sine';
+  thump.frequency.setValueAtTime(120, t0);
+  thump.frequency.exponentialRampToValueAtTime(54, t0 + 0.3);
+  var tg = ac.createGain();
+  tg.gain.setValueAtTime(0.4, t0);
+  tg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.36);
+  thump.connect(tg); tg.connect(sfxMaster);
+  thump.start(t0); thump.stop(t0 + 0.4);
+
+  [[784, 0, 0.3], [1176, .06, 0.22], [1568, .12, 0.13]].forEach(function(p){
+    var o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = p[0];
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0 + p[1]);
+    g.gain.linearRampToValueAtTime(p[2], t0 + p[1] + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.55);
+    o.connect(g); g.connect(sfxMaster);
+    o.start(t0 + p[1]); o.stop(t0 + 0.6);
+  });
+
+  var src = ac.createBufferSource(); src.buffer = sfxNoise(0.2);
+  var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2600;
+  var hg = ac.createGain();
+  hg.gain.setValueAtTime(0.1, t0 + 0.02);
+  hg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+  src.connect(hp); hp.connect(hg); hg.connect(sfxMaster);
+  src.start(t0 + 0.02); src.stop(t0 + 0.24);
+}
+/* 音效开关：记住选择，关掉时立刻静音并挂起音频上下文 */
+var sfxBtn = $('sfxToggle');
+function renderSfx(){
+  sfxBtn.classList.toggle('muted', !sfxOn);
+  sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
+  var label = sfxOn ? '关闭转场音效' : '开启转场音效';
+  sfxBtn.setAttribute('aria-label', label);
+  sfxBtn.title = label;
+}
+renderSfx();
+sfxBtn.addEventListener('click', function(){
+  sfxOn = !sfxOn;
+  localStorage.setItem(SFX_KEY, sfxOn ? 'on' : 'off');
+  renderSfx();
+  if (!sfxOn) {
+    sfxStopWhoosh();
+    if (actx && actx.state === 'running') actx.suspend();
+  } else {
+    sfxEnsure();
+  }
+});
+
+/* ============================================================
+   五、流星转场（1.2s / 可跳过 / 可记忆 / 降级直显）
    ============================================================ */
 var overlay = $('meteor-transition');
 var tMeteor = $('tMeteor'), tQuote = $('tQuote'), tTitle = $('tTitle');
@@ -1150,6 +1284,7 @@ function goToSection(key){
 }
 function endTransit(key, instant){
   clearTransitTimers();
+  sfxStopWhoosh();  // 跳过 / 收场时截断仍在响的风声
   if (key) goToSection(key);
   overlay.classList.remove('on','go','boom','card-in');
   if (instant) {
@@ -1189,10 +1324,10 @@ function playTransit(key, from){
 
   document.addEventListener('keydown', onTransitKey);
 
-  // 0.03s 起飞：点击即时反馈（星体先亮，再按重力加速坠落，全程约 1 秒）
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); }, 30));
-  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣
-  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); }, 990));
+  // 0.03s 起飞：点击即时反馈（星体先亮，风声同时起，再按重力加速坠落，全程约 1 秒）
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('go'); sfxWhoosh(); }, 30));
+  // 0.99s 落地：星体炸开，闪光 + 三环涟漪 + 星尘花瓣，同时落下音效
+  transitTimers.push(setTimeout(function(){ overlay.classList.add('boom'); sfxImpact(); }, 990));
   // 1.12s 信息卡片从落地点的光晕里浮出
   transitTimers.push(setTimeout(function(){ overlay.classList.add('card-in'); }, 1120));
   // 1.26s 切换滚动位置（在遮罩后完成，用户无感知）
@@ -1224,7 +1359,7 @@ overlay.addEventListener('click', function(e){
 });
 
 /* ============================================================
-   五、信封拆信：翻盖 3D 掀开 → 信纸滑出 → 进入子作品页
+   六、信封拆信：翻盖 3D 掀开 → 信纸滑出 → 进入子作品页
    ============================================================ */
 document.querySelectorAll('.envelope').forEach(function(env){
   env.addEventListener('click', function(){
@@ -1238,7 +1373,7 @@ document.querySelectorAll('.envelope').forEach(function(env){
 });
 
 /* ============================================================
-   六、星空画布：星星 + 尘埃 + 环境流星（装饰，不影响阅读）
+   七、星空画布：星星 + 尘埃 + 环境流星（装饰，不影响阅读）
    ============================================================ */
 var canvas = $('sky'), ctx = canvas.getContext('2d');
 var W = 0, H = 0, stars = [], dust = [], ambMeteors = [];
