@@ -142,7 +142,7 @@ window.SITE_DATA = {
         tags: ['秒哒', 'DSH', '5–6 次迭代'],
         status: '已完成',
         cover: 'works/ledger-cover.webp',
-        link: '', // 待补：e次元账本的公开访问地址
+        link: 'https://app-ek7ylyqtewap.miaoda.online/',
         detail: {
           oneliner: '一个面向大学生消费行为的陪伴系统。',
           why:      '这个 idea 来源于我和朋友参加比赛，我根据我们比赛的内容做出了这样一个产品。',

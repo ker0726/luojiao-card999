@@ -1843,6 +1843,11 @@ document.addEventListener('visibilitychange', function(){
 });
 if (reduceMotion) { drawSky(0); } // 降级：静态星空一帧
 else { startSky(); }
+
+/* 支持 index.html#works 这类锚点直接落在对应星球：
+   作品详情页的「← 返回信封墙」会带 #works 回来，避免又落回星球首页 */
+var hashKey = (location.hash || '').replace('#', '');
+if (planetOrder.indexOf(hashKey) !== -1) goToSection(hashKey, true);
 })();
 </script>
 </body>
