@@ -507,14 +507,22 @@ main{position:relative;z-index:5;}
 .pc-facts .fact{min-width:0;}
 .pc-facts dt{font-size:.72rem;letter-spacing:.2em;color:#9e6357;}
 .pc-facts dd{margin:4px 0 0;font-size:.96rem;color:#22314a;line-height:1.7;}
-.about-intro{margin-top:22px;padding-top:18px;border-top:1px dashed rgba(152,112,90,.26);}
-.about-intro p{margin:0 0 12px;font-size:.9rem;line-height:1.85;color:#3b4b62;}
+.about-intro{margin-top:22px;padding-top:18px;border-top:1px dashed rgba(152,112,90,.26);position:relative;}
+/* 介绍正文：提高行高、字距与段间距，并首行缩进，降低长段落阅读压力 */
+.about-intro p{margin:0 0 14px;font-size:.96rem;line-height:2;letter-spacing:.03em;color:#3b4b62;}
 .about-intro p:last-child{margin-bottom:0;}
 .about-intro em{font-style:normal;color:#b06a63;}
 /* 打字机：用等高的隐形全文占位，避免逐字输出时卡片高度跳动 */
-.about-intro .type-line{position:relative;margin:0;font-size:.9rem;line-height:1.85;color:#3b4b62;}
-.type-ghost{visibility:hidden;}
-.type-live{position:absolute;inset:0;}
+.about-intro .type-ghost{visibility:hidden;}
+.about-intro .type-live{position:absolute;left:0;right:0;top:18px;}
+.about-intro .type-ghost p,
+.about-intro .type-live p{
+  margin:0 0 14px;
+  font-size:.96rem;line-height:2;letter-spacing:.03em;
+  text-indent:2em;text-align:justify;text-justify:inter-ideograph;color:#3b4b62;
+}
+.about-intro .type-ghost p:last-child,
+.about-intro .type-live p:last-child{margin-bottom:0;}
 .type-caret{
   display:inline-block;width:2px;height:1em;margin-left:2px;
   background:#b06a63;vertical-align:-.12em;opacity:0;
@@ -704,7 +712,7 @@ main{position:relative;z-index:5;}
 .skill-dim b{font-family:var(--deco);font-weight:400;font-size:.76rem;letter-spacing:.12em;color:#b08a4f;}
 .skill-dim .dim-name{font-size:.88rem;letter-spacing:.1em;color:#22314a;}
 .skill-dim p{
-  margin:0;font-size:clamp(.7rem,1.02vw,.79rem);line-height:1.75;
+  margin:0;font-size:clamp(.7rem,1.02vw,.79rem);line-height:1.92;letter-spacing:.02em;
   color:#4a5a72;text-align:justify;text-justify:inter-ideograph;
 }
 /* 五张注解卡沿五角星的五个角向外排布（百分比与星图顶点对齐） */
@@ -1336,14 +1344,17 @@ setTimeout(function(){ skyMeteorsEl.classList.add('settled'); }, 4300);
 $('factList').innerHTML = D.about.facts.map(function(f){
   return '<div class="fact"><dt>' + f.k + '</dt><dd>' + f.v + '</dd></div>';
 }).join('');
-/* 介绍长文：打字机输出（每 70ms 一个字，末尾竖线光标闪烁）
-   —— 可见的逐字行用隐形全文占位撑住高度，另留一段 sr-only 完整文本给读屏 */
-$('aboutIntro').innerHTML =
-  '<p class="type-line" aria-hidden="true">' +
-    '<span class="type-ghost">' + D.about.intro + '</span>' +
-    '<span class="type-live"><span id="typeText"></span><i class="type-caret"></i></span>' +
-  '</p>' +
-  '<p class="sr-only">' + D.about.intro + '</p>';
+/* 介绍长文：打字机逐段输出
+   —— 用等高的隐形全文段占位撑住高度，另留一段 sr-only 完整文本给读屏 */
+(function(){
+  var paras = D.about.intro;
+  var ghost = paras.map(function(p){ return '<p>' + p + '</p>'; }).join('');
+  var full = paras.join('');
+  $('aboutIntro').innerHTML =
+    '<div class="type-ghost" aria-hidden="true">' + ghost + '</div>' +
+    '<div class="type-live" id="typeLive" aria-hidden="true"></div>' +
+    '<p class="sr-only">' + full + '</p>';
+})();
 
 var aboutTypeTimer = null, aboutTypeTick = null;
 function stopAboutTyping(){
@@ -1354,25 +1365,43 @@ function stopAboutTyping(){
   if (box) box.classList.remove('typing');
 }
 function typeAboutIntro(){
-  var box = $('aboutIntro'), out = $('typeText');
-  if (!box || !out) return;
+  var box = $('aboutIntro'), live = $('typeLive');
+  if (!box || !live) return;
   stopAboutTyping();
-  var text = D.about.intro;
-  out.textContent = '';
+  var paras = D.about.intro;
+  live.innerHTML = '';
+  var nodes = [];
+  paras.forEach(function(){ var p = document.createElement('p'); live.appendChild(p); nodes.push(p); });
   box.classList.remove('typed');
-  if (reduceMotion) { out.textContent = text; box.classList.add('typed'); return; }
+  if (reduceMotion) {
+    paras.forEach(function(t, i){ nodes[i].textContent = t; });
+    box.classList.add('typed');
+    return;
+  }
   box.classList.add('typing');
-  var i = 0;
+  var caret = document.createElement('i');
+  caret.className = 'type-caret';
+  var pi = 0, ci = 0;
+  nodes[0].appendChild(caret);
   aboutTypeTick = setInterval(function(){
-    i += 1;
-    out.textContent = text.slice(0, i);
-    if (i >= text.length) {          // 打完：停表，光标继续闪
+    if (pi >= paras.length) {
+      if (caret.parentNode) caret.parentNode.removeChild(caret);
       clearInterval(aboutTypeTick);
       aboutTypeTick = null;
       box.classList.remove('typing');
       box.classList.add('typed');
+      return;
     }
-  }, 70);
+    var cur = paras[pi];
+    if (ci >= cur.length) {
+      if (caret.parentNode) caret.parentNode.removeChild(caret);
+      pi += 1; ci = 0;
+      if (pi < paras.length) nodes[pi].appendChild(caret);
+      return;
+    }
+    nodes[pi].insertBefore(document.createTextNode(cur[ci]), caret);
+    ci += 1;
+  }, 60);
 }
 /* 等穿越遮罩收场后再开字，避免开头几个字被遮住 */
 function queueAboutTyping(tries){
@@ -1385,9 +1414,11 @@ function queueAboutTyping(tries){
 /* 无动效抵达：跳过打字机，直接把全文和光标状态摆好 */
 function completeAboutTyping(){
   stopAboutTyping();
-  var box = $('aboutIntro'), out = $('typeText');
-  if (!box || !out) return;
-  out.textContent = D.about.intro;
+  var box = $('aboutIntro'), live = $('typeLive');
+  if (!box || !live) return;
+  var paras = D.about.intro;
+  live.innerHTML = '';
+  paras.forEach(function(t){ var p = document.createElement('p'); p.textContent = t; live.appendChild(p); });
   box.classList.add('typed');
 }
 // 爱好小图标（inline SVG，手绘线条感）
