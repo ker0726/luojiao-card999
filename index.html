@@ -873,8 +873,16 @@ main{position:relative;z-index:5;}
   box-shadow:0 3px 14px rgba(120,60,66,.5),0 0 18px rgba(232,160,168,.75),inset 0 0 0 3px rgba(255,255,255,.2);
 }
 .envelope.open .env-wax{opacity:0;}
+/* 信封封面：作品预览图 */
+.env-shot{
+  position:relative;z-index:2;margin:96px 18px 0;
+  aspect-ratio:16/10;border-radius:9px;overflow:hidden;
+  background:#0d1b2a;border:1px solid rgba(28,43,64,.10);
+  box-shadow:0 6px 18px rgba(28,43,64,.16);
+}
+.env-shot img{display:block;width:100%;height:100%;object-fit:cover;}
 /* 封面信息（不打开也看得清） */
-.env-body{padding:104px 22px 20px;display:flex;flex-direction:column;flex:1;position:relative;z-index:2;}
+.env-body{padding:16px 22px 20px;display:flex;flex-direction:column;flex:1;position:relative;z-index:2;}
 .env-no{
   position:absolute;top:18px;left:20px;z-index:2;
   font-family:var(--deco);font-size:1.05rem;letter-spacing:.14em;color:#8a7448;
@@ -886,6 +894,7 @@ main{position:relative;z-index:5;}
 }
 .st-doing{color:#8a6a1f;border-color:rgba(160,120,40,.5);background:rgba(230,196,104,.22);}
 .st-done{color:#3c6e51;border-color:rgba(80,140,105,.5);background:rgba(140,190,160,.22);}
+.st-live{color:#2f6b4f;border-color:rgba(60,130,95,.55);background:rgba(120,185,150,.26);}
 .st-design{color:#7a5c80;border-color:rgba(150,110,160,.5);background:rgba(190,150,200,.22);}
 .env-name{
   font-family:var(--kai);font-weight:400;
@@ -1470,16 +1479,17 @@ $('practiceList').innerHTML = D.experience.practice.map(function(p){
 
 // 作品信封墙
 $('worksQuote').textContent = D.works.quote;
-var statusClass = { '开发中':'st-doing', '已完成':'st-done', '设计中':'st-design' };
+var statusClass = { '开发中':'st-doing', '已完成':'st-done', '已上线':'st-live', '设计中':'st-design' };
 $('envWall').innerHTML = D.works.list.map(function(w){
   return '<button type="button" class="envelope" data-id="' + w.id + '" aria-label="打开作品：' + w.name + '">' +
     '<div class="env-card">' +
       '<div class="env-letter"><span class="l-title">' + w.name + '</span>' + (w.detail.oneliner.indexOf('【待填】') === 0 ? '信件内容正在书写……' : w.detail.oneliner) + '</div>' +
       '<div class="env-flap"></div>' +
       '<div class="env-wax" aria-hidden="true">L</div>' +
+      '<span class="env-no">' + w.no + '</span>' +
+      '<span class="env-status ' + (statusClass[w.status] || 'st-design') + '">' + w.status + '</span>' +
+      (w.cover ? '<div class="env-shot"><img src="' + w.cover + '" alt="' + w.name + ' 作品预览" loading="lazy" decoding="async" /></div>' : '') +
       '<div class="env-body">' +
-        '<span class="env-no">' + w.no + '</span>' +
-        '<span class="env-status ' + (statusClass[w.status] || 'st-design') + '">' + w.status + '</span>' +
         '<h3 class="env-name">' + w.name + '</h3>' +
         '<p class="env-brief">' + w.brief + '</p>' +
         '<div class="env-foot"><div class="env-tags">' +

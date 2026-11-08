@@ -117,105 +117,57 @@ window.SITE_DATA = {
     quote: '「每一封信，都是我从一个星球寄出的问候。」',
     list: [
       {
-        id: 'todo',
+        id: 'dino',
         no: '01',
-        name: '星念待办',
-        brief: '支持中文自然语言日期与重复规则的个人待办应用',
-        tags: ['React', 'TypeScript'],
-        status: '开发中',
-        link: '', // 【待填】正式部署地址
+        name: '像素小恐龙',
+        brief: '一个可以随时放松一下的像素小游戏',
+        tags: ['秒哒', '小游戏'],
+        status: '已上线',
+        cover: 'works/dino-cover.webp',
+        link: 'https://app-ei2vkxvufkld.miaoda.online/',
         detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填：为什么做这个项目】',
-          role:     '【待填：我做了什么，独立 / 协作写清楚】',
-          stack:    'React · TypeScript',
-          shots:    [], // 【待填】截图路径数组，如 ['shots/todo-1.png']
-          retro:    '【待填：复盘——卡最久的问题 + 怎么解决的】'
+          oneliner: '在小组同学 1.0 版本的基础上优化，加入技能和捡金币奖赏机制的放松小游戏。',
+          why:      '这个作品其实是我在小组同学的 1.0 版本优化而来的，主要就是一个放松的小游戏。',
+          role:     '我在她的基础上多设计了一些技能和捡金币的奖赏机制，主要是用秒哒来工作的。电脑上显示比较完整，手机上显示有点拥挤。',
+          stack:    '秒哒',
+          shots:    ['works/dino-cover.webp'],
+          retro:    '电脑端显示比较完整，手机端还有点拥挤——后面想在移动端把画面再收一收。'
         }
       },
       {
-        id: 'dino',
+        id: 'ledger',
         no: '02',
-        name: '像素小恐龙',
-        brief: '复刻 Chrome 小恐龙的像素风跳跃小游戏',
-        tags: ['HTML5 Canvas'],
-        status: '开发中',
-        link: '',
+        name: 'e次元账本',
+        brief: '大学生消费行为的陪伴系统',
+        tags: ['秒哒', 'DSH', '5–6 次迭代'],
+        status: '已完成',
+        cover: 'works/ledger-cover.webp',
+        link: '', // 待补：e次元账本的公开访问地址
         detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填：为什么做这个项目】',
-          role:     '【待填：我做了什么】',
-          stack:    'HTML5 Canvas · 原生 JS',
-          shots:    [],
-          retro:    '【待填：复盘】'
+          oneliner: '一个面向大学生消费行为的陪伴系统。',
+          why:      '这个 idea 来源于我和朋友参加比赛，我根据我们比赛的内容做出了这样一个产品。',
+          role:     '这个作品差不多迭代了五六次。刚开始是用了朋友的一款外国 AI 工具（具体是什么我忘记了），然后丢给 DSH，让它根据作品内容给出建议和提示词；因为当时对秒哒最熟悉，所以最后把代码丢给秒哒来处理。',
+          stack:    '秒哒 · DSH',
+          shots:    ['works/ledger-cover.webp'],
+          retro:    '前前后后迭代了五六次，工具换了几轮，最后用最熟悉的秒哒把代码落地。'
         }
       },
       {
         id: 'weather',
         no: '03',
         name: '天气助手',
-        brief: '【待填：一句话简介】',
-        tags: ['【待填】'],
-        status: '设计中',
-        link: '',
+        brief: '会看天气，也会提醒你今天怎么穿',
+        tags: ['TRAE', 'DSH', 'Vibe Coding'],
+        status: '已上线',
+        cover: 'works/weather-cover.webp',
+        link: 'works/weather/',
         detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填】',
-          role:     '【待填】',
-          stack:    '【待填】',
-          shots:    [],
-          retro:    '【待填：复盘】'
-        }
-      },
-      {
-        id: 'study',
-        no: '04',
-        name: '智学伴侣',
-        brief: '课程表与番茄钟整合的学习辅助小工具',
-        tags: ['原生 JS', 'LocalStorage'],
-        status: '开发中',
-        link: '',
-        detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填】',
-          role:     '【待填】',
-          stack:    '原生 JS · LocalStorage',
-          shots:    [],
-          retro:    '【待填：复盘】'
-        }
-      },
-      {
-        id: 'pomodoro',
-        no: '05',
-        name: '番茄计时器',
-        brief: '【待填：一句话简介】',
-        tags: ['【待填】'],
-        status: '设计中',
-        link: '',
-        detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填】',
-          role:     '【待填】',
-          stack:    '【待填】',
-          shots:    [],
-          retro:    '【待填：复盘】'
-        }
-      },
-      {
-        id: 'notes',
-        no: '06',
-        name: '笔记助手',
-        brief: '【待填：一句话简介】',
-        tags: ['【待填】'],
-        status: '设计中',
-        link: '',
-        detail: {
-          oneliner: '【待填：一句话定位】',
-          why:      '【待填】',
-          role:     '【待填】',
-          stack:    '【待填】',
-          shots:    [],
-          retro:    '【待填：复盘】'
+          oneliner: '一个会看天气、也会根据天气提醒你今天怎么穿的天气助手。',
+          why:      '这是个人实战部分里的一个项目，主要采用的还是 Vibe Coding 的形式。',
+          role:     '我先去看了市面上的 APP，然后让 DSH 分析它们的优缺点；明确需要调用天气数据的 API，让 DSH 给我提示词，再让 TRAE 进行创作。根据结果，我从排版、功能这些地方不断优化，比如新加了一个根据天气提醒用户穿搭的提示。',
+          stack:    'TRAE · DSH · Open-Meteo',
+          shots:    ['works/weather-cover.webp'],
+          retro:    '从看市面 APP、让 DSH 分析优缺点，到明确天气 API、用 TRAE 创作，再反复调排版和功能，这条 Vibe Coding 的路基本跑通了。'
         }
       }
     ]

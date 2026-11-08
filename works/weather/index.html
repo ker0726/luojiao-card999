@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="天气助手 — 现在怎样、今天要不要带伞、这几天怎么穿，一屏看懂。">
+<title>天气助手 · 打开就知道</title>
+<link rel="stylesheet" href="css/style.css?v=20261107j">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤</text></svg>">
+</head>
+<body class="bg-default">
+  <!-- 启动页：Logo 居中 + 暖心话语（底部） -->
+  <div id="splash" class="splash" role="status" aria-label="加载中">
+    <div class="splash-center">
+      <svg class="splash-logo" viewBox="0 0 120 96" aria-hidden="true">
+        <g stroke="#FFC53D" stroke-width="5" stroke-linecap="round">
+          <line x1="80" y1="5" x2="80" y2="13"/>
+          <line x1="103" y1="14" x2="97" y2="20"/>
+          <line x1="112" y1="36" x2="104" y2="36"/>
+          <line x1="57" y1="14" x2="63" y2="20"/>
+        </g>
+        <circle cx="80" cy="36" r="16" fill="#FFC53D"/>
+        <g fill="#FFFFFF">
+          <circle cx="42" cy="58" r="17"/>
+          <circle cx="64" cy="50" r="21"/>
+          <circle cx="85" cy="60" r="15"/>
+          <rect x="42" y="58" width="43" height="17" rx="8.5"/>
+        </g>
+      </svg>
+      <div class="splash-name">天气助手</div>
+      <div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+    <p class="splash-line">知你冷暖，陪你走过每个晴天雨天</p>
+  </div>
+
+  <!-- 动态天气背景层 -->
+  <div id="bgLayer" aria-hidden="true">
+    <div class="bg-grad"></div>
+    <div class="bg-fx" id="bgFx"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="logo" href="./" id="logoHome">🌤 <strong>天气助手</strong></a>
+
+      <div class="searchbox" id="searchBox">
+        <svg class="ic" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14"/></svg>
+        <input id="searchInput" type="search" placeholder="搜索城市：中文 / 拼音，如「北京」或「beijing」" autocomplete="off" spellcheck="false" aria-label="搜索城市">
+        <button id="locateBtn" class="icon-btn" title="重新定位" aria-label="重新定位">📍</button>
+        <div id="searchDrop" class="search-drop" hidden></div>
+      </div>
+
+      <div class="top-actions">
+        <button id="notifyBtn" class="chip" title="恶劣天气提醒">🔔</button>
+        <button id="shareBtn" class="chip" title="生成分享卡片">分享</button>
+        <button id="unitBtn" class="chip" title="切换温度单位">°C</button>
+        <button id="themeBtn" class="chip" title="切换深浅色">🌗</button>
+      </div>
+    </div>
+  </header>
+
+  <nav id="cityTabs" class="city-tabs" aria-label="城市列表"></nav>
+
+  <!-- 预警区（P1，红/橙强提醒置顶） -->
+  <section id="alertsWrap" class="alerts-wrap" hidden></section>
+
+  <!-- 全局提示条：数据分歧 / 校准中 / 离线 / 定位粗略 -->
+  <div id="noticeBar" class="notice-bar" hidden></div>
+
+  <main id="app" class="app">
+    <!-- 骨架屏 -->
+    <div id="skeleton" class="skeleton">
+      <div class="sk-card sk-current"><div class="sk sk-line w40"></div><div class="sk sk-big"></div><div class="sk sk-line w70"></div><div class="sk sk-line w55"></div></div>
+      <div class="sk-card"><div class="sk sk-line w30"></div><div class="sk sk-bar"></div></div>
+      <div class="sk-card"><div class="sk sk-line w30"></div><div class="sk sk-chart"></div></div>
+      <div class="sk-card"><div class="sk sk-line w30"></div><div class="sk sk-bar"></div><div class="sk sk-bar short"></div></div>
+    </div>
+
+    <div id="content" class="content" hidden>
+      <!-- 实况卡 -->
+      <section id="currentCard" class="card card-current" aria-label="当前天气">
+        <div class="current-main">
+          <div class="current-left">
+            <div class="current-icon" id="curIcon">--</div>
+            <div class="current-temp-wrap">
+              <div class="current-temp"><span id="curTemp">--</span><span class="deg" id="curDeg">°</span></div>
+              <div class="current-desc" id="curDesc">加载中…</div>
+            </div>
+          </div>
+          <div class="current-side" id="currentSide"></div>
+        </div>
+        <div class="current-quick" id="currentQuick"></div>
+        <div class="aqi-inline" id="aqiInline" hidden></div>
+        <p class="conclusion" id="conclusion">正在生成出行结论…</p>
+        <div class="src-badge" id="curSource"></div>
+      </section>
+
+      <!-- 分钟级降水条 -->
+      <section id="minuteCard" class="card card-minute" aria-label="未来两小时降水">
+        <div class="card-head"><h2>未来 2 小时降水</h2><span class="muted" id="minuteTag">加载中</span></div>
+        <p id="minuteSummary" class="minute-summary">—</p>
+        <div id="minuteStrip" class="minute-strip"></div>
+      </section>
+
+      <!-- 今日穿搭（首屏右侧，与实况/降水同屏） -->
+      <section class="card card-outfit" id="outfitCard" aria-label="今日穿搭推荐">
+        <div class="card-head">
+          <h2>今日穿搭</h2>
+          <div class="outfit-prefs">
+            <div class="seg" id="outfitGender" role="group" aria-label="性别">
+              <button data-v="f" title="女生穿搭">👧</button><button data-v="m" title="男生穿搭">👦</button>
+            </div>
+            <div class="seg" id="outfitStyle" role="group" aria-label="风格">
+              <button data-v="casual">休闲</button><button data-v="work">商务</button><button data-v="sport">运动</button>
+            </div>
+          </div>
+        </div>
+        <div id="outfitBody" class="outfit-body"><span class="muted">加载中…</span></div>
+        <div id="outfitCare" class="outfit-care" hidden></div>
+      </section>
+
+      <!-- 逐小时 -->
+      <section class="card" id="hourCard" aria-label="逐小时预报">
+        <div class="card-head"><h2>逐小时 <small>未来 48 小时</small></h2></div>
+        <div class="hour-scroll" id="hourScroll">
+          <div id="hourChart" class="hour-chart"></div>
+          <div id="hourTip" class="hour-tip" hidden></div>
+        </div>
+      </section>
+
+      <!-- 7 天预报（折线图 + 明细） -->
+      <section class="card" id="dailyCard" aria-label="多日预报">
+        <div class="card-head"><h2>7 天温度走势</h2></div>
+        <div id="dailyChart" class="daily-chart"></div>
+        <div id="dailyList" class="daily-list"></div>
+        <div id="trendNote" class="trend-note" hidden>
+          <h3>未来 8–16 天趋势 <small>（长期趋势仅供参考，不宜据此敲定行程）</small></h3>
+          <p id="trendText"></p>
+        </div>
+      </section>
+
+      <!-- 雷达云图（P2，RainViewer 公开雷达） -->
+      <section class="card" id="radarCard" aria-label="雷达云图">
+        <div class="card-head">
+          <h2>降水雷达云图</h2>
+          <div class="radar-ctrl">
+            <span class="muted" id="radarTime">加载中…</span>
+            <div class="seg" id="radarZoom" role="group" aria-label="范围">
+              <button data-z="7" class="on">本地</button><button data-z="5">周边</button><button data-z="4">全国</button>
+            </div>
+            <button id="radarPlay" class="icon-btn" title="播放/暂停动画">⏸</button>
+          </div>
+        </div>
+        <div id="radarBody" class="radar-body"><span class="muted">正在加载雷达…</span></div>
+        <p class="radar-note muted">雷达数据来源 RainViewer · 每 10 分钟更新 · 色阶越红降水越强</p>
+      </section>
+
+      <!-- 生活指数 -->
+      <section class="card" id="indicesCard" aria-label="生活指数">
+        <div class="card-head"><h2>生活建议</h2><span class="muted" id="indicesSource"></span></div>
+        <div id="indicesList" class="indices-list"></div>
+      </section>
+
+      <!-- 九宫格折叠 -->
+      <details class="card card-fold" id="detailGrid">
+        <summary><h2>更多数据 <small>湿度 / 风 / 气压 / 能见度 / 紫外线 / 日出日落</small></h2></summary>
+        <div id="gridBody" class="grid-body"></div>
+      </details>
+    </div>
+
+    <!-- 错误态 -->
+    <div id="errorBox" class="error-box" hidden>
+      <div class="err-emoji">🛰️</div>
+      <p id="errorMsg">加载失败</p>
+      <div class="err-actions">
+        <button id="retryBtn" class="btn btn-primary">重试</button>
+        <button id="pickCityBtn" class="btn">手动选城市</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据来源：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.qweather.com/" target="_blank" rel="noopener">和风天气</a> · <a href="https://lbs.amap.com/" target="_blank" rel="noopener">高德</a>（CC BY 4.0）</p>
+  </footer>
+
+  <script src="js/app.js?v=20261107j"></script>
+</body>
+</html>
