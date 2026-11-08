@@ -11,6 +11,7 @@
 
 <!-- 字体：本地化 + 子集化（仅打包页面实际用到的字） -->
 <link rel="preload" href="fonts/lxgwwenkai-subset.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/lxgwwenkai-latin-subset.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/cinzel-decorative-subset.woff2" as="font" type="font/woff2" crossorigin />
 
 <style>
@@ -21,6 +22,13 @@
   font-family:'LXGW WenKai';
   src:url('fonts/lxgwwenkai-subset.woff2') format('woff2');
   font-weight:400;font-style:normal;font-display:swap;
+}
+/* 拉丁字母子集：补齐早期子集缺失的 ASCII（如「e次元账本」的 e），与同名字体家族自动拼合 */
+@font-face{
+  font-family:'LXGW WenKai';
+  src:url('fonts/lxgwwenkai-latin-subset.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+  unicode-range:U+0020-007E;
 }
 @font-face{
   font-family:'Cinzel Decorative';
@@ -815,11 +823,12 @@ main{position:relative;z-index:5;}
    ============================================================ */
 .env-wall{
   display:grid;grid-template-columns:repeat(3,1fr);gap:30px;
+  align-items:stretch;
 }
 @media (max-width:1080px){.env-wall{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:680px){.env-wall{grid-template-columns:1fr;}}
 .envelope{
-  position:relative;cursor:pointer;text-align:left;
+  position:relative;cursor:pointer;text-align:left;height:100%;
   border:0;padding:0;background:none;font:inherit;color:inherit;
   perspective:900px;
   transition:transform .4s var(--ease);
@@ -831,7 +840,7 @@ main{position:relative;z-index:5;}
   color:var(--ink-on-paper);
   box-shadow:0 10px 26px rgba(4,10,24,.45);
   transition:box-shadow .4s var(--ease);
-  min-height:300px;display:flex;flex-direction:column;
+  min-height:300px;height:100%;display:flex;flex-direction:column;
 }
 .envelope:hover .env-card,.envelope:focus-visible .env-card{
   box-shadow:0 22px 44px rgba(4,10,24,.6),0 0 0 1px rgba(230,196,104,.25);
