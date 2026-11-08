@@ -1,0 +1,3695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄 Todo</title>
+<style>
+/* ============================================================
+   设计变量 —— 清新简约薄荷绿主题
+   状态语义色只有四档：灰绿(安全) / 橙(临近) / 红(逾期) / 蓝(信息)
+   番茄红 #FF6B6B 只保留给计时器与逾期警示
+   ============================================================ */
+:root{
+  --bg:#F7F9F8;
+  --card:#FFFFFF;
+  --card-2:#F3F6F4;
+  --text:#2B2F36;
+  --muted:#8A929C;
+  --border:#EDF1F0;
+  --shadow:0 2px 12px rgba(0,0,0,.05);
+  --shadow-lg:0 12px 40px rgba(31,47,41,.12);
+  --accent:#3DDC97;              /* 薄荷绿 */
+  --accent-deep:#23A06B;         /* 用于文字，保证对比度 */
+  --accent-soft:rgba(61,220,151,.14);
+  --on-accent:#0E3323;           /* 薄荷绿底上的文字色 */
+  --tomato:#FF6B6B;              /* 番茄红：仅计时器/逾期 */
+  --safe:#4E9E82; --safe-bg:rgba(78,158,130,.13);
+  --warn:#E8930C; --warn-bg:rgba(232,147,12,.14);
+  --danger:#E5484D; --danger-bg:rgba(229,72,77,.13);
+  --info:#4A6CF7; --info-bg:rgba(74,108,247,.12);
+  --radius:16px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --mode:#FF6B6B;
+  --mode-soft:rgba(255,107,107,.12);
+}
+html[data-theme="dark"]{
+  --bg:#12161A;
+  --card:#1B2026;
+  --card-2:#232930;
+  --text:#E8EAED;
+  --muted:#9AA3AB;
+  --border:#2A313A;
+  --shadow:0 2px 12px rgba(0,0,0,.25);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+  --accent:#2FB98A;              /* 深色下降饱和薄荷绿 */
+  --accent-deep:#3DDC97;
+  --accent-soft:rgba(47,185,138,.16);
+  --on-accent:#0B231A;
+  --tomato:#FF7B7B;
+  --safe:#6BC0A2; --safe-bg:rgba(107,192,162,.15);
+  --warn:#F0A83C; --warn-bg:rgba(240,168,60,.16);
+  --danger:#F16A6E; --danger-bg:rgba(241,106,110,.15);
+  --info:#7C93F8; --info-bg:rgba(124,147,248,.15);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:15px;
+  line-height:1.55;
+  transition:background .25s,color .25s;
+  padding-bottom:0;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+/* 关键：hidden 属性必须真的隐藏。
+   浏览器默认样式 [hidden]{display:none} 优先级低于任何作者样式，
+   一旦元素自身声明了 display:flex/grid 等，hidden 就会失效（新手引导曾因此卡死无法关闭）。 */
+[hidden]{display:none !important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent-deep);outline-offset:2px;border-radius:6px}
+
+/* ============ 顶部导航 ============ */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:16px;
+  padding:0 24px;height:60px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;white-space:nowrap}
+.logo .tomato{font-size:22px}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab-btn{
+  padding:8px 18px;border-radius:999px;font-size:14px;color:var(--muted);
+  transition:all .2s;font-weight:500;
+}
+.tab-btn:hover{background:var(--accent-soft);color:var(--text)}
+.tab-btn.active{background:var(--accent);color:var(--on-accent);font-weight:600}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);transition:all .2s;font-size:18px;position:relative;
+}
+.icon-btn:hover{background:var(--accent-soft);color:var(--text)}
+.bell-dot{
+  position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:999px;
+  background:var(--danger);color:#fff;font-size:10px;line-height:16px;text-align:center;
+  padding:0 4px;font-weight:600;
+}
+
+/* ============ 主区域 / 页面 ============ */
+main{max-width:1240px;margin:0 auto;padding:24px}
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px;
+  border:1px solid var(--border);
+}
+.card h3{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* 模式主色（计时器专属配色） */
+.mode-focus{--mode:#FF6B6B;--mode-soft:rgba(255,107,107,.12)}
+.mode-short{--mode:#2EC4B6;--mode-soft:rgba(46,196,182,.12)}
+.mode-long{--mode:#4A6CF7;--mode-soft:rgba(74,108,247,.12)}
+
+/* ============ 专注页：番茄计时置顶，概览与当前任务在下方 ============ */
+.focus-stack{display:flex;flex-direction:column;gap:20px}
+.focus-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+
+/* 分区标题（番茄图标 + 名字） */
+.timer-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.timer-head h3{margin-bottom:0}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+.sec-ico{width:22px;height:22px;flex-shrink:0;display:block}
+.sec-sub{font-size:12px;color:var(--muted);flex-shrink:0}
+
+.today-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.today-card{
+  display:flex;flex-direction:column;gap:4px;text-align:left;
+  background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+}
+.today-card .tc-label{font-size:12px;color:var(--muted)}
+.today-card .num{font-family:var(--mono);font-size:24px;line-height:1.2;font-weight:600;color:var(--accent-deep)}
+.today-card:nth-child(2) .num{color:var(--info)}
+.today-card:nth-child(3) .num{color:var(--safe)}
+kbd{
+  font-family:var(--mono);font-size:12px;background:var(--card-2);
+  border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:2px 8px;color:var(--text)
+}
+
+/* 计时器 */
+.timer-card{text-align:center;padding:22px 22px 28px}
+.mode-switch{display:inline-flex;background:var(--card-2);border:1px solid var(--border);border-radius:999px;padding:4px;gap:4px;margin:22px 0 26px}
+.mode-btn{padding:8px 20px;border-radius:999px;font-size:14px;color:var(--muted);transition:all .2s}
+.mode-btn.active{background:var(--mode);color:#fff;font-weight:600}
+
+.ring-wrap{position:relative;width:300px;height:300px;margin:0 auto 8px}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:12}
+.ring-fg{
+  fill:none;stroke:var(--mode);stroke-width:12;stroke-linecap:round;
+  transition:stroke-dashoffset .3s linear,stroke .3s;
+}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#timeDisplay{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:68px;font-weight:600;letter-spacing:2px}
+#timeDisplay.ts-long{font-size:52px;letter-spacing:1px}
+#timeDisplay.ts-xlong{font-size:42px;letter-spacing:0}
+#modeLabel{color:var(--muted);font-size:14px;margin-top:4px}
+#cycleInfo{font-size:12px;color:var(--muted);margin-top:2px}
+
+.timer-btns{display:flex;gap:12px;justify-content:center;margin-top:20px;min-height:48px}
+.timer-btns .btn{padding:13px 34px;font-size:15px;border-radius:14px}
+.btn{
+  padding:11px 26px;border-radius:12px;font-size:15px;font-weight:600;transition:all .2s;
+  border:1px solid var(--border);background:var(--card-2);
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-primary{background:var(--mode);color:#fff;border-color:transparent}
+.btn-primary:hover{filter:brightness(1.05)}
+.btn-mint{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn-ghost{background:transparent}
+html[data-theme="dark"] .btn-ghost{background:var(--card-2)}
+.btn-danger{color:var(--danger)}
+.btn-danger:hover{background:var(--danger-bg)}
+.btn[hidden]{display:none}
+
+/* 截止横幅（专注中静默提示） */
+.due-banner{
+  margin-top:16px;padding:10px 16px;border-radius:12px;font-size:13px;
+  background:var(--warn-bg);color:var(--warn);text-align:center;
+}
+.due-banner.over{background:var(--danger-bg);color:var(--danger)}
+
+/* 当前任务卡 */
+.current-task-card .task-name{font-size:17px;font-weight:600;margin-bottom:8px;word-break:break-all}
+.current-task-card .task-progress{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.current-task-card .over{color:var(--warn)}
+.progress-track{height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+.link-btn{color:var(--accent-deep);font-size:13px;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+html[data-theme="dark"] .link-btn{color:var(--accent)}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ============ 任务页：两个大卡片（番茄待办 / 今日聚焦） ============ */
+.task-stack{display:flex;flex-direction:column;gap:20px}
+
+/* 区块标题（与专注页「番茄计时」同款：番茄图标 + 名字 + 右侧说明） */
+.block-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.block-head h3{margin-bottom:0}
+.block-head .sec-title{font-size:17px;gap:9px}
+.block-head .sec-ico{width:24px;height:24px}
+
+/* 今日聚焦视图 */
+.today-view{padding:26px 28px}
+.today-view .today-head{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;user-select:none;flex-wrap:wrap}
+.today-view .today-head h3{margin-bottom:0}
+#todayToggle{color:var(--muted);font-size:14px;transition:transform .2s}
+#todayToggle.collapsed{transform:rotate(-90deg)}
+.today-progress-wrap{margin-top:18px}
+.today-progress-text{font-size:14px;color:var(--muted);margin-bottom:10px}
+.today-progress-track{height:12px;background:var(--card-2);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.today-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.today-group{margin-top:20px;border-top:1px solid var(--border);padding-top:16px}
+.today-group-head{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;cursor:pointer;user-select:none}
+.today-group-head .g-count{
+  background:var(--card-2);border:1px solid var(--border);border-radius:999px;
+  min-width:24px;height:24px;line-height:22px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);
+}
+.today-group-head .g-hint{font-size:12.5px;color:var(--muted);font-weight:400;margin-left:auto}
+.today-group-head .g-arrow{color:var(--muted);font-size:12px;transition:transform .2s}
+.today-group-head .g-arrow.collapsed{transform:rotate(-90deg)}
+.today-group-body{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.today-group-body.collapsed{display:none}
+.today-empty{padding:8px 2px;font-size:13px}
+
+/* 卡片内工具栏：筛选 / 排序（细字小胶囊，弱化存在感） */
+.task-toolbar{
+  display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;
+  margin-top:14px;
+}
+.tb-side{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tb-label{font-size:12px;color:var(--muted);margin-right:2px}
+.task-empty{text-align:center;padding:26px 10px 10px;color:var(--muted)}
+.task-empty .emoji{font-size:40px;display:block;margin-bottom:10px}
+.task-empty p{font-size:14px;margin-bottom:16px}
+
+/* 新建任务（番茄待办大卡片）—— 参照专注页「番茄计时」：大留白 + 居中大番茄，占半屏 */
+.nt-card{
+  --tom-size:clamp(150px,24vh,250px);
+  padding:26px 28px 30px;display:flex;flex-direction:column;gap:0;
+  min-height:clamp(380px,50vh,720px);
+}
+.nt-card .block-head{flex-shrink:0}
+.nt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nt-head h3{margin-bottom:0}
+.nt-count{font-size:13px;color:var(--muted);flex-shrink:0}
+
+/* 番茄形状的加号触发器：收起时竖向居中，成为整张卡片的主视觉 */
+.tomato-add{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;width:100%;text-align:center;background:transparent;border:0;
+  padding:14px 6px 4px;transition:opacity .2s;
+}
+.tomato-plus{
+  position:relative;display:block;flex-shrink:0;
+  width:var(--tom-size);height:var(--tom-size);
+  transition:transform .28s cubic-bezier(.2,.7,.3,1);
+}
+/* 柔和光晕，呼应专注页圆环的呼吸感 */
+.tomato-plus::before{
+  content:"";position:absolute;inset:-24%;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,107,.13),rgba(255,107,107,0) 66%);
+  transition:transform .28s;
+}
+.tomato-plus svg{
+  position:relative;width:100%;height:100%;display:block;
+  filter:drop-shadow(0 12px 26px rgba(255,107,107,.26));
+}
+.tomato-plus .tp-plus{
+  position:absolute;left:0;right:0;top:58%;transform:translateY(-50%);
+  text-align:center;color:#fff;font-weight:700;line-height:1;
+  font-size:calc(var(--tom-size) * .42);
+  text-shadow:0 2px 8px rgba(220,40,40,.18);
+}
+.tomato-add:hover .tomato-plus{transform:translateY(-4px) scale(1.03)}
+.tomato-add:hover .tomato-plus::before{transform:scale(1.08)}
+.tomato-add:active .tomato-plus{transform:scale(.97)}
+.tomato-add .ta-text{display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
+.tomato-add .ta-text b{font-size:21px;font-weight:600;letter-spacing:.4px}
+.tomato-add .ta-text em{font-style:normal;font-size:13.5px;color:var(--muted);max-width:430px;line-height:1.6}
+.tomato-add .ta-arrow{color:var(--muted);font-size:11px;opacity:.55;transition:transform .2s}
+
+/* 展开后：番茄收成小图标，表单接管版面，卡片高度回到内容高 */
+.nt-card.open{min-height:0}
+.nt-card.open .tomato-add{
+  --tom-size:44px;
+  flex:0 0 auto;flex-direction:row;align-items:center;justify-content:flex-start;
+  gap:14px;text-align:left;padding:2px 2px 16px;
+}
+.nt-card.open .tomato-add .tomato-plus svg{filter:drop-shadow(0 4px 10px rgba(255,107,107,.28))}
+.nt-card.open .tomato-add .ta-text{align-items:flex-start;gap:2px}
+.nt-card.open .tomato-add .ta-text b{font-size:15px;letter-spacing:0}
+.nt-card.open .tomato-add .ta-text em{font-size:12.5px;max-width:none}
+.nt-card.open .tomato-add .ta-arrow{margin-left:auto;transform:rotate(180deg)}
+.nt-card.open .tomato-add:hover .tomato-plus{transform:none}
+.nt-card.open .tomato-add:hover .tomato-plus::before{transform:none}
+
+.new-task-form{display:flex;flex-direction:column;gap:14px;animation:fadeIn .2s ease}
+.new-task-row{display:flex;gap:10px}
+#taskTitleInput{
+  flex:1;padding:13px 16px;border:1px solid var(--border);border-radius:12px;
+  background:var(--card-2);font-size:16px;
+}
+#taskTitleInput:focus{border-color:var(--accent);outline:none}
+.task-options{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:13px;color:var(--muted)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card-2)}
+.stepper button{width:32px;height:32px;font-size:16px;color:var(--muted)}
+.stepper button:hover{background:var(--accent-soft);color:var(--text)}
+.stepper .step-num{width:36px;text-align:center;font-family:var(--mono);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card-2)}
+.seg button{padding:7px 14px;font-size:13px;color:var(--muted);transition:all .15s}
+.seg button.active{background:var(--accent);color:var(--on-accent);font-weight:600}
+#taskTagsInput{
+  padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card-2);
+  width:180px;font-size:13px;
+}
+#addTaskBtn{align-self:flex-start}
+.due-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.due-row input[type="date"],.due-row input[type="time"]{
+  padding:7px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card-2);font-size:13px;
+  font-family:var(--mono);color:var(--text);
+}
+.quick-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip-btn.mini{padding:4px 12px;font-size:12px}
+.due-hint{font-size:13px;min-height:20px}
+.due-hint.h-safe{color:var(--safe)}
+.due-hint.h-warn{color:var(--warn)}
+.due-hint.h-danger{color:var(--danger)}
+
+.filter-group{display:flex;gap:6px;flex-wrap:wrap}
+.chip-btn{
+  padding:5px 12px;border-radius:999px;font-size:12.5px;color:var(--muted);
+  border:1px solid var(--border);background:var(--card);transition:all .2s;
+}
+.chip-btn.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.chip-btn:hover:not(.active){border-color:var(--accent);color:var(--text)}
+
+/* 任务行（今日聚焦分组里的大行） */
+.task-item{
+  display:flex;align-items:center;gap:14px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:14px;
+  padding:16px 18px;position:relative;overflow:hidden;
+  transition:box-shadow .2s,opacity .2s,transform .2s,background .2s;
+  animation:itemIn .2s ease;
+}
+.task-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.05)}
+@keyframes itemIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.task-item.removing{opacity:0;transform:translateX(20px)}
+.task-item.dragging{opacity:.5;border-style:dashed}
+.task-item.drag-over{border-color:var(--accent);box-shadow:var(--shadow-lg)}
+.task-item.overdue{box-shadow:inset 3px 0 0 var(--danger)} /* 逾期红竖线 */
+.task-item.flash{animation:flashBg 2s ease}
+@keyframes flashBg{0%,55%{background:var(--accent-soft)}100%{background:var(--card-2)}}
+.priority-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.p-high{background:var(--tomato)}.p-mid{background:var(--warn)}.p-low{background:var(--safe)}
+.task-check{
+  width:24px;height:24px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:all .2s;
+}
+.task-check:hover{border-color:var(--accent-deep)}
+.task-item.done .task-check{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.task-main{flex:1;min-width:0}
+.task-title{font-size:15px;font-weight:500;cursor:pointer;word-break:break-all}
+.task-item.done .task-title{text-decoration:line-through;color:var(--muted)}
+.task-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px;font-size:12.5px;color:var(--muted)}
+.tag-chip{background:var(--accent-soft);color:var(--accent-deep);padding:1px 10px;border-radius:999px}
+html[data-theme="dark"] .tag-chip{color:var(--accent)}
+.pomo-progress{font-family:var(--mono);font-weight:600}
+.prio-label{font-size:12px}
+.prio-label::after{content:"优先级"}
+.pomo-progress.over{color:var(--warn)}
+.over-hint{color:var(--warn)}
+.current-badge{background:var(--accent);color:var(--on-accent);padding:1px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.fire-chip{background:var(--tomato);color:#fff;padding:1px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.due-chip{padding:1px 10px;border-radius:999px;font-size:12px}
+.due-safe{background:var(--safe-bg);color:var(--safe)}
+.due-warn{background:var(--warn-bg);color:var(--warn)}
+.due-today{background:var(--warn-bg);color:var(--warn);font-weight:600}
+.due-over{background:var(--danger-bg);color:var(--danger);font-weight:600}
+.task-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.task-actions .icon-btn{width:34px;height:34px;font-size:16px}
+.start-focus-btn{
+  font-size:13px;color:var(--accent-deep);padding:8px 14px;border-radius:10px;font-weight:600;
+  background:var(--accent-soft);white-space:nowrap;transition:all .2s;
+}
+.start-focus-btn:hover{background:var(--accent);color:var(--on-accent)}
+html[data-theme="dark"] .start-focus-btn{color:var(--accent)}
+.task-edit-input{
+  flex:1;padding:6px 10px;border:1px solid var(--accent-deep);border-radius:8px;background:var(--card-2);font-size:15px;width:100%;
+}
+.grip{color:var(--muted);cursor:grab;font-size:14px;user-select:none}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-state .emoji{font-size:44px;display:block;margin-bottom:12px}
+
+/* ============ 统计页 ============ */
+.stats-layout{display:flex;flex-direction:column;gap:20px}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.stat-card .label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.stat-card .value{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--accent-deep)}
+html[data-theme="dark"] .stat-card .value{color:var(--accent)}
+.stat-card:nth-child(2) .value{color:var(--info)}
+.stat-card:nth-child(3) .value{color:var(--safe)}
+.stat-card:nth-child(4) .value{color:var(--warn)}
+.stat-card:nth-child(5) .value{color:var(--tomato)}
+.stat-card .unit{font-size:13px;font-weight:400;color:var(--muted);margin-left:2px}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.bar-chart{display:flex;align-items:flex-end;gap:10px;height:180px;padding-top:10px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;position:relative}
+.bar{
+  width:60%;max-width:36px;background:var(--border);border-radius:6px 6px 2px 2px;
+  min-height:3px;transition:height .3s;position:relative;
+}
+.bar-col.today .bar{background:var(--accent)}
+.bar-col .bar-label{font-size:11px;color:var(--muted);white-space:nowrap}
+.bar-col.today .bar-label{color:var(--accent-deep);font-weight:600}
+html[data-theme="dark"] .bar-col.today .bar-label{color:var(--accent)}
+[data-tip]{position:relative}
+[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--text);color:var(--card);font-size:12px;padding:4px 10px;border-radius:8px;white-space:nowrap;
+  z-index:10;pointer-events:none;
+}
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:340px}
+.heat-cell{aspect-ratio:1;border-radius:6px;background:var(--border);position:relative;min-width:0}
+.heat-cell[data-level="1"]{background:rgba(61,220,151,.25)}
+.heat-cell[data-level="2"]{background:rgba(61,220,151,.45)}
+.heat-cell[data-level="3"]{background:rgba(61,220,151,.65)}
+.heat-cell[data-level="4"]{background:rgba(61,220,151,.85)}
+.heat-cell[data-level="5"]{background:var(--accent)}
+
+.dist-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:13px}
+.dist-row .dist-label{width:44px;color:var(--muted);flex-shrink:0}
+.dist-track{flex:1;height:14px;background:var(--card-2);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.dist-fill{height:100%;border-radius:999px;transition:width .3s}
+.dist-row .dist-num{width:60px;text-align:right;font-family:var(--mono);flex-shrink:0}
+
+/* ============ 抽屉（设置 + 通知中心） ============ */
+.drawer-overlay,.modal-overlay{
+  position:fixed;inset:0;background:rgba(20,30,26,.4);z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.drawer-overlay.open,.modal-overlay.open{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:380px;max-width:92vw;z-index:101;
+  background:var(--card);box-shadow:var(--shadow-lg);
+  transform:translateX(100%);transition:transform .25s ease;
+  overflow-y:auto;padding:24px;
+  border-left:1px solid var(--border);
+}
+.drawer.open{transform:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.drawer-head h2{font-size:18px;font-weight:600}
+.drawer section{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.drawer section:last-child{border-bottom:none}
+.drawer h4{font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;gap:12px}
+.setting-row label{font-size:14px}
+.num-input{
+  width:72px;padding:7px 10px;border:1px solid var(--border);border-radius:10px;
+  background:var(--card-2);text-align:center;font-family:var(--mono);
+}
+.switch{
+  position:relative;width:46px;height:26px;border-radius:999px;background:var(--border);
+  transition:background .2s;flex-shrink:0;
+}
+.switch::after{
+  content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.switch.on{background:var(--accent)}
+.switch.on::after{left:23px}
+input[type="range"]{width:150px;accent-color:var(--accent)}
+input[type="checkbox"].tier-check{accent-color:var(--accent);width:16px;height:16px}
+.perm-btn{padding:8px 14px;border-radius:10px;border:1px solid var(--border);font-size:13px;background:var(--card-2);transition:all .2s}
+.perm-btn:hover{border-color:var(--accent)}
+.perm-status{font-size:12px;color:var(--muted)}
+.perm-denied-tip{font-size:12px;color:var(--warn);margin-top:6px}
+.tier-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:10px 12px;background:var(--card-2);border-radius:12px}
+.tier-wrap label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text)}
+.danger-btn{width:100%;padding:10px;border-radius:12px;border:1px solid var(--border);margin-top:8px;font-size:14px;transition:all .2s}
+.danger-btn:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+
+/* 通知中心 */
+.bell-item{
+  display:flex;gap:10px;padding:12px;border-radius:12px;border:1px solid var(--border);
+  margin-bottom:8px;cursor:pointer;transition:all .15s;background:var(--card);
+}
+.bell-item:hover{border-color:var(--accent)}
+.bell-item.unread{background:var(--accent-soft);border-color:transparent}
+.bell-item .b-icon{font-size:16px;flex-shrink:0}
+.bell-item .b-title{font-size:13px;font-weight:500;word-break:break-all}
+.bell-item .b-text{font-size:12px;color:var(--muted);word-break:break-all}
+.bell-item .b-time{font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0}
+.bell-group-label{font-size:12px;color:var(--muted);margin:14px 0 8px;font-weight:600}
+.bell-footer{border-top:1px solid var(--border);padding-top:14px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.bell-footer .row{display:flex;gap:8px}
+.bell-footer .row button{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);font-size:13px;transition:all .2s}
+.bell-footer .row button:hover{border-color:var(--accent);color:var(--accent-deep)}
+html[data-theme="dark"] .bell-footer .row button:hover{color:var(--accent)}
+.bell-empty{text-align:center;padding:32px 0;color:var(--muted);font-size:13px}
+
+/* ============ 弹窗 ============ */
+.modal{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-48%) scale(.96);z-index:101;
+  width:400px;max-width:92vw;background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);padding:24px;opacity:0;pointer-events:none;transition:all .2s;
+  border:1px solid var(--border);max-height:86vh;overflow-y:auto;
+}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:12px}
+.modal p{font-size:14px;color:var(--muted);margin-bottom:20px;word-break:break-all}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.modal-actions .btn{padding:9px 20px;font-size:14px}
+.btn-confirm{background:var(--danger);color:#fff;border-color:transparent}
+.edit-input{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+  background:var(--card-2);font-size:15px;margin-bottom:12px;
+}
+.edit-input:focus{border-color:var(--accent);outline:none}
+.edit-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:12px;flex-wrap:wrap}
+.edit-row>span{font-size:13px;color:var(--muted)}
+
+/* ============ 自定义番茄计时（计时卡片入口 + 弹窗） ============ */
+.timer-head-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.custom-timer-btn{
+  display:inline-flex;align-items:center;gap:5px;flex-shrink:0;
+  padding:6px 12px;border-radius:999px;border:1px solid var(--border);
+  background:var(--card-2);font-size:12.5px;color:var(--muted);
+  transition:border-color .2s,color .2s,background .2s,transform .2s;
+}
+.custom-timer-btn:hover{border-color:var(--accent);color:var(--accent-deep);transform:translateY(-1px)}
+.custom-timer-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep);font-weight:600}
+html[data-theme="dark"] .custom-timer-btn:hover,
+html[data-theme="dark"] .custom-timer-btn.active{color:var(--accent)}
+
+.ct-sub{font-size:13px;color:var(--muted);margin:-4px 0 18px;line-height:1.6}
+/* 纯自由输入：三段时长各自一行，数字框可键盘直接键入任意分钟数 */
+.ct-hint{font-size:12px;color:var(--muted);margin:-4px 0 14px;line-height:1.6}
+.ct-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.ct-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card-2);border:1px solid var(--border);border-radius:12px;
+  padding:9px 14px;transition:border-color .2s;
+}
+.ct-row:focus-within{border-color:var(--accent)}
+.ct-row-label{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;flex:1 1 auto;min-width:0;white-space:nowrap}
+.ct-row-label .ct-emoji{font-size:16px}
+.ct-stepper{
+  display:inline-flex;align-items:center;flex-shrink:0;
+  border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card);
+}
+.ct-step{width:34px;height:38px;font-size:18px;color:var(--muted);transition:background .15s,color .15s;flex-shrink:0}
+.ct-step:hover{background:var(--accent-soft);color:var(--accent-deep)}
+html[data-theme="dark"] .ct-step:hover{color:var(--accent)}
+.ct-stepper input{
+  width:64px;height:38px;border:none;background:transparent;text-align:center;
+  font-family:var(--mono);font-size:19px;font-weight:600;color:var(--text);
+  -moz-appearance:textfield;appearance:textfield;
+}
+.ct-stepper input:focus{outline:none;background:var(--accent-soft)}
+/* 去掉 number 输入自带的上下小箭头，加减交给两侧按钮 */
+.ct-stepper input::-webkit-outer-spin-button,
+.ct-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ct-unit{font-size:12px;color:var(--muted);flex-shrink:0;width:26px}
+.ct-check{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text);cursor:pointer;line-height:1.5}
+.ct-check input{width:16px;height:16px;accent-color:var(--accent);flex-shrink:0}
+.ct-tip{font-size:12px;color:var(--warn);background:var(--warn-bg);border-radius:10px;padding:9px 12px;margin-top:12px;line-height:1.5}
+.ct-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.ct-foot .modal-actions{margin-top:0;margin-left:auto}
+.ct-reset{font-size:12.5px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.ct-reset:hover{color:var(--accent-deep)}
+html[data-theme="dark"] .ct-reset:hover{color:var(--accent)}
+@media (max-width:400px){
+  .ct-row{padding:9px 10px;gap:8px}
+  .ct-row-label{font-size:13px}
+  .ct-stepper input{width:52px;font-size:17px}
+  .ct-step{width:30px}
+}
+
+/* ============ 提醒卡片（右上角滑入） ============ */
+#remindWrap{position:fixed;top:72px;right:20px;z-index:210;display:flex;flex-direction:column;gap:10px;width:330px;max-width:calc(100vw - 32px)}
+.remind-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);padding:16px;animation:remindIn .25s ease;
+}
+@keyframes remindIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.remind-card.out{animation:remindOut .2s ease forwards}
+@keyframes remindOut{to{opacity:0;transform:translateX(24px)}}
+.remind-card .r-head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--warn);font-weight:600;margin-bottom:6px}
+.remind-card.over .r-head{color:var(--danger)}
+.remind-card .r-title{font-size:14px;font-weight:600;margin-bottom:4px;word-break:break-all}
+.remind-card .r-text{font-size:13px;color:var(--muted);margin-bottom:12px;white-space:pre-line;word-break:break-all}
+.remind-card .r-actions{display:flex;gap:6px;flex-wrap:wrap}
+.remind-card .r-actions button{
+  padding:6px 12px;border-radius:9px;font-size:12px;border:1px solid var(--border);transition:all .15s;
+}
+.remind-card .r-actions .r-start{background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600}
+.remind-card .r-actions button:hover{filter:brightness(1.05)}
+
+/* ============ 撒花庆祝 ============ */
+.confetti{
+  position:fixed;top:-14px;width:8px;height:12px;z-index:300;pointer-events:none;
+  animation:confFall 1.5s ease-in forwards;border-radius:2px;
+}
+@keyframes confFall{to{transform:translateY(110vh) rotate(720deg);opacity:.5}}
+
+/* ============ 新手引导 ============ */
+.onboard-overlay{
+  position:fixed;inset:0;background:rgba(20,30,26,.5);z-index:250;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:obFade .2s ease;
+}
+@keyframes obFade{from{opacity:0}to{opacity:1}}
+.onboard-card{
+  position:relative;
+  background:var(--card);border-radius:20px;box-shadow:var(--shadow-lg);
+  max-width:420px;width:100%;padding:32px;border:1px solid var(--border);
+  animation:obIn .24s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes obIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.onboard-card h2{font-size:20px;font-weight:600;margin-bottom:6px}
+.onboard-card .ob-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.onboard-card ol{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:22px}
+.onboard-card li{display:flex;gap:12px;align-items:flex-start;font-size:14px}
+.onboard-card .ob-num{
+  width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent-deep);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;
+  font-family:var(--mono);
+}
+html[data-theme="dark"] .onboard-card .ob-num{color:var(--accent)}
+.onboard-card .ob-skip{font-size:13px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;margin-top:10px}
+.onboard-card .ob-skip:hover{color:var(--text)}
+.ob-close{
+  position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;
+  color:var(--muted);transition:all .2s;
+}
+.ob-close:hover{background:var(--card-2);color:var(--text)}
+@media (max-width:420px){
+  .onboard-card{padding:24px 20px}
+  .onboard-card h2{font-size:18px}
+}
+
+/* ============ Toast ============ */
+#toastWrap{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:220;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{
+  background:var(--text);color:var(--card);padding:10px 20px;border-radius:12px;font-size:14px;
+  box-shadow:var(--shadow-lg);animation:toastIn .25s ease;max-width:90vw;
+}
+.toast.out{animation:toastOut .25s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-8px)}}
+
+/* ============ 底部标签栏（移动端） ============ */
+.bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
+  background:var(--card);border-top:1px solid var(--border);
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;font-size:11px;color:var(--muted)}
+.bottom-nav button .bn-icon{font-size:20px}
+.bottom-nav button.active{color:var(--accent-deep);font-weight:600}
+html[data-theme="dark"] .bottom-nav button.active{color:var(--accent)}
+
+/* ============ 响应式 ============ */
+@media (max-width:1023px){
+  .chart-grid{grid-template-columns:1fr}
+}
+@media (max-width:767px){
+  main{padding:16px}
+  .tabs{display:none}
+  .focus-bottom{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .bottom-nav{display:flex}
+  body{padding-bottom:64px}
+  #timeDisplay{font-size:54px}
+  #timeDisplay.ts-long{font-size:42px}
+  #timeDisplay.ts-xlong{font-size:34px}
+  .ring-wrap{width:250px;height:250px}
+  .sec-sub{display:none}
+  .today-card{padding:12px}
+  .today-card .num{font-size:20px}
+  .new-task-row{flex-direction:column}
+  #addTaskBtn{align-self:stretch}
+  .topbar{padding:0 16px}
+  #remindWrap{right:12px;left:12px;width:auto;top:66px}
+  .card{padding:18px}
+  /* 任务页小屏：卡片内边距收一点，任务行分两行排布 */
+  .nt-card,.today-view{padding:20px 16px}
+  .nt-card{--tom-size:clamp(120px,34vw,160px);min-height:clamp(300px,44vh,430px)}
+  .nt-card .ta-text b{font-size:19px}
+  .task-item{padding:14px;gap:8px 10px;flex-wrap:wrap}
+  .task-check{order:1}
+  .task-main{order:2;flex:1 1 auto;min-width:0}
+  .task-title{font-size:14.5px}
+  .task-actions{order:3;flex:1 1 100%;justify-content:flex-end;margin-left:0;gap:8px}
+  .task-actions .icon-btn{width:32px;height:32px;font-size:15px}
+  .task-actions .start-focus-btn{padding:7px 12px}
+  .task-toolbar{justify-content:flex-start}
+  .today-group-head{font-size:14px}
+  .today-group-head .g-hint{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 番茄图标（SVG symbol，全局复用，无外部图标库） -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="ico-tomato" viewBox="0 0 64 64">
+      <path d="M32 17.6c11.9 0 21.4 8.6 21.4 19.4C53.4 47.8 43.9 56 32 56S10.6 47.8 10.6 37 20.1 17.6 32 17.6z" fill="#FF6B6B"/>
+      <path d="M32 18c-4-5.2-10.2-6.8-14.3-4.6 1.6 4.2 6.1 6.7 10.7 6.7-4.6 1.6-7.7 5.2-8.7 9.4 5.7-.5 9.7-3.6 12.3-7.9 2.6 4.3 6.6 7.4 12.3 7.9-1-4.2-4.1-7.8-8.7-9.4 4.6 0 9.1-2.5 10.7-6.7C42.2 11.2 36 12.8 32 18z" fill="#3DDC97"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- 顶部导航 -->
+<header class="topbar">
+  <div class="logo"><span class="tomato">🍅</span>番茄 Todo</div>
+  <nav class="tabs" role="tablist" aria-label="页面切换">
+    <button class="tab-btn active" data-tab="focus" role="tab" aria-label="切换到专注页">专注</button>
+    <button class="tab-btn" data-tab="tasks" role="tab" aria-label="切换到任务页">任务</button>
+    <button class="tab-btn" data-tab="stats" role="tab" aria-label="切换到统计页">统计</button>
+  </nav>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="bellBtn" aria-label="打开通知中心">🔔<span class="bell-dot" id="bellDot" hidden>0</span></button>
+    <button class="icon-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+    <button class="icon-btn" id="settingsBtn" aria-label="打开设置">⚙️</button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 专注页 ================= -->
+  <div class="page active mode-focus" id="page-focus">
+    <div class="focus-stack">
+      <!-- 顶部：番茄计时（整页最上方） -->
+      <section class="card timer-card" id="timerCard" aria-label="番茄计时">
+        <div class="timer-head">
+          <h3 class="sec-title"><svg class="sec-ico" viewBox="0 0 64 64" aria-hidden="true"><use href="#ico-tomato"/></svg>番茄计时</h3>
+          <div class="timer-head-right">
+            <span class="sec-sub">一次只做一件事</span>
+            <button class="custom-timer-btn" id="customTimerBtn" aria-haspopup="dialog" aria-controls="customTimerModal" aria-label="自定义番茄计时时长">
+              <span aria-hidden="true">⏱</span><span id="customTimerLabel">自定义</span>
+            </button>
+          </div>
+        </div>
+        <div class="mode-switch" role="group" aria-label="模式切换">
+          <button class="mode-btn active" data-mode="focus" aria-label="切换到专注模式">专注</button>
+          <button class="mode-btn" data-mode="short" aria-label="切换到短休息模式">短休息</button>
+          <button class="mode-btn" data-mode="long" aria-label="切换到长休息模式">长休息</button>
+        </div>
+        <div class="ring-wrap">
+          <svg viewBox="0 0 280 280" aria-hidden="true">
+            <circle class="ring-bg" cx="140" cy="140" r="122"/>
+            <circle class="ring-fg" id="ringFg" cx="140" cy="140" r="122"/>
+          </svg>
+          <div class="ring-center">
+            <div id="timeDisplay" class="mono" aria-hidden="true">25:00</div>
+            <div id="modeLabel">专注</div>
+            <div id="cycleInfo"></div>
+          </div>
+        </div>
+        <div class="sr-only" id="timerLive" aria-live="polite"></div>
+        <div class="timer-btns" id="timerBtns">
+          <button class="btn btn-primary" id="mainBtn" aria-label="开始专注">开始</button>
+          <button class="btn btn-ghost" id="resetBtn" aria-label="重置计时器" hidden>重置</button>
+          <button class="btn btn-ghost btn-danger" id="skipBtn" aria-label="跳过当前阶段" hidden>跳过</button>
+        </div>
+        <div class="due-banner" id="dueBanner" hidden aria-live="polite"></div>
+      </section>
+
+      <!-- 下方：今日概览 + 当前任务 -->
+      <div class="focus-bottom">
+        <div class="card">
+          <h3>📊 今日概览</h3>
+          <div class="today-cards">
+            <div class="today-card"><span class="tc-label">今日番茄</span><span class="num" id="todayPomos">0</span></div>
+            <div class="today-card"><span class="tc-label">专注分钟</span><span class="num" id="todayMinutes">0</span></div>
+            <div class="today-card"><span class="tc-label">完成任务</span><span class="num" id="todayDoneTasks">0</span></div>
+          </div>
+        </div>
+        <div class="card current-task-card">
+          <h3>🎯 当前任务</h3>
+          <div id="currentTaskBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 任务页（两个大卡片：番茄待办 + 今日聚焦） ================= -->
+  <div class="page" id="page-tasks">
+    <div class="task-stack">
+      <!-- ① 番茄待办（加号展开新建表单） -->
+      <section class="card nt-card" id="newTaskCard" aria-label="番茄待办">
+        <div class="block-head">
+          <h3 class="sec-title"><svg class="sec-ico" viewBox="0 0 64 64" aria-hidden="true"><use href="#ico-tomato"/></svg>番茄待办</h3>
+          <span class="nt-count" id="ntCount"></span>
+        </div>
+
+        <!-- 番茄形状的加号：点它开始添加 -->
+        <button class="tomato-add" id="newTaskToggle" aria-expanded="false" aria-controls="newTaskForm">
+          <span class="tomato-plus" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><use href="#ico-tomato"/></svg>
+            <span class="tp-plus">＋</span>
+          </span>
+          <span class="ta-text">
+            <b>加一件要做的事</b>
+            <em>写「明天下午3点交报告」会自动识别截止时间</em>
+          </span>
+          <span class="ta-arrow" aria-hidden="true">▾</span>
+        </button>
+
+        <!-- 新建任务表单（默认收起） -->
+        <div class="new-task-form" id="newTaskForm" hidden>
+          <div class="new-task-row">
+            <input id="taskTitleInput" type="text" placeholder="想做什么？试试「明天下午3点交报告」" maxlength="100" aria-label="任务标题，支持输入日期时间自动识别">
+            <button class="btn btn-mint" id="addTaskBtn" aria-label="添加任务">添加</button>
+          </div>
+          <div class="task-options">
+            <span>预估番茄</span>
+            <div class="stepper" aria-label="预估番茄数步进器">
+              <button data-step="-1" aria-label="减少预估番茄数">−</button>
+              <span class="step-num" id="estNum">1</span>
+              <button data-step="1" aria-label="增加预估番茄数">+</button>
+            </div>
+            <span>优先级</span>
+            <div class="seg" id="prioritySeg" role="group" aria-label="优先级选择">
+              <button data-priority="high" aria-label="高优先级">高</button>
+              <button data-priority="mid" class="active" aria-label="中优先级">中</button>
+              <button data-priority="low" aria-label="低优先级">低</button>
+            </div>
+            <input id="taskTagsInput" type="text" placeholder="标签（逗号分隔，可选）" aria-label="任务标签">
+          </div>
+          <div class="due-row">
+            <span>📅 截止</span>
+            <input type="date" id="dueDateInput" aria-label="截止日期">
+            <input type="time" id="dueTimeInput" aria-label="截止时间">
+            <div class="quick-chips" role="group" aria-label="截止日期快捷选择">
+              <button class="chip-btn mini" data-q="today">今天</button>
+              <button class="chip-btn mini" data-q="tomorrow">明天</button>
+              <button class="chip-btn mini" data-q="sunday">本周日</button>
+              <button class="chip-btn mini" data-q="nextmon">下周一</button>
+              <button class="chip-btn mini" data-q="week">一周后</button>
+            </div>
+          </div>
+          <div class="due-hint" id="dueHint"></div>
+        </div>
+      </section>
+
+      <!-- ② 今日聚焦：进度 + 分组任务 + 轻量工具栏 -->
+      <section class="card today-view" id="todayView" aria-label="今日聚焦">
+        <div class="today-head" id="todayHead" role="button" tabindex="0" aria-label="展开或收起今日聚焦">
+          <h3 class="sec-title">☀️ 今日聚焦</h3>
+          <span id="todayToggle">▾</span>
+        </div>
+
+        <!-- 筛选 / 排序：收在卡片里，弱化成细字小胶囊 -->
+        <div class="task-toolbar" id="taskToolbar">
+          <div class="tb-side filter-group" id="filterGroup" role="group" aria-label="任务筛选">
+            <button class="chip-btn active" data-filter="all">全部</button>
+            <button class="chip-btn" data-filter="dueToday">今天</button>
+            <button class="chip-btn" data-filter="dueWeek">本周</button>
+            <button class="chip-btn" data-filter="overdue">逾期</button>
+            <button class="chip-btn" data-filter="done">已完成</button>
+          </div>
+          <div class="tb-side filter-group" id="sortGroup" role="group" aria-label="排序方式">
+            <span class="tb-label">排序</span>
+            <button class="chip-btn active" data-sort="urgent">紧急</button>
+            <button class="chip-btn" data-sort="due">截止</button>
+            <button class="chip-btn" data-sort="priority">优先级</button>
+            <button class="chip-btn" data-sort="manual">手动</button>
+          </div>
+        </div>
+
+        <div id="todayBody"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= 统计页 ================= -->
+  <div class="page" id="page-stats">
+    <div class="stats-layout">
+      <div class="stat-cards" id="statCards"></div>
+      <div id="statsBody"></div>
+      <div style="text-align:right">
+        <button class="btn" id="exportBtn2" aria-label="导出数据为 JSON">📥 导出数据（JSON）</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 设置抽屉 -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="settingsDrawer" role="dialog" aria-label="设置">
+  <div class="drawer-head">
+    <h2>设置</h2>
+    <button class="icon-btn" id="closeDrawerBtn" aria-label="关闭设置">✕</button>
+  </div>
+
+  <section>
+    <h4>⏱ 时长（分钟）</h4>
+    <div class="setting-row"><label for="setFocusMin">专注时长</label><input class="num-input" id="setFocusMin" type="number" min="1" max="999" aria-label="专注时长（分钟）"></div>
+    <div class="setting-row"><label for="setShortMin">短休息时长</label><input class="num-input" id="setShortMin" type="number" min="1" max="999" aria-label="短休息时长（分钟）"></div>
+    <div class="setting-row"><label for="setLongMin">长休息时长</label><input class="num-input" id="setLongMin" type="number" min="1" max="999" aria-label="长休息时长（分钟）"></div>
+    <div class="setting-row"><label for="setLongEvery">每几个专注后长休息</label><input class="num-input" id="setLongEvery" type="number" min="2" max="8" aria-label="长休息循环数"></div>
+  </section>
+
+  <section id="sec-reminder">
+    <h4>🔔 提醒</h4>
+    <div class="setting-row"><label>启用截止提醒</label><button class="switch" id="swReminder" role="switch" aria-label="启用截止提醒"></button></div>
+    <div class="setting-row">
+      <div>
+        <label>桌面通知</label>
+        <div class="perm-status" id="permStatus">未授权</div>
+      </div>
+      <button class="perm-btn" id="permBtn" aria-label="请求桌面通知权限">授权 / 查看</button>
+    </div>
+    <div class="perm-denied-tip" id="permDeniedTip" hidden>权限已被拒绝：请在浏览器地址栏右侧的设置图标里，把「通知」改为「允许」后刷新页面。</div>
+    <div class="setting-row"><label>页面内提醒卡片</label><button class="switch" id="swChannelPage" role="switch" aria-label="页面内提醒卡片"></button></div>
+    <div class="setting-row"><label>系统桌面通知</label><button class="switch" id="swChannelDesktop" role="switch" aria-label="系统桌面通知"></button></div>
+    <div class="setting-row"><label>提醒声音</label><button class="switch" id="swRemindSound" role="switch" aria-label="提醒声音"></button></div>
+    <div class="setting-row"><label>提醒策略</label>
+      <div class="seg" id="rpolicySeg" role="group" aria-label="提醒策略">
+        <button data-rp="preset">预设多级</button>
+        <button data-rp="once">提前一次</button>
+        <button data-rp="none">关闭</button>
+      </div>
+    </div>
+    <div class="tier-wrap" id="presetTiersWrap">
+      <label><input type="checkbox" class="tier-check" value="1440">提前 24 小时</label>
+      <label><input type="checkbox" class="tier-check" value="180">提前 3 小时</label>
+      <label><input type="checkbox" class="tier-check" value="60">提前 1 小时</label>
+      <label><input type="checkbox" class="tier-check" value="0">到点提醒</label>
+    </div>
+    <div class="setting-row"><label>番茄专注中静默</label><button class="switch" id="swSilentRunning" role="switch" aria-label="番茄专注中静默"></button></div>
+    <div class="setting-row"><label>逾期提醒频率</label>
+      <div class="seg" id="overdueSeg" role="group" aria-label="逾期提醒频率">
+        <button data-freq="30">每 30 分</button>
+        <button data-freq="60">每 1 小时</button>
+        <button data-freq="once">仅一次</button>
+      </div>
+    </div>
+    <div class="setting-row"><label>每日开工提示</label><button class="switch" id="swDaily" role="switch" aria-label="每日开工提示"></button></div>
+    <div class="setting-row"><label for="dailyTime">开工提示时间</label><input type="time" id="dailyTime" class="num-input" style="width:100px" aria-label="每日开工提示时间"></div>
+  </section>
+
+  <section>
+    <h4>🎛 行为</h4>
+    <div class="setting-row"><label>自动开始下一阶段</label><button class="switch" id="swAutoStart" role="switch" aria-label="自动开始下一阶段"></button></div>
+    <div class="setting-row"><label>阶段结束播放提示音</label><button class="switch" id="swSound" role="switch" aria-label="播放提示音"></button></div>
+    <div class="setting-row"><label>桌面通知（番茄钟阶段）</label><button class="switch" id="swNotify" role="switch" aria-label="桌面通知"></button></div>
+    <div class="setting-row"><label>白噪音（专注时播放）</label><button class="switch" id="swNoise" role="switch" aria-label="白噪音"></button></div>
+    <div class="setting-row"><label>音量</label><input type="range" id="volRange" min="0" max="100" aria-label="音量"></div>
+  </section>
+
+  <section>
+    <h4>🎨 主题</h4>
+    <div class="seg" id="themeSeg" role="group" aria-label="主题选择" style="width:100%;justify-content:space-between">
+      <button data-theme-opt="light" style="flex:1" aria-label="浅色主题">☀️ 浅色</button>
+      <button data-theme-opt="dark" style="flex:1" aria-label="深色主题">🌙 深色</button>
+      <button data-theme-opt="system" style="flex:1" aria-label="跟随系统主题">🖥 跟随系统</button>
+    </div>
+  </section>
+
+  <section>
+    <h4>💾 数据管理</h4>
+    <button class="danger-btn" id="exportBtn" aria-label="导出 JSON 数据">导出 JSON</button>
+    <button class="danger-btn" id="importBtn" aria-label="导入 JSON 数据">导入 JSON</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden aria-label="选择导入文件">
+    <button class="danger-btn" id="clearBtn" aria-label="清空全部数据">清空全部数据</button>
+  </section>
+</aside>
+
+<!-- 通知中心抽屉 -->
+<aside class="drawer" id="bellDrawer" role="dialog" aria-label="通知中心">
+  <div class="drawer-head">
+    <h2>🔔 通知中心</h2>
+    <button class="icon-btn" id="closeBellBtn" aria-label="关闭通知中心">✕</button>
+  </div>
+  <div id="bellList"></div>
+  <div class="bell-footer">
+    <div class="row">
+      <button id="markAllReadBtn" aria-label="全部标为已读">全部标为已读</button>
+      <button id="clearNotifyBtn" aria-label="清空通知">清空通知</button>
+    </div>
+    <button class="link-btn" id="gotoRemindSettingBtn" aria-label="跳转到提醒设置">⚙️ 提醒设置 →</button>
+  </div>
+</aside>
+
+<!-- 确认弹窗 -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-label="确认弹窗">
+  <h3 id="modalTitle">确认</h3>
+  <p id="modalText"></p>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="modalCancel">取消</button>
+    <button class="btn btn-confirm" id="modalOk">确认</button>
+  </div>
+</div>
+
+<!-- 编辑任务弹窗 -->
+<div class="modal" id="editModal" role="dialog" aria-modal="true" aria-label="编辑任务">
+  <h3>✏️ 编辑任务</h3>
+  <input id="editTitle" class="edit-input" type="text" maxlength="100" placeholder="任务标题" aria-label="编辑任务标题">
+  <div class="due-row">
+    <span>📅 截止</span>
+    <input type="date" id="editDueDate" aria-label="编辑截止日期">
+    <input type="time" id="editDueTime" aria-label="编辑截止时间">
+  </div>
+  <div class="due-row" style="margin-top:8px">
+    <div class="quick-chips" role="group" aria-label="编辑截止日期快捷选择">
+      <button class="chip-btn mini" data-edq="today">今天</button>
+      <button class="chip-btn mini" data-edq="tomorrow">明天</button>
+      <button class="chip-btn mini" data-edq="sunday">本周日</button>
+      <button class="chip-btn mini" data-edq="nextmon">下周一</button>
+      <button class="chip-btn mini" data-edq="week">一周后</button>
+    </div>
+  </div>
+  <div class="due-hint" id="editDueHint" style="margin-top:8px"></div>
+  <div class="edit-row"><span>优先级（手动修改后不再自动升级）</span>
+    <div class="seg" id="editPrioSeg" role="group" aria-label="编辑优先级">
+      <button data-ep="high">高</button>
+      <button data-ep="mid">中</button>
+      <button data-ep="low">低</button>
+    </div>
+  </div>
+  <div class="edit-row"><span>提醒策略</span>
+    <div class="seg" id="editPolicySeg" role="group" aria-label="编辑提醒策略">
+      <button data-epl="preset">预设多级</button>
+      <button data-epl="once">提前一次</button>
+      <button data-epl="none">关闭</button>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="editCancel">取消</button>
+    <button class="btn btn-mint" id="editSave">保存</button>
+  </div>
+</div>
+
+<!-- 自定义番茄计时弹窗 -->
+<div class="modal" id="customTimerModal" role="dialog" aria-modal="true" aria-labelledby="ctTitle">
+  <h3 id="ctTitle">⏱ 自定义番茄计时</h3>
+  <p class="ct-sub">想专注多久就填多少分钟，三段时长完全由你定。</p>
+  <p class="ct-hint">可填 1–999 分钟，直接键入或用 − / + 微调。</p>
+
+  <div class="ct-list" id="ctList">
+    <div class="ct-row">
+      <span class="ct-row-label"><span class="ct-emoji">🍅</span>专注</span>
+      <div class="ct-stepper">
+        <button type="button" class="ct-step" data-ct-target="ctFocus" data-ct-step="-1" aria-label="专注时长减 1 分钟">−</button>
+        <input id="ctFocus" type="number" min="1" max="999" step="1" inputmode="numeric" aria-label="专注时长（分钟）">
+        <button type="button" class="ct-step" data-ct-target="ctFocus" data-ct-step="1" aria-label="专注时长加 1 分钟">+</button>
+      </div>
+      <span class="ct-unit">分钟</span>
+    </div>
+    <div class="ct-row">
+      <span class="ct-row-label"><span class="ct-emoji">☕</span>短休息</span>
+      <div class="ct-stepper">
+        <button type="button" class="ct-step" data-ct-target="ctShort" data-ct-step="-1" aria-label="短休息时长减 1 分钟">−</button>
+        <input id="ctShort" type="number" min="1" max="999" step="1" inputmode="numeric" aria-label="短休息时长（分钟）">
+        <button type="button" class="ct-step" data-ct-target="ctShort" data-ct-step="1" aria-label="短休息时长加 1 分钟">+</button>
+      </div>
+      <span class="ct-unit">分钟</span>
+    </div>
+    <div class="ct-row">
+      <span class="ct-row-label"><span class="ct-emoji">🌙</span>长休息</span>
+      <div class="ct-stepper">
+        <button type="button" class="ct-step" data-ct-target="ctLong" data-ct-step="-1" aria-label="长休息时长减 1 分钟">−</button>
+        <input id="ctLong" type="number" min="1" max="999" step="1" inputmode="numeric" aria-label="长休息时长（分钟）">
+        <button type="button" class="ct-step" data-ct-target="ctLong" data-ct-step="1" aria-label="长休息时长加 1 分钟">+</button>
+      </div>
+      <span class="ct-unit">分钟</span>
+    </div>
+  </div>
+
+  <label class="ct-check">
+    <input type="checkbox" id="ctSaveDefault" checked>
+    <span>记住为默认时长（不勾选则仅本次会话有效）</span>
+  </label>
+  <div class="ct-tip" id="ctRunningTip" hidden>⏳ 计时进行中，新时长将在下一阶段生效，当前这个番茄不受影响。</div>
+
+  <div class="ct-foot">
+    <button class="ct-reset" id="ctReset" type="button">↺ 恢复默认时长</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="ctCancel">取消</button>
+      <button class="btn btn-mint" id="ctApply">应用</button>
+    </div>
+  </div>
+</div>
+
+<!-- 提醒卡片容器 -->
+<div id="remindWrap" aria-live="polite"></div>
+
+<!-- Toast 容器 -->
+<div id="toastWrap" aria-live="polite"></div>
+
+<!-- 新手引导 -->
+<div class="onboard-overlay" id="onboard" hidden>
+  <div class="onboard-card" id="onboardCard" role="dialog" aria-modal="true" aria-labelledby="onboardTitle" aria-describedby="onboardSub">
+    <button class="ob-close" id="onboardClose" aria-label="关闭新手引导" title="关闭">✕</button>
+    <h2 id="onboardTitle">欢迎使用番茄 Todo 🍅</h2>
+    <div class="ob-sub" id="onboardSub">三步上手，零学习成本</div>
+    <ol>
+      <li><span class="ob-num">1</span><span><b>创建任务</b>：在任务页点番茄加号，输入标题即可，还能直接写「明天下午3点交报告」，自动识别截止时间</span></li>
+      <li><span class="ob-num">2</span><span><b>设定截止日</b>：点一下「今天 / 明天」等快捷按钮，到点前会提醒你</span></li>
+      <li><span class="ob-num">3</span><span><b>开始专注</b>：点任务的「开始专注」，或直接按空格启动番茄钟</span></li>
+    </ol>
+    <button class="btn btn-mint" id="onboardDone" style="width:100%" aria-label="开始使用，前往任务页">开始使用</button>
+    <div style="text-align:center"><button class="ob-skip" id="onboardSkip" aria-label="跳过引导">跳过引导</button></div>
+  </div>
+</div>
+
+<!-- 底部标签栏（移动端） -->
+<nav class="bottom-nav" aria-label="底部导航">
+  <button class="active" data-tab="focus" aria-label="专注页"><span class="bn-icon">⏱</span>专注</button>
+  <button data-tab="tasks" aria-label="任务页"><span class="bn-icon">📝</span>任务</button>
+  <button data-tab="stats" aria-label="统计页"><span class="bn-icon">📈</span>统计</button>
+</nav>
+
+<script>
+"use strict";
+/* ============================================================
+   番茄 Todo —— 零依赖单文件应用（v2：截止日期 + 提醒引擎）
+   所有数据存于 localStorage：pomo.settings / pomo.data
+   老数据自动迁移补齐新字段，向后兼容
+   ============================================================ */
+
+/* ---------- 常量与默认值 ---------- */
+var LS_SETTINGS = "pomo.settings";
+var LS_DATA = "pomo.data";
+var DEFAULT_SETTINGS = {
+  focusMin: 25, shortBreakMin: 5, longBreakMin: 15, longBreakEvery: 4,
+  autoStartNext: false, soundOn: true, notifyOn: false, noiseOn: false,
+  volume: 70, theme: "system", schemaVersion: 1,
+  /* --- 提醒相关（v2 新增） --- */
+  reminderOn: true,               // 截止提醒总开关
+  remindPolicy: "preset",         // 全局默认策略：preset | once | none
+  presetOffsets: [1440, 180, 60, 0], // 预设档位（分钟）
+  remindSilentRunning: true,      // 番茄专注中静默
+  overdueFreq: "30",              // 逾期提醒频率：30 | 60 | once
+  remindChannelPage: true,        // 页面内提醒卡片
+  remindChannelDesktop: false,    // 系统桌面通知
+  remindSound: true,              // 提醒声音（与阶段提示音 soundOn 区分）
+  dailyStartOn: false,            // 每日开工提示
+  dailyStartTime: "09:00"
+};
+var TIER_TEXT = { 1440: "明天要交", 180: "下午要专注了", 60: "马上开始", 0: "已到期" };
+var MODE_META = {
+  focus: { label: "专注", cls: "mode-focus", beep: 880 },
+  short: { label: "短休息", cls: "mode-short", beep: 660 },
+  long:  { label: "长休息", cls: "mode-long",  beep: 520 }
+};
+var RING_R = 122;
+var RING_C = 2 * Math.PI * RING_R;
+
+/* ---------- 工具函数 ---------- */
+function $(sel) { return document.querySelector(sel); }
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+function fmtMS(ms) {
+  var s = Math.max(0, Math.ceil(ms / 1000));
+  return pad2(Math.floor(s / 60)) + ":" + pad2(s % 60);
+}
+function dayKey(ts) {
+  var d = new Date(ts);
+  return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+}
+function todayKey() { return dayKey(Date.now()); }
+function isSameDay(ts, key) { return dayKey(ts) === key; }
+function isoOfDay(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function fmtHM(ts) { var d = new Date(ts); return pad2(d.getHours()) + ":" + pad2(d.getMinutes()); }
+function fmtDueShort(ts) {
+  var d = new Date(ts);
+  return (d.getMonth() + 1) + "/" + d.getDate() + " " + fmtHM(ts);
+}
+function fmtDueLong(ts) {
+  var d = new Date(ts);
+  return (d.getMonth() + 1) + "月" + d.getDate() + "日 周" + "日一二三四五六".charAt(d.getDay()) + " " + fmtHM(ts);
+}
+/* 相对时间描述 */
+function relTime(diffMs) {
+  if (diffMs < 0) {
+    var od = Math.floor(-diffMs / 86400000);
+    var oh = Math.floor((-diffMs % 86400000) / 3600000);
+    if (od >= 1) return "已逾期 " + od + " 天" + (oh ? " " + oh + " 小时" : "");
+    return "已逾期 " + Math.max(1, Math.floor(-diffMs / 3600000)) + " 小时";
+  }
+  var min = Math.floor(diffMs / 60000);
+  if (min < 1) return "不到 1 分钟";
+  if (min < 60) return "还有 " + min + " 分钟";
+  var h = Math.floor(min / 60), d = Math.floor(h / 24);
+  if (h < 24) return "还有 " + h + " 小时 " + (min % 60) + " 分钟";
+  return "还有 " + d + " 天 " + (h % 24) + " 小时";
+}
+
+/* ---------- 存储读取（容错，绝不白屏） ---------- */
+function loadJSON(key, fallback) {
+  try {
+    var raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    var v = JSON.parse(raw);
+    return (v && typeof v === "object") ? v : fallback;
+  } catch (e) { return fallback; }
+}
+function defaultData() {
+  return {
+    tasks: [],
+    sessions: [],
+    currentTaskId: null,
+    stats: { totalPomodoros: 0, streak: 0, lastActiveDate: null },
+    timer: null,
+    /* v2 新增 */
+    snoozeMap: {},
+    notifyLog: [],
+    lastCheckAt: Date.now(),
+    lastDailyDate: null,
+    lastCelebrateDate: null,
+    onboarded: false
+  };
+}
+/* 老数据迁移：补齐缺失字段，绝不丢任务 */
+function migrateData(d) {
+  d.snoozeMap = (d.snoozeMap && typeof d.snoozeMap === "object" && !Array.isArray(d.snoozeMap)) ? d.snoozeMap : {};
+  d.notifyLog = Array.isArray(d.notifyLog) ? d.notifyLog : [];
+  if (typeof d.lastCheckAt !== "number") d.lastCheckAt = Date.now();
+  if (typeof d.lastDailyDate !== "string") d.lastDailyDate = null;
+  if (typeof d.lastCelebrateDate !== "string") d.lastCelebrateDate = null;
+  d.onboarded = !!d.onboarded;
+  (d.tasks || []).forEach(function (t) {
+    if (typeof t.dueDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(t.dueDate)) t.dueDate = null;
+    if (typeof t.dueTime !== "string" || !/^\d{2}:\d{2}$/.test(t.dueTime)) t.dueTime = "";
+    if (["preset", "once", "none"].indexOf(t.remindPolicy) < 0) t.remindPolicy = settings.remindPolicy;
+    if (!Array.isArray(t.remindOffsets)) t.remindOffsets = DEFAULT_SETTINGS.presetOffsets.slice();
+    if (typeof t.remindOffsetOnce !== "number") t.remindOffsetOnce = 60;
+    if (typeof t.remindAt !== "number") t.remindAt = 0;
+    if (!Array.isArray(t.notifiedLevels)) t.notifiedLevels = [];
+    if (typeof t.autoBumped !== "boolean") t.autoBumped = false;
+    if (typeof t.priorityManual !== "boolean") t.priorityManual = false;
+    if (t.done) { if (typeof t.completedAt !== "number") t.completedAt = t.doneAt || Date.now(); }
+    else t.completedAt = null;
+  });
+  return d;
+}
+
+/* ---------- 全局状态（单一状态源） ---------- */
+var settings = Object.assign({}, DEFAULT_SETTINGS, loadJSON(LS_SETTINGS, {}));
+if (!Array.isArray(settings.presetOffsets)) settings.presetOffsets = DEFAULT_SETTINGS.presetOffsets.slice();
+var data = Object.assign(defaultData(), loadJSON(LS_DATA, {}));
+migrateData(data);
+if (!Array.isArray(data.tasks)) data.tasks = [];
+if (!Array.isArray(data.sessions)) data.sessions = [];
+if (!data.stats || typeof data.stats !== "object") data.stats = defaultData().stats;
+
+/* UI 临时状态 */
+var ui = {
+  activeTab: "focus",
+  taskFilter: "all",
+  taskSort: "urgent",        // 默认按紧急度（组内）
+  editingTaskId: null,
+  editModalTaskId: null,
+  dragId: null,
+  estPomos: 1,
+  newPriority: "mid",
+  todayViewOpen: true,
+  todayGroupOpen: { fire: true, soon: true, later: false, nodue: false, done: false },
+  hiddenAt: 0
+};
+
+/* 提醒队列（运行时，不入库） */
+var silentQueue = [];    // 专注中静默的提醒，阶段结束集中播报
+var remindQueue = [];    // 待展示的提醒卡片
+var remindShowing = false;
+
+/* 计时器状态机：idle → running → paused → finished（finished 为瞬时态） */
+var timer = {
+  mode: "focus",
+  state: "idle",
+  endTimestamp: 0,
+  remainingMs: 0,
+  sessionStartAt: 0,
+  ranMs: 0,
+  resumeAt: 0,
+  cycleCount: 0,
+  tickId: null
+};
+
+/* ---------- 持久化 ---------- */
+function saveSettings() {
+  try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch (e) {}
+}
+function saveData() {
+  data.timer = {
+    mode: timer.mode, state: timer.state,
+    endTimestamp: timer.endTimestamp, remainingMs: timer.remainingMs,
+    sessionStartAt: timer.sessionStartAt, ranMs: timer.ranMs,
+    cycleCount: timer.cycleCount
+  };
+  try { localStorage.setItem(LS_DATA, JSON.stringify(data)); } catch (e) {}
+}
+/* 自定义时长：customOnce 是当前生效的临时值（仅本次会话，不落盘）；
+   customPending 在计时进行中排队，等下一阶段再提交，避免进度环突然跳变。 */
+var customOnce = null;
+var customPending = null;
+function durMs(mode) {
+  var s = customOnce || settings;
+  var m = mode === "focus" ? s.focusMin
+        : mode === "short" ? s.shortBreakMin
+        : s.longBreakMin;
+  return Math.max(1, m) * 60000;
+}
+
+/* ============================================================
+   音频（Web Audio 实时合成，无外部文件）
+   ============================================================ */
+var audioCtx = null, masterGain = null, noiseSource = null, noiseGain = null;
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  audioCtx = new AC();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = (settings.volume / 100) * 0.5;
+  masterGain.connect(audioCtx.destination);
+  return audioCtx;
+}
+/* 三声短促提示音（阶段结束），不同阶段音高不同 */
+function playBeeps(mode) {
+  if (!settings.soundOn) return;
+  var ctx = ensureAudio();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume();
+  var base = MODE_META[mode] ? MODE_META[mode].beep : 660;
+  var t0 = ctx.currentTime;
+  for (var i = 0; i < 3; i++) {
+    var osc = ctx.createOscillator();
+    var g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = base * (1 + i * 0.25);
+    var st = t0 + i * 0.28;
+    g.gain.setValueAtTime(0.0001, st);
+    g.gain.exponentialRampToValueAtTime(1, st + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, st + 0.2);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(st); osc.stop(st + 0.24);
+  }
+}
+/* 柔和双音（提醒专用，C5→E5 上行，不刺耳） */
+function playReminderChime() {
+  if (!settings.remindSound) return;
+  var ctx = ensureAudio();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume();
+  var t0 = ctx.currentTime;
+  [523.25, 659.25].forEach(function (f, i) {
+    var osc = ctx.createOscillator();
+    var g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = f;
+    var st = t0 + i * 0.35;
+    g.gain.setValueAtTime(0.0001, st);
+    g.gain.exponentialRampToValueAtTime(0.8, st + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, st + 0.45);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(st); osc.stop(st + 0.5);
+  });
+}
+/* 粉噪（近似），专注运行时循环播放 */
+function pinkNoiseBuffer(ctx) {
+  var len = ctx.sampleRate * 2;
+  var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  var d = buf.getChannelData(0);
+  var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+  for (var i = 0; i < len; i++) {
+    var white = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + white * 0.0555179;
+    b1 = 0.99332 * b1 + white * 0.0750759;
+    b2 = 0.96900 * b2 + white * 0.1538520;
+    b3 = 0.86650 * b3 + white * 0.3104856;
+    b4 = 0.55000 * b4 + white * 0.5329522;
+    b5 = -0.7616 * b5 - white * 0.0168980;
+    d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+    b6 = white * 0.115926;
+  }
+  return buf;
+}
+function startNoise() {
+  if (!settings.noiseOn) return;
+  var ctx = ensureAudio();
+  if (!ctx || noiseSource) return;
+  if (ctx.state === "suspended") ctx.resume();
+  noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = pinkNoiseBuffer(ctx);
+  noiseSource.loop = true;
+  noiseGain = ctx.createGain();
+  noiseGain.gain.value = 0.35;
+  noiseSource.connect(noiseGain); noiseGain.connect(masterGain);
+  noiseSource.start();
+}
+function stopNoise() {
+  if (noiseSource) {
+    try { noiseSource.stop(); } catch (e) {}
+    noiseSource = null; noiseGain = null;
+  }
+}
+function syncNoise() {
+  if (timer.state === "running" && settings.noiseOn) startNoise();
+  else stopNoise();
+}
+
+/* ============================================================
+   通知 / Toast / 弹窗
+   ============================================================ */
+function notify(title, body) {
+  // 番茄钟阶段通知：未授权或被拒绝时静默降级为 Toast
+  if (settings.notifyOn && "Notification" in window && Notification.permission === "granted") {
+    try { new Notification(title, { body: body }); } catch (e) { showToast(body); }
+  } else {
+    showToast(body);
+  }
+}
+function showToast(msg) {
+  var wrap = $("#toastWrap");
+  var el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(function () {
+    el.classList.add("out");
+    setTimeout(function () { el.remove(); }, 260);
+  }, 2500);
+}
+/* 桌面通知（提醒引擎用），点击跳到对应任务；不支持/未授权返回 false 静默降级 */
+function desktopNotify(title, body, taskId) {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission !== "granted") return false;
+  try {
+    var n = new Notification(title, { body: body });
+    if (taskId) {
+      n.onclick = function () {
+        try { window.focus(); } catch (e) {}
+        openTask(taskId);
+        n.close();
+      };
+    }
+    return true;
+  } catch (e) { return false; }
+}
+var modalConfirmCb = null;
+function confirmModal(title, text, onOk) {
+  $("#modalTitle").textContent = title;
+  $("#modalText").textContent = text;
+  modalConfirmCb = onOk;
+  $("#modalOverlay").classList.add("open");
+  $("#confirmModal").classList.add("open");
+  $("#modalOk").focus();
+}
+function closeAllModals() {
+  modalConfirmCb = null;
+  $("#modalOverlay").classList.remove("open");
+  $("#confirmModal").classList.remove("open");
+  $("#editModal").classList.remove("open");
+  $("#customTimerModal").classList.remove("open");
+}
+function closeAllDrawers() {
+  $("#settingsDrawer").classList.remove("open");
+  $("#bellDrawer").classList.remove("open");
+  $("#drawerOverlay").classList.remove("open");
+  $("#settingsBtn").setAttribute("aria-expanded", "false");
+}
+
+/* ============================================================
+   截止时间工具
+   ============================================================ */
+/* 计算任务截止时间戳；无日期或格式非法返回 null（跳过提醒判定） */
+function taskDueTs(t) {
+  if (!t.dueDate) return null;
+  var ts = Date.parse(t.dueDate + "T" + (t.dueTime || "23:59") + ":00");
+  if (!isFinite(ts)) ts = Date.parse(t.dueDate + "T23:59:00");
+  if (!isFinite(ts)) return null;
+  return ts;
+}
+function isOverdue(t) {
+  var ts = taskDueTs(t);
+  return ts !== null && ts < Date.now();
+}
+/* 生效优先级：自动升级时视为高 */
+function effPrio(t) { return t.autoBumped ? "high" : (t.priority || "mid"); }
+/* 截止 chip 的四态配色 */
+function dueChipHtml(t) {
+  var ts = taskDueTs(t);
+  if (ts === null) return "";
+  var now = Date.now(), diff = ts - now, label, cls;
+  if (diff < 0) {
+    var days = Math.floor(-diff / 86400000);
+    label = days >= 1 ? "逾期 " + days + " 天" : "已逾期 " + fmtHM(ts);
+    cls = "due-over";
+  } else if (dayKey(ts) === todayKey()) {
+    label = "今天 " + fmtHM(ts) + " 到期";
+    cls = "due-today";
+  } else if (diff <= 24 * 3600000) {
+    label = "明天前 · " + fmtDueShort(ts);
+    cls = "due-warn";
+  } else {
+    label = fmtDueShort(ts);
+    cls = "due-safe";
+  }
+  return '<span class="due-chip ' + cls + '">' + label + "</span>";
+}
+
+/* ============================================================
+   中文智能日期解析（从标题抽取截止日期时间）
+   支持：今天/明天/后天/大后天 / N天后 / (本|下)周X / X月X日 /
+        早上|上午|中午|下午|晚上8点[半|30] / 15:30
+   ============================================================ */
+function parseDueText(text, now) {
+  now = now || new Date();
+  var rest = text;
+  var date = null, time = null;
+
+  /* --- 1) 时间部分 --- */
+  var tm = rest.match(/(凌晨|早上|上午|中午|下午|晚上|夜里|深夜)?\s*(\d{1,2})\s*(?:点|:|：)\s*(半|\d{1,2})?\s*分?/);
+  if (tm) {
+    var h = parseInt(tm[2], 10);
+    var mi = tm[3] === "半" ? 30 : (tm[3] ? parseInt(tm[3], 10) : 0);
+    var p = tm[1] || "";
+    if ((p === "下午" || p === "晚上" || p === "夜里" || p === "深夜") && h < 12) h += 12;
+    if (p === "凌晨" && h === 12) h = 0;
+    if (h === 24) h = 0;
+    if (h >= 0 && h <= 23 && mi >= 0 && mi <= 59) {
+      time = pad2(h) + ":" + pad2(mi);
+      rest = rest.replace(tm[0], " ");
+    }
+  }
+
+  /* --- 2) 日期部分 --- */
+  var d = null;
+  var m1 = rest.match(/(大后天|大後天|后天|後天|明天|明日|今天|今日)/);
+  if (m1) {
+    var offMap = { "今天": 0, "今日": 0, "明天": 1, "明日": 1, "后天": 2, "後天": 2, "大后天": 3, "大後天": 3 };
+    d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offMap[m1[1]]);
+    rest = rest.replace(m1[0], " ");
+  } else {
+    var m2 = rest.match(/(\d{1,3})\s*天\s*[后後]/);
+    if (m2) {
+      d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + parseInt(m2[1], 10));
+      rest = rest.replace(m2[0], " ");
+    } else {
+      var m3 = rest.match(/(下|本|这)?\s*(?:周|星期|礼拜)\s*([一二三四五六日天末])/);
+      if (m3) {
+        var mapc = { "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "日": 0, "天": 0, "末": 6 };
+        var target = mapc[m3[2]];
+        if (target !== undefined) {
+          /* 以本周一为基准计算目标日 */
+          var base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          var dow = base.getDay();
+          var mondayTs = base.getTime() - ((dow + 6) % 7) * 86400000;
+          var off = target === 0 ? 6 : target - 1;
+          var ts = mondayTs + off * 86400000;
+          var prefix = m3[1] || "";
+          if (prefix === "下") ts += 7 * 86400000;
+          else if (ts < base.getTime()) ts += 7 * 86400000;  /* 已过的本周星期 → 下周 */
+          d = new Date(ts);
+        }
+        rest = rest.replace(m3[0], " ");
+      } else {
+        var m4 = rest.match(/(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]/);
+        if (m4) {
+          var mo = parseInt(m4[1], 10) - 1, dy = parseInt(m4[2], 10);
+          if (mo >= 0 && mo <= 11 && dy >= 1 && dy <= 31) {
+            d = new Date(now.getFullYear(), mo, dy);
+            if (d.getTime() < new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) {
+              d = new Date(now.getFullYear() + 1, mo, dy);  /* 已过 → 明年 */
+            }
+          }
+          rest = rest.replace(m4[0], " ");
+        }
+      }
+    }
+  }
+  if (d) date = isoOfDay(d);
+
+  /* --- 3) 只有时间没有日期：今天，已过则明天 --- */
+  if (time && !date) {
+    var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var ts2 = Date.parse(isoOfDay(today0) + "T" + time + ":00");
+    if (ts2 <= now.getTime()) date = isoOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+    else date = isoOfDay(today0);
+  }
+
+  if (!date && !time) return null;
+
+  /* --- 4) 清理剥离后的标题残留 --- */
+  rest = rest.replace(/[之以]*前/g, " ");
+  rest = rest.replace(/\s+/g, " ").trim();
+  rest = rest.replace(/^[，。,.\-—、;；!！?？~～\s]+/, "").trim();
+  return { date: date, time: time, rest: rest };
+}
+/* ============================================================
+   提醒引擎（核心）：每 30 秒执行一次 checkReminders()
+   遍历未完成任务，按档位判定，档位只触发一次
+   ============================================================ */
+function checkReminders() {
+  var now = Date.now();
+  data.lastCheckAt = now;
+  var changed = false;
+
+  data.tasks.forEach(function (t) {
+    if (t.done) return;
+    var dueTs = taskDueTs(t);
+    /* 自动优先级升级：距截止 ≤ 24h 且非高优先级 → 🔥 紧急（手动改过的不覆盖） */
+    if (!t.priorityManual) {
+      var bump = dueTs !== null && (dueTs - now) <= 24 * 3600000 && t.priority !== "high";
+      if (bump !== t.autoBumped) { t.autoBumped = bump; changed = true; }
+    } else if (t.autoBumped) { t.autoBumped = false; changed = true; }
+
+    if (dueTs === null || !settings.reminderOn) return;
+    /* 系统时间被改回过去 / 日期非法：跳过判定，防连环弹窗 */
+    if (dueTs < t.createdAt - 365 * 86400000) return;
+    /* 稍后提醒 / 今天先不管 */
+    var snoozeUntil = data.snoozeMap[t.id];
+    if (snoozeUntil && now < snoozeUntil) return;
+
+    var diffMin = (dueTs - now) / 60000;
+    var lv = Array.isArray(t.notifiedLevels) ? t.notifiedLevels : (t.notifiedLevels = []);
+    function has(k) { return lv.indexOf(k) >= 0; }
+    function mark(k) { if (!has(k)) { lv.push(k); changed = true; } }
+    function fireLevel(type, text, level) {
+      mark(level);
+      changed = true;
+      fire(t, type, text, level);
+    }
+
+    var policy = t.remindPolicy || "preset";
+    if (policy === "none") return;
+
+    if (diffMin > 0) {
+      if (policy === "preset") {
+        var offs = (Array.isArray(t.remindOffsets) && t.remindOffsets.length ? t.remindOffsets.slice() : DEFAULT_SETTINGS.presetOffsets.slice())
+          .sort(function (a, b) { return b - a; });
+        /* 收集所有已进入窗口且未触发过的正档位，只触发最小（最紧急）的一个，
+           其余更大的档位一并标记跳过，避免新建任务时连环轰炸 */
+        var cands = [];
+        for (var i = 0; i < offs.length; i++) {
+          var o = offs[i];
+          if (o > 0 && diffMin <= o && !has("off-" + o)) cands.push(o);
+        }
+        if (cands.length) {
+          var smallest = cands[cands.length - 1];  // desc 排序，末位即最小档位
+          for (var j = 0; j < cands.length - 1; j++) mark("off-" + cands[j]);
+          fireLevel("dueSoon", TIER_TEXT[smallest] || "即将到期", "off-" + smallest);
+        }
+      } else if (policy === "once" && !has("once")) {
+        fireLevel("dueSoon", "即将到期", "once");
+      }
+    } else {
+      /* 已到期 / 已逾期 */
+      if (policy === "preset" && !has("off-0")) fireLevel("overdue", "已到期", "off-0");
+      if (policy === "once" && !has("once")) fireLevel("overdue", "已到期", "once");
+      /* 逾期追提醒：按频率，最多 3 次 */
+      var over = -diffMin;
+      var freq = settings.overdueFreq === "once" ? Infinity : (settings.overdueFreq === "60" ? 60 : 30);
+      var maxN = settings.overdueFreq === "once" ? 1 : 3;
+      for (var n = 1; n <= maxN; n++) {
+        if (over >= n * freq && !has("od-" + n)) fireLevel("overdue", "已逾期", "od-" + n);
+      }
+    }
+  });
+
+  saveData();
+  if (changed || timer.state === "running") renderDueBanner();
+  renderBell();
+}
+
+/* 提醒触发：写通知中心 → 按渠道呈现（专注中静默则只进横幅） */
+function fire(task, type, text, level) {
+  data.notifyLog.unshift({
+    id: uid(), taskId: task.id, title: task.title,
+    type: type, at: Date.now(), read: false, text: text
+  });
+  if (data.notifyLog.length > 50) data.notifyLog.length = 50;
+  var dueTs = taskDueTs(task);
+  var item = { taskId: task.id, title: task.title, text: text, type: type, level: level, dueTs: dueTs };
+  var silent = timer.state === "running" && settings.remindSilentRunning;
+  if (silent) {
+    silentQueue.push(item);
+    renderDueBanner();
+  } else {
+    if (settings.remindChannelPage !== false) remindQueue.push(item);
+    if (settings.remindChannelDesktop) {
+      desktopNotify("🍅 番茄 Todo", task.title + " · " + text + (dueTs ? "（" + fmtDueShort(dueTs) + "）" : ""), task.id);
+    }
+    if (settings.remindSound) playReminderChime();
+  }
+  renderBell();
+}
+
+/* ---------- 提醒卡片队列（同时只显示一个，依次展示） ---------- */
+function pumpRemindCards() {
+  if (remindShowing) return;
+  var wrap = $("#remindWrap");
+  if (!wrap) return;  // 容器不存在时静默跳过（极端容错，条目保留在队列）
+  var item = remindQueue.shift();
+  if (!item) return;
+  remindShowing = true;
+  var el = document.createElement("div");
+  el.className = "remind-card" + (item.type === "overdue" ? " over" : "");
+  var actions;
+  if (item.special === "summary" || item.special === "daily") {
+    actions = '<button data-ract="view" aria-label="查看任务">查看任务</button><button data-ract="ok" aria-label="知道了">知道了</button>';
+  } else if (item.special === "settle") {
+    actions = '<button data-ract="tomorrow" aria-label="顺延到明天">🌙 顺延到明天</button><button data-ract="ok" aria-label="知道了">知道了</button>';
+  } else {
+    actions = '<button class="r-start" data-ract="start" aria-label="现在开始专注">▶ 现在开始</button>' +
+      '<button data-ract="snooze" aria-label="延后10分钟">⏰ 延后 10 分钟</button>' +
+      '<button data-ract="ignore" aria-label="今天先不管">😴 今天先不管</button>';
+  }
+  var headIcon = item.type === "overdue" ? "🔴 已逾期"
+    : (item.special === "daily" ? "🌅 开工提示"
+    : (item.special === "summary" ? "📦 补发提醒" : "⏰ 截止提醒"));
+  el.innerHTML =
+    '<div class="r-head">' + headIcon + "</div>" +
+    '<div class="r-title">' + esc(item.title) + "</div>" +
+    '<div class="r-text">' + esc(item.text) + "</div>" +
+    '<div class="r-actions">' + actions + "</div>";
+  wrap.appendChild(el);
+
+  var closed = false;
+  function dismiss() {
+    if (closed) return;
+    closed = true;
+    el.classList.add("out");
+    setTimeout(function () {
+      el.remove();
+      remindShowing = false;
+      pumpRemindCards();  // 依次展示下一条
+    }, 200);
+  }
+  /* 4 秒自动消失，鼠标悬停暂停 */
+  var autoT = setTimeout(dismiss, 4000);
+  el.addEventListener("mouseenter", function () { clearTimeout(autoT); });
+  el.addEventListener("mouseleave", function () { autoT = setTimeout(dismiss, 2000); });
+
+  el.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-ract]");
+    if (!btn) return;
+    var act = btn.dataset.ract;
+    if (act === "start" && item.taskId) {
+      dismiss();
+      setCurrentTask(item.taskId);
+      ensureAudio();
+      startTimer();
+    } else if (act === "snooze" && item.taskId) {
+      /* 延后 10 分钟：写入 snoozeMap 并撤销当前档位，10 分钟后重新触发 */
+      data.snoozeMap[item.taskId] = Date.now() + 10 * 60000;
+      var t = getTask(item.taskId);
+      if (t && item.level) {
+        var idx = (t.notifiedLevels || []).indexOf(item.level);
+        if (idx >= 0) t.notifiedLevels.splice(idx, 1);
+      }
+      saveData();
+      dismiss();
+      showToast("已延后 10 分钟");
+    } else if (act === "ignore" && item.taskId) {
+      /* 今天先不管：静默到明天 0 点 */
+      var d = new Date();
+      d.setHours(24, 0, 0, 0);
+      data.snoozeMap[item.taskId] = d.getTime();
+      saveData();
+      dismiss();
+      showToast("今天不再提醒这个任务");
+    } else if (act === "tomorrow" && item.taskId) {
+      var t2 = getTask(item.taskId);
+      if (t2) {
+        var nd = new Date();
+        nd.setDate(nd.getDate() + 1);
+        t2.dueDate = isoOfDay(nd);
+        t2.notifiedLevels = [];
+        delete data.snoozeMap[t2.id];
+        saveData();
+        renderTasks();
+        renderTodayView();
+      }
+      dismiss();
+      showToast("已顺延到明天");
+    } else if (act === "view") {
+      dismiss();
+      switchTab("tasks");
+    } else if (act === "ok") {
+      dismiss();
+    }
+  });
+}
+
+/* ---------- 专注中静默横幅 ---------- */
+function renderDueBanner() {
+  var el = $("#dueBanner");
+  if (!el) return;
+  var text = "", over = false;
+  if (silentQueue.length) {
+    var it = silentQueue[silentQueue.length - 1];
+    var prefix = silentQueue.length > 1 ? "[" + silentQueue.length + " 条] " : "";
+    var remain = "";
+    if (it.dueTs) {
+      var dm = Math.round((it.dueTs - Date.now()) / 60000);
+      remain = dm > 0 ? dm + " 分钟后 " : "";
+    }
+    text = prefix + "⚠️ " + remain + "「" + it.title + "」" + it.text;
+    over = it.type === "overdue";
+  } else if (timer.state === "running" && settings.reminderOn) {
+    /* 运行中：显示最近的临近截止任务 */
+    var nearest = null, nDiff = Infinity;
+    data.tasks.forEach(function (t) {
+      if (t.done) return;
+      var ts = taskDueTs(t);
+      if (ts === null) return;
+      var d = ts - Date.now();
+      if (d < nDiff) { nDiff = d; nearest = t; }
+    });
+    if (nearest && nDiff < 60 * 60000) {
+      var mins = Math.round(nDiff / 60000);
+      text = mins > 0 ? "⚠️ " + mins + " 分钟后「" + nearest.title + "」截止" : "⚠️「" + nearest.title + "」已到期";
+      over = mins <= 0;
+    }
+  }
+  if (!text) { el.hidden = true; el.textContent = ""; return; }
+  el.hidden = false;
+  el.textContent = text;
+  el.classList.toggle("over", over);
+}
+/* 阶段结束：集中播报静默的提醒 */
+function flushSilentQueue() {
+  while (silentQueue.length) remindQueue.push(silentQueue.shift());
+  renderDueBanner();
+  pumpRemindCards();
+}
+/* 番茄结算联动：今天截止但还没开始的任务 → 提示顺延 */
+function settleCheck() {
+  if (!settings.reminderOn) return;
+  var today = todayKey();
+  for (var i = 0; i < data.tasks.length; i++) {
+    var t = data.tasks[i];
+    if (!t.done && t.dueDate === today && (t.completedPomodoros || 0) === 0) {
+      remindQueue.push({
+        special: "settle", taskId: t.id, title: t.title,
+        text: "今天截止但还没开始，要顺延到明天吗？", type: "dueSoon", level: null, dueTs: taskDueTs(t)
+      });
+      pumpRemindCards();
+      return;
+    }
+  }
+}
+
+/* ---------- 离开期间补检（页面长时间关闭 / 休眠后唤醒） ---------- */
+function catchUpCheck() {
+  var now = Date.now();
+  var last = typeof data.lastCheckAt === "number" ? data.lastCheckAt : now;
+  data.lastCheckAt = now;
+  if (now - last < 5 * 60000) { checkReminders(); return; }
+  var missed = [];
+  data.tasks.forEach(function (t) {
+    if (t.done) return;
+    var d = taskDueTs(t);
+    if (d === null || d < t.createdAt - 365 * 86400000) return;
+    if (d > last && d <= now) missed.push(t);
+  });
+  if (missed.length) {
+    var titles = missed.map(function (t) { return "· " + t.title; }).join("\n");
+    data.notifyLog.unshift({
+      id: uid(), taskId: null, title: missed.length + " 件事在离开期间到期了",
+      type: "dueSoon", at: now, read: false, text: titles
+    });
+    if (data.notifyLog.length > 50) data.notifyLog.length = 50;
+    missed.forEach(function (t) {
+      t.notifiedLevels = t.notifiedLevels || [];
+      if (t.notifiedLevels.indexOf("off-0") < 0) t.notifiedLevels.push("off-0");
+      delete data.snoozeMap[t.id];
+    });
+    remindQueue.push({
+      special: "summary", taskId: null,
+      title: "你有 " + missed.length + " 件事在离开期间到期了",
+      text: titles, type: "dueSoon", level: null, dueTs: null
+    });
+  }
+  saveData();
+  checkReminders();
+  dailyStartCheck();
+  pumpRemindCards();
+  renderBell();
+}
+
+/* ---------- 每日开工提示 ---------- */
+function dailyStartCheck() {
+  if (!settings.reminderOn || !settings.dailyStartOn) return;
+  var today = todayKey();
+  if (data.lastDailyDate === today) return;
+  var hm = /^\d{2}:\d{2}$/.test(settings.dailyStartTime || "") ? settings.dailyStartTime : "09:00";
+  var ts = Date.parse(today + "T" + hm + ":00");
+  if (!isFinite(ts)) return;
+  if (Date.now() < ts) return;
+  var n = data.tasks.filter(function (t) { return !t.done && t.dueDate === today; }).length;
+  data.lastDailyDate = today;
+  data.notifyLog.unshift({
+    id: uid(), taskId: null, title: "今天有 " + n + " 件事要处理",
+    type: "dailyStart", at: Date.now(), read: false, text: "开工提示 " + hm
+  });
+  if (data.notifyLog.length > 50) data.notifyLog.length = 50;
+  if (n > 0) {
+    remindQueue.push({
+      special: "daily", taskId: null,
+      title: "🌅 早上好", text: "今天有 " + n + " 件事要处理，挑一件先开始吧", type: "dailyStart", level: null, dueTs: null
+    });
+    if (settings.remindSound) playReminderChime();
+  }
+  saveData();
+  renderBell();
+  pumpRemindCards();
+}
+
+/* ============================================================
+   计时器核心逻辑
+   ============================================================ */
+function stopTick() {
+  if (timer.tickId !== null) { clearInterval(timer.tickId); timer.tickId = null; }
+}
+function remainingNow() {
+  return timer.state === "running"
+    ? Math.max(0, timer.endTimestamp - Date.now())
+    : (timer.state === "paused" ? timer.remainingMs : durMs(timer.mode));
+}
+function startTick() {
+  stopTick();
+  timer.tickId = setInterval(tick, 250);
+  tick();
+}
+function tick() {
+  if (timer.state !== "running") return;
+  var rem = timer.endTimestamp - Date.now();
+  if (rem <= 0) {
+    updateTimerUI(0);
+    finishPhase(false);
+  } else {
+    updateTimerUI(rem);
+  }
+}
+function startTimer() {
+  if (timer.tickId !== null || timer.state === "running") return; // 防止重复计时器
+  ensureAudio();
+  var now = Date.now();
+  if (timer.state === "paused") {
+    timer.endTimestamp = now + timer.remainingMs;
+    timer.resumeAt = now;
+  } else {
+    timer.remainingMs = durMs(timer.mode);
+    timer.endTimestamp = now + timer.remainingMs;
+    timer.sessionStartAt = now;
+    timer.ranMs = 0;
+    timer.resumeAt = now;
+  }
+  timer.state = "running";
+  announce(MODE_META[timer.mode].label + "开始");
+  startTick();
+  syncNoise();
+  renderDueBanner();
+  saveData();
+  renderTimerButtons();
+}
+function pauseTimer() {
+  if (timer.state !== "running") return;
+  var now = Date.now();
+  timer.remainingMs = Math.max(0, timer.endTimestamp - now);
+  timer.ranMs += now - timer.resumeAt;
+  timer.state = "paused";
+  stopTick();
+  syncNoise();
+  announce(MODE_META[timer.mode].label + "已暂停");
+  saveData();
+  updateTimerUI(timer.remainingMs);
+  renderTimerButtons();
+  renderDueBanner();
+}
+function resetTimer() {
+  stopTick();
+  timer.state = "idle";
+  commitPendingCustom();   /* 重置 = 用新时长重新开始 */
+  timer.remainingMs = durMs(timer.mode);
+  timer.ranMs = 0;
+  timer.sessionStartAt = 0;
+  syncNoise();
+  announce("计时器已重置");
+  saveData();
+  updateTimerUI(timer.remainingMs);
+  renderTimerButtons();
+  renderDueBanner();
+}
+function skipPhase() { finishPhase(true); }
+
+/* 阶段结束 / 跳过 的统一结算 */
+function finishPhase(skipped) {
+  stopTick();
+  var now = Date.now();
+  var wasMode = timer.mode;
+  var nextMode = "focus";
+
+  if (!skipped) {
+    timer.ranMs += now - timer.resumeAt;
+    data.sessions.push({
+      id: uid(),
+      taskId: wasMode === "focus" ? data.currentTaskId : null,
+      mode: wasMode,
+      startAt: timer.sessionStartAt || (now - durMs(wasMode)),
+      endAt: now,
+      durationMin: Math.max(1, Math.round(timer.ranMs / 60000))
+    });
+  }
+
+  if (wasMode === "focus") {
+    if (!skipped) {
+      data.stats.totalPomodoros++;
+      var task = getTask(data.currentTaskId);
+      if (task && !task.done) task.completedPomodoros++;
+      timer.cycleCount++;
+      nextMode = (timer.cycleCount % Math.max(2, settings.longBreakEvery) === 0) ? "long" : "short";
+      announce("专注完成，进入" + MODE_META[nextMode].label);
+      notify("🍅 番茄 Todo", "专注完成！休息一下吧～");
+    } else {
+      nextMode = (timer.cycleCount > 0 && timer.cycleCount % Math.max(2, settings.longBreakEvery) === 0) ? "long" : "short";
+      announce("已跳过专注");
+    }
+  } else {
+    if (wasMode === "long") timer.cycleCount = 0;
+    if (!skipped) {
+      announce(MODE_META[wasMode].label + "结束，进入专注");
+      notify("🍅 番茄 Todo", MODE_META[wasMode].label + "结束，开始新的专注吧！");
+    } else {
+      announce("已跳过休息");
+    }
+  }
+
+  playBeeps(wasMode);
+
+  commitPendingCustom();   /* 自定义时长从这里开始生效，当前阶段已结算完毕 */
+  timer.mode = nextMode;
+  timer.state = "idle";
+  timer.remainingMs = durMs(nextMode);
+  timer.ranMs = 0;
+  timer.sessionStartAt = 0;
+  syncNoise();
+  saveData();
+
+  applyModeClass();
+  renderModeButtons();
+  renderTimerButtons();
+  updateTimerUI(timer.remainingMs);
+  renderTodayOverview();
+  renderCurrentTask();
+  renderTasks();
+
+  /* 提醒联动：集中播报 + 今日截止未开始检查 */
+  flushSilentQueue();
+  settleCheck();
+
+  if (settings.autoStartNext) startTimer();
+}
+
+function switchMode(mode) {
+  commitPendingCustom();   /* 手动换模式也算进入新阶段 */
+  if (timer.mode === mode && timer.state === "idle") return;
+  stopTick();
+  timer.mode = mode;
+  timer.state = "idle";
+  timer.remainingMs = durMs(mode);
+  timer.ranMs = 0;
+  timer.sessionStartAt = 0;
+  syncNoise();
+  announce("切换到" + MODE_META[mode].label);
+  saveData();
+  applyModeClass();
+  renderModeButtons();
+  renderTimerButtons();
+  updateTimerUI(timer.remainingMs);
+  renderDueBanner();
+}
+
+function applyModeClass() {
+  var page = $("#page-focus");
+  page.classList.remove("mode-focus", "mode-short", "mode-long");
+  page.classList.add(MODE_META[timer.mode].cls);
+}
+
+/* ---------- 计时器 UI ---------- */
+function announce(text) {
+  var el = $("#timerLive");
+  if (el && el.textContent !== text) el.textContent = text;
+}
+function updateTimerUI(remMs) {
+  var total = durMs(timer.mode);
+  var rem = (remMs === undefined) ? remainingNow() : remMs;
+  var disp = $("#timeDisplay"), txt = fmtMS(rem);
+  disp.textContent = txt;
+  /* 用户可自定义任意分钟数，三位数时长（如 999:00）要自动缩字号，避免撑出圆环 */
+  disp.classList.toggle("ts-long", txt.length > 5);
+  disp.classList.toggle("ts-xlong", txt.length > 6);
+  var progress = total > 0 ? rem / total : 0;
+  $("#ringFg").style.strokeDasharray = RING_C.toFixed(2);
+  $("#ringFg").style.strokeDashoffset = (RING_C * (1 - progress)).toFixed(2);
+  $("#modeLabel").textContent = MODE_META[timer.mode].label;
+  var every = Math.max(2, settings.longBreakEvery);
+  var inCycle = timer.cycleCount % every;
+  $("#cycleInfo").textContent = timer.mode === "focus"
+    ? ("本轮第 " + (inCycle + 1) + " / " + every + " 个专注") : "";
+  var mmss = fmtMS(rem);
+  if (timer.state === "running") document.title = "▶ " + mmss + " " + MODE_META[timer.mode].label + " - 番茄 Todo";
+  else if (timer.state === "paused") document.title = "⏸ " + mmss + " " + MODE_META[timer.mode].label + " - 番茄 Todo";
+  else document.title = "番茄 Todo";
+}
+function renderTimerButtons() {
+  var main = $("#mainBtn"), reset = $("#resetBtn"), skip = $("#skipBtn");
+  var st = timer.state;
+  if (st === "running") {
+    main.textContent = "暂停"; main.setAttribute("aria-label", "暂停");
+    reset.hidden = false; skip.hidden = false;
+  } else if (st === "paused") {
+    main.textContent = "继续"; main.setAttribute("aria-label", "继续计时");
+    reset.hidden = false; skip.hidden = false;
+  } else {
+    main.textContent = "开始"; main.setAttribute("aria-label", "开始" + MODE_META[timer.mode].label);
+    reset.hidden = true; skip.hidden = true;
+  }
+}
+function renderModeButtons() {
+  document.querySelectorAll(".mode-btn").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.mode === timer.mode);
+  });
+}
+/* ============================================================
+   任务模块
+   ============================================================ */
+function getTask(id) {
+  for (var i = 0; i < data.tasks.length; i++) if (data.tasks[i].id === id) return data.tasks[i];
+  return null;
+}
+function addTask(title, est, priority, tags, dueDate, dueTime) {
+  var maxOrder = 0;
+  data.tasks.forEach(function (t) { if (t.order > maxOrder) maxOrder = t.order; });
+  data.tasks.push({
+    id: uid(),
+    title: title,
+    estimatedPomodoros: est,
+    completedPomodoros: 0,
+    priority: priority,
+    tags: tags,
+    done: false,
+    createdAt: Date.now(),
+    order: maxOrder + 1,
+    doneAt: null,
+    /* v2 新增字段 */
+    dueDate: dueDate || null,
+    dueTime: dueTime || "",
+    remindPolicy: settings.remindPolicy,
+    remindOffsets: (settings.presetOffsets || DEFAULT_SETTINGS.presetOffsets).slice(),
+    remindOffsetOnce: 60,
+    remindAt: 0,
+    notifiedLevels: [],
+    autoBumped: false,
+    priorityManual: false,
+    completedAt: null
+  });
+  saveData();
+  renderTasks();
+  renderTodayView();
+  renderTodayOverview();
+}
+function toggleTaskDone(id) {
+  var t = getTask(id);
+  if (!t) return;
+  t.done = !t.done;
+  t.doneAt = t.done ? Date.now() : null;
+  t.completedAt = t.done ? t.doneAt : null;
+  if (t.done) delete data.snoozeMap[id];  // 完成后不再提醒
+  saveData();
+  renderTasks();
+  renderTodayView();
+  renderTodayOverview();
+  renderCurrentTask();
+}
+function deleteTask(id) {
+  var t = getTask(id);
+  if (!t) return;
+  confirmModal("删除任务", "确定删除任务「" + t.title + "」吗？此操作不可恢复。", function () {
+    data.tasks = data.tasks.filter(function (x) { return x.id !== id; });
+    if (data.currentTaskId === id) data.currentTaskId = null;
+    /* 同步清理提醒引用 */
+    delete data.snoozeMap[id];
+    data.notifyLog = data.notifyLog.filter(function (n) { return n.taskId !== id; });
+    silentQueue = silentQueue.filter(function (q) { return q.taskId !== id; });
+    renderDueBanner();
+    saveData();
+    renderTasks();
+    renderTodayView();
+    renderTodayOverview();
+    renderCurrentTask();
+    renderBell();
+    showToast("任务已删除");
+  });
+}
+function setCurrentTask(id) {
+  data.currentTaskId = id;
+  saveData();
+  renderCurrentTask();
+  renderTasks();
+  switchTab("focus");
+  showToast("已绑定任务，开始专注吧！");
+}
+/* 从通知中心 / 提醒卡片跳到任务并高亮 2 秒 */
+function openTask(id) {
+  closeAllDrawers();
+  ui.taskFilter = "all";
+  syncFilterChips();
+  switchTab("tasks");
+  renderTasks();
+  setTimeout(function () {
+    var el = document.querySelector('.task-item[data-id="' + id + '"]');
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("flash");
+      setTimeout(function () { el.classList.remove("flash"); }, 2000);
+    }
+  }, 80);
+}
+
+/* 筛选：作用于今日聚焦里每个分组内的任务 */
+function applyTaskFilter(list) {
+  var today = todayKey();
+  var now = Date.now();
+  var f = ui.taskFilter;
+  return list.filter(function (t) {
+    if (f === "all") return true;
+    if (f === "done") return !!t.done;
+    if (f === "active") return !t.done;
+    if (f === "dueToday") return !t.done && t.dueDate === today;
+    if (f === "dueWeek") {
+      if (t.done) return false;
+      var ts = taskDueTs(t);
+      return ts !== null && ts >= now && ts <= now + 7 * 86400000;
+    }
+    if (f === "overdue") return !t.done && isOverdue(t);
+    if (f === "noDue") return !t.done && !t.dueDate;
+    return true;
+  });
+}
+/* 组内排序 */
+function sortTaskList(list) {
+  var prioRank = { high: 0, mid: 1, low: 2 };
+  var nowTs = Date.now();
+  if (ui.taskSort === "priority") {
+    list.sort(function (a, b) {
+      return (prioRank[effPrio(a)] - prioRank[effPrio(b)]) || (a.order - b.order);
+    });
+  } else if (ui.taskSort === "manual") {
+    list.sort(function (a, b) { return (a.done - b.done) || (a.order - b.order); });
+  } else if (ui.taskSort === "due") {
+    /* 先逾期，再按截止时间升序，无日期排最后 */
+    list.sort(function (a, b) {
+      var da = taskDueTs(a), db = taskDueTs(b);
+      var aOver = da !== null && da < nowTs, bOver = db !== null && db < nowTs;
+      if (aOver !== bOver) return aOver ? -1 : 1;
+      if (da === null && db === null) return a.order - b.order;
+      if (da === null) return 1;
+      if (db === null) return -1;
+      return (da - db) || (a.order - b.order);
+    });
+  }
+  /* urgent（默认）：组内按紧急度 */
+  return list;
+}
+function syncFilterChips() {
+  document.querySelectorAll("#filterGroup .chip-btn").forEach(function (x) {
+    x.classList.toggle("active", x.dataset.filter === ui.taskFilter);
+  });
+  document.querySelectorAll("#sortGroup .chip-btn").forEach(function (x) {
+    x.classList.toggle("active", x.dataset.sort === ui.taskSort);
+  });
+}
+/* 任务页统一渲染：更新番茄待办计数 + 交给今日聚焦渲染 */
+function renderTasks() {
+  var openCnt = data.tasks.filter(function (t) { return !t.done; }).length;
+  var doneCnt = data.tasks.length - openCnt;
+  var nt = $("#ntCount");
+  if (nt) nt.textContent = data.tasks.length === 0 ? "还没有待办" : openCnt + " 件待办 · " + doneCnt + " 件已完成";
+  renderTodayView();
+}
+
+/* 拖拽排序 */
+function handleDragStart(e) {
+  var li = e.target.closest(".task-item");
+  if (!li) return;
+  ui.dragId = li.dataset.id;
+  li.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  try { e.dataTransfer.setData("text/plain", ui.dragId); } catch (err) {}
+}
+function handleDragOver(e) {
+  var li = e.target.closest(".task-item");
+  if (!li || !ui.dragId || li.dataset.id === ui.dragId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  document.querySelectorAll(".task-item.drag-over").forEach(function (x) { x.classList.remove("drag-over"); });
+  li.classList.add("drag-over");
+}
+function handleDrop(e) {
+  var li = e.target.closest(".task-item");
+  if (!li || !ui.dragId || li.dataset.id === ui.dragId) return;
+  e.preventDefault();
+  var from = -1, to = -1;
+  data.tasks.forEach(function (t, i) {
+    if (t.id === ui.dragId) from = i;
+    if (t.id === li.dataset.id) to = i;
+  });
+  if (from < 0 || to < 0) return;
+  var moved = data.tasks.splice(from, 1)[0];
+  data.tasks.splice(to, 0, moved);
+  data.tasks.forEach(function (t, i) { t.order = i; });
+  ui.dragId = null;
+  saveData();
+  renderTasks();
+}
+function handleDragEnd() {
+  ui.dragId = null;
+  document.querySelectorAll(".task-item").forEach(function (x) { x.classList.remove("dragging", "drag-over"); });
+}
+
+/* ============================================================
+   今日聚焦视图
+   ============================================================ */
+/* 紧急度 = 截止临近度 × 优先级 − 已完成番茄数 */
+function urgencyScore(t) {
+  var prioW = { high: 3, mid: 2, low: 1 }[effPrio(t)] || 2;
+  var due = taskDueTs(t);
+  if (due === null) return prioW * 0.01 - (t.completedPomodoros || 0);
+  var hours = (due - Date.now()) / 3600000;
+  var near = hours <= 0 ? 1000 : 100 / (hours + 1);
+  return near * 10 + prioW * 10 - (t.completedPomodoros || 0);
+}
+function todayGroups() {
+  var today = todayKey();
+  var now = Date.now();
+  var fire = [], soon = [], later = [], nodue = [], done = [];
+  data.tasks.forEach(function (t) {
+    if (t.done) { done.push(t); return; }
+    var ts = taskDueTs(t);
+    if (ts === null) { nodue.push(t); return; }
+    if (t.dueDate === today || ts < now) fire.push(t);
+    else if (ts <= now + 48 * 3600000) soon.push(t);
+    else later.push(t);
+  });
+  var byUrg = function (a, b) { return urgencyScore(b) - urgencyScore(a); };
+  fire.sort(byUrg); soon.sort(byUrg); later.sort(byUrg); nodue.sort(byUrg);
+  done.sort(function (a, b) { return (b.doneAt || b.createdAt || 0) - (a.doneAt || a.createdAt || 0); });
+  return { fire: fire, soon: soon, later: later, nodue: nodue, done: done };
+}
+
+/* 单条任务行：勾选 / 内联编辑 / 删除 / 开始专注 / 拖拽 */
+function taskRowHtml(t) {
+  var manual = ui.taskSort === "manual";
+  var over = t.completedPomodoros > t.estimatedPomodoros;
+  var prioCls = t.priority === "high" ? "p-high" : t.priority === "mid" ? "p-mid" : "p-low";
+  var prioText = t.priority === "high" ? "高" : t.priority === "mid" ? "中" : "低";
+  var tagsHtml = (t.tags || []).map(function (tg) {
+    return '<span class="tag-chip">' + esc(tg) + "</span>";
+  }).join("");
+  var isCurrent = data.currentTaskId === t.id && !t.done;
+  var titleHtml;
+  if (ui.editingTaskId === t.id) {
+    titleHtml = '<input class="task-edit-input" type="text" value="' + esc(t.title) + '" maxlength="100" aria-label="编辑任务标题">';
+  } else {
+    titleHtml = '<span class="task-title" data-action="edit" data-id="' + t.id + '" role="button" tabindex="0" aria-label="编辑任务：' + esc(t.title) + '">' + esc(t.title) + "</span>";
+  }
+  return '<div class="task-item' + (t.done ? " done" : "") + (isOverdue(t) && !t.done ? " overdue" : "") + '"' +
+    (manual && !t.done ? ' draggable="true"' : "") +
+    ' data-id="' + t.id + '">' +
+    '<span class="priority-bar ' + prioCls + '" aria-hidden="true"></span>' +
+    (manual && !t.done ? '<span class="grip" aria-hidden="true">⠿</span>' : "") +
+    '<button class="task-check" data-action="toggle" data-id="' + t.id + '" aria-label="' + (t.done ? "取消完成" : "标记完成") + "：" + esc(t.title) + '">✓</button>' +
+    '<div class="task-main">' + titleHtml +
+    '<div class="task-meta">' +
+    '<span class="pomo-progress' + (over ? " over" : "") + '" ' + (over ? 'data-tip="已超出预估"' : "") + ">🍅 " + t.completedPomodoros + "/" + t.estimatedPomodoros + (over ? ' <span class="over-hint">已超出预估</span>' : "") + "</span>" +
+    '<span class="prio-label">' + prioText + "</span>" + tagsHtml +
+    (t.autoBumped && !t.done ? '<span class="fire-chip">🔥 紧急</span>' : "") +
+    dueChipHtml(t) +
+    (isCurrent ? '<span class="current-badge">当前</span>' : "") +
+    "</div></div>" +
+    '<div class="task-actions">' +
+    (!t.done ? '<button class="start-focus-btn" data-action="focus" data-id="' + t.id + '" aria-label="开始专注：' + esc(t.title) + '">▶ <span class="sf-text">开始专注</span></button>' : "") +
+    '<button class="icon-btn" data-action="edit-btn" data-id="' + t.id + '" aria-label="编辑任务：' + esc(t.title) + '">✏️</button>' +
+    '<button class="icon-btn" data-action="delete" data-id="' + t.id + '" aria-label="删除任务：' + esc(t.title) + '">🗑️</button>' +
+    "</div></div>";
+}
+
+function renderTodayView() {
+  var body = $("#todayBody");
+  if (!body) return;
+  syncFilterChips();
+
+  /* 没有任务时工具栏没有意义；今日聚焦收起时一并隐藏 */
+  var tb = $("#taskToolbar");
+  if (tb) tb.hidden = (data.tasks.length === 0) || !ui.todayViewOpen;
+
+  /* 空状态 */
+  if (data.tasks.length === 0) {
+    body.innerHTML = '<div class="task-empty"><span class="emoji">🌱</span><p>还没有任务，从一个番茄开始吧</p>' +
+      '<button class="btn btn-mint" id="emptyAddBtn" aria-label="新建第一个任务">新建第一个任务</button></div>';
+    var eb = $("#emptyAddBtn");
+    if (eb) eb.addEventListener("click", function () {
+      var tg = $("#newTaskToggle");
+      if (tg && $("#newTaskForm") && $("#newTaskForm").hidden) tg.click();
+      $("#taskTitleInput").focus();
+    });
+    return;
+  }
+
+  var g = todayGroups();
+  var today = todayKey();
+  /* 进度：X = 应完成（今天到期 + 逾期未完成），Y = 已完成（截止已过） */
+  var X = g.fire.length;
+  var Y = data.tasks.filter(function (t) {
+    if (!t.done || !t.dueDate) return false;
+    var ts = taskDueTs(t);
+    return ts !== null && ts <= Date.now();
+  }).length;
+
+  var pct = (X + Y) > 0 ? Math.round(Y / (X + Y) * 100) : 0;
+  var progressHtml;
+  if (X === 0 && Y === 0) {
+    progressHtml = '<div class="today-empty">今天没有截止的事，挑一件想做的开始吧 🍅</div>';
+  } else {
+    var word = X === 0 ? "全部搞定，太棒了 🎉" : ("还有 " + X + " 件没完成，加油！");
+    progressHtml =
+      '<div class="today-progress-wrap">' +
+      '<div class="today-progress-text">今天应完成 ' + (X + Y) + " 件，已完成 " + Y + " 件 · " + word + "</div>" +
+      '<div class="today-progress-track"><div class="today-progress-fill" style="width:' + Math.max(2, pct) + '%"></div></div>' +
+      "</div>";
+    /* 全部完成庆祝：纯 CSS 撒花，每天最多一次 */
+    if (X === 0 && Y > 0 && data.lastCelebrateDate !== today) {
+      data.lastCelebrateDate = today;
+      saveData();
+      throwConfetti();
+    }
+  }
+
+  /* 分组元信息 */
+  var META = {
+    fire: { emoji: "🔥", name: "今天要做", hint: "先做哪件？" },
+    soon: { emoji: "⏰", name: "快到期了", hint: "48 小时内到期" },
+    later: { emoji: "🕒", name: "之后到期", hint: "" },
+    nodue: { emoji: "📅", name: "没有截止日", hint: "慢慢来，不着急" },
+    done: { emoji: "✅", name: "已完成", hint: "" }
+  };
+  var KEYS = ["fire", "soon", "later", "nodue", "done"];
+
+  function groupHtml(key, items, hint) {
+    var open = !!ui.todayGroupOpen[key];
+    var m = META[key];
+    var h = '<div class="today-group">' +
+      '<div class="today-group-head" data-gkey="' + key + '" role="button" tabindex="0" aria-label="展开或收起' + m.name + '">' +
+      m.emoji + " " + m.name +
+      '<span class="g-count">' + items.length + "</span>" +
+      '<span class="g-hint">' + (hint || "") + "</span>" +
+      '<span class="g-arrow' + (open ? "" : " collapsed") + '">▾</span></div>' +
+      '<div class="today-group-body' + (open ? "" : " collapsed") + '">';
+    if (items.length === 0) h += '<div class="today-empty muted">没有要紧的事 👌</div>';
+    else h += items.map(taskRowHtml).join("");
+    return h + "</div></div>";
+  }
+
+  var html = progressHtml;
+  KEYS.forEach(function (key) {
+    var items = applyTaskFilter(g[key]).slice();
+    if (ui.taskSort !== "urgent") sortTaskList(items);
+    /* 「全部」模式下结构与之前一致；筛选时只留有结果的分组 */
+    if (ui.taskFilter !== "all" && items.length === 0) return;
+    if (key === "done" && ui.taskFilter === "all" && items.length === 0) return;
+    var hint = (ui.taskFilter !== "all") ? ("筛选出 " + items.length + " 件") : META[key].hint;
+    html += groupHtml(key, items, hint);
+  });
+  body.innerHTML = html;
+
+  /* 内联编辑：聚焦输入框 */
+  var editInput = body.querySelector(".task-edit-input");
+  if (editInput) { editInput.focus(); editInput.select(); }
+}
+/* 撒花（纯 CSS 动画，1.5 秒自动结束） */
+function throwConfetti() {
+  var colors = ["#3DDC97", "#FF6B6B", "#4A6CF7", "#F5A623", "#2EC4B6"];
+  for (var i = 0; i < 40; i++) {
+    var c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDelay = (Math.random() * 0.4) + "s";
+    c.style.transform = "rotate(" + Math.random() * 360 + "deg)";
+    document.body.appendChild(c);
+    (function (el) { setTimeout(function () { el.remove(); }, 2000); })(c);
+  }
+}
+
+/* ============================================================
+   通知中心
+   ============================================================ */
+function renderBell() {
+  var unread = data.notifyLog.filter(function (n) { return !n.read; }).length;
+  var dot = $("#bellDot");
+  dot.hidden = unread === 0;
+  dot.textContent = unread > 99 ? "99+" : unread;
+  if ($("#bellDrawer").classList.contains("open")) renderBellList();
+}
+function renderBellList() {
+  var list = $("#bellList");
+  var today = todayKey();
+  var iconMap = { dueSoon: "⏰", overdue: "🔴", dailyStart: "🌅" };
+  var todayItems = data.notifyLog.filter(function (n) { return dayKey(n.at) === today; });
+  var older = data.notifyLog.filter(function (n) { return dayKey(n.at) !== today; });
+  function itemHtml(n) {
+    return '<div class="bell-item' + (n.read ? "" : " unread") + '" data-nid="' + n.id + '" role="button" tabindex="0" aria-label="查看通知：' + esc(n.title) + '">' +
+      '<span class="b-icon">' + (iconMap[n.type] || "🔔") + "</span>" +
+      '<div style="flex:1;min-width:0"><div class="b-title">' + esc(n.title) + "</div>" +
+      (n.text ? '<div class="b-text">' + esc(n.text) + "</div>" : "") + "</div>" +
+      '<span class="b-time">' + fmtHM(n.at) + "</span></div>";
+  }
+  var html = "";
+  if (data.notifyLog.length === 0) {
+    html = '<div class="bell-empty">暂无通知 🍃</div>';
+  } else {
+    if (todayItems.length) html += '<div class="bell-group-label">今天</div>' + todayItems.map(itemHtml).join("");
+    if (older.length) html += '<div class="bell-group-label">更早</div>' + older.map(itemHtml).join("");
+  }
+  list.innerHTML = html;
+}
+function openBellDrawer() {
+  closeAllDrawers();
+  $("#bellDrawer").classList.add("open");
+  $("#drawerOverlay").classList.add("open");
+  renderBellList();
+}
+
+/* ============================================================
+   编辑任务弹窗
+   ============================================================ */
+function openEditModal(id) {
+  var t = getTask(id);
+  if (!t) return;
+  ui.editModalTaskId = id;
+  $("#editTitle").value = t.title;
+  $("#editDueDate").value = t.dueDate || "";
+  $("#editDueTime").value = t.dueTime || "";
+  document.querySelectorAll("#editPrioSeg button").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.ep === (t.priority || "mid"));
+  });
+  document.querySelectorAll("#editPolicySeg button").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.epl === (t.remindPolicy || "preset"));
+  });
+  updateDueHint("editDueDate", "editDueTime", "editDueHint");
+  $("#modalOverlay").classList.add("open");
+  $("#editModal").classList.add("open");
+  $("#editTitle").focus();
+}
+function saveEditModal() {
+  var t = getTask(ui.editModalTaskId);
+  if (!t) { closeAllModals(); return; }
+  var title = $("#editTitle").value.trim();
+  if (!title) { showToast("标题不能为空"); return; }
+  var newDate = $("#editDueDate").value || null;
+  var newTime = $("#editDueTime").value || "";
+  var dueChanged = (t.dueDate || "") !== (newDate || "") || (t.dueTime || "") !== newTime;
+  var oldPrio = t.priority;
+  t.title = title;
+  t.dueDate = newDate;
+  t.dueTime = newTime;
+  var activePrio = document.querySelector("#editPrioSeg button.active");
+  if (activePrio && activePrio.dataset.ep !== oldPrio) {
+    t.priority = activePrio.dataset.ep;
+    t.priorityManual = true;   // 手动改过优先级，不再自动升级
+    t.autoBumped = false;
+  }
+  var pol = document.querySelector("#editPolicySeg button.active");
+  if (pol) t.remindPolicy = pol.dataset.epl;
+  if (dueChanged) {
+    /* 日期变了：清空档位记录与稍后提醒，重新计算 */
+    t.notifiedLevels = [];
+    delete data.snoozeMap[t.id];
+    t.remindAt = 0;
+  }
+  closeAllModals();
+  saveData();
+  renderTasks();
+  renderTodayView();
+  showToast("任务已更新");
+}
+
+/* ============================================================
+   页面切换 / 主题 / 统计
+   ============================================================ */
+function switchTab(tab) {
+  ui.activeTab = tab;
+  document.querySelectorAll(".page").forEach(function (p) { p.classList.remove("active"); });
+  $("#page-" + tab).classList.add("active");
+  document.querySelectorAll("[data-tab]").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  if (tab === "focus") { renderTodayOverview(); renderCurrentTask(); }
+  if (tab === "tasks") { renderTasks(); renderTodayView(); }
+  if (tab === "stats") renderStats();
+}
+function applyTheme() {
+  var t = settings.theme;
+  if (t === "system") {
+    t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
+  $("#themeBtn").textContent = t === "dark" ? "☀️" : "🌙";
+  document.querySelectorAll("#themeSeg button").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.themeOpt === settings.theme);
+  });
+}
+function cycleTheme() {
+  var order = ["light", "dark", "system"];
+  var idx = order.indexOf(settings.theme);
+  settings.theme = order[(idx + 1) % 3];
+  saveSettings();
+  applyTheme();
+  showToast("主题：" + (settings.theme === "light" ? "浅色" : settings.theme === "dark" ? "深色" : "跟随系统"));
+}
+if (window.matchMedia) {
+  try {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+      if (settings.theme === "system") applyTheme();
+    });
+  } catch (e) {}
+}
+/* ============================================================
+   设置抽屉
+   ============================================================ */
+function openDrawer() {
+  closeAllDrawers();
+  $("#settingsDrawer").classList.add("open");
+  $("#drawerOverlay").classList.add("open");
+  $("#settingsBtn").setAttribute("aria-expanded", "true");
+}
+function openSettingsToReminder() {
+  closeAllDrawers();
+  openDrawer();
+  var sec = $("#sec-reminder");
+  if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function setSwitch(sel, on) {
+  var el = $(sel);
+  el.classList.toggle("on", !!on);
+  el.setAttribute("aria-checked", on ? "true" : "false");
+}
+function renderSettings() {
+  $("#setFocusMin").value = settings.focusMin;
+  $("#setShortMin").value = settings.shortBreakMin;
+  $("#setLongMin").value = settings.longBreakMin;
+  $("#setLongEvery").value = settings.longBreakEvery;
+  $("#volRange").value = settings.volume;
+  setSwitch("#swAutoStart", settings.autoStartNext);
+  setSwitch("#swSound", settings.soundOn);
+  setSwitch("#swNotify", settings.notifyOn);
+  setSwitch("#swNoise", settings.noiseOn);
+  /* 提醒分区 */
+  setSwitch("#swReminder", settings.reminderOn);
+  setSwitch("#swChannelPage", settings.remindChannelPage);
+  setSwitch("#swChannelDesktop", settings.remindChannelDesktop);
+  setSwitch("#swRemindSound", settings.remindSound);
+  setSwitch("#swSilentRunning", settings.remindSilentRunning);
+  setSwitch("#swDaily", settings.dailyStartOn);
+  $("#dailyTime").value = settings.dailyStartTime || "09:00";
+  document.querySelectorAll("#rpolicySeg button").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.rp === settings.remindPolicy);
+  });
+  $("#presetTiersWrap").style.display = settings.remindPolicy === "preset" ? "flex" : "none";
+  document.querySelectorAll(".tier-check").forEach(function (c) {
+    c.checked = settings.presetOffsets.indexOf(Number(c.value)) >= 0;
+  });
+  document.querySelectorAll("#overdueSeg button").forEach(function (b) {
+    b.classList.toggle("active", b.dataset.freq === settings.overdueFreq);
+  });
+  renderPermStatus();
+  applyTheme();
+}
+function renderPermStatus() {
+  var st = $("#permStatus"), tip = $("#permDeniedTip");
+  if (!("Notification" in window)) {
+    st.textContent = "浏览器不支持";
+    tip.hidden = true;
+    return;
+  }
+  var p = Notification.permission;
+  if (p === "granted") { st.textContent = "已授权 ✅"; tip.hidden = true; }
+  else if (p === "denied") { st.textContent = "已拒绝 🚫"; tip.hidden = false; }
+  else { st.textContent = "未授权"; tip.hidden = true; }
+}
+function changeDuration(key, val, min, max, label) {
+  var v = Math.min(max, Math.max(min, Math.round(Number(val) || min)));
+  settings[key] = v;
+  /* 设置抽屉的修改优先级最高：清掉临时自定义，避免它被 customOnce 盖住 */
+  customOnce = null; customPending = null;
+  renderCustomBtn();
+  saveSettings();
+  renderSettings();
+  if (timer.state === "idle") {
+    timer.remainingMs = durMs(timer.mode);
+    updateTimerUI(timer.remainingMs);
+  } else {
+    showToast(label + "已保存，将在下一阶段生效");
+  }
+}
+
+/* ============================================================
+   自定义番茄计时
+   ============================================================ */
+function activeDurations() {
+  if (customPending) return customPending.vals;
+  if (customOnce) return customOnce;
+  return { focusMin: settings.focusMin, shortBreakMin: settings.shortBreakMin, longBreakMin: settings.longBreakMin };
+}
+function renderCustomBtn() {
+  var btn = $("#customTimerBtn"), label = $("#customTimerLabel");
+  if (!btn || !label) return;
+  var v = activeDurations();
+  /* 只要当前生效的时长偏离系统默认，就在入口上标出来（含「已记为默认」的情况） */
+  var changed = v.focusMin !== DEFAULT_SETTINGS.focusMin ||
+                v.shortBreakMin !== DEFAULT_SETTINGS.shortBreakMin ||
+                v.longBreakMin !== DEFAULT_SETTINGS.longBreakMin;
+  var custom = changed || !!(customOnce || customPending);
+  btn.classList.toggle("active", custom);
+  label.textContent = custom ? (v.focusMin + "′ 自定义") : "自定义";
+  btn.setAttribute("title", custom
+    ? "当前专注 " + v.focusMin + " 分钟，点此修改"
+    : "自定义专注 / 休息时长");
+}
+/* 上下限只做合法性兜底，具体多少分钟完全由用户自己填 */
+var CT_MAX = 999;
+function ctClamp(v, def) {
+  var n = Number(v);
+  return Math.min(CT_MAX, Math.max(1, isFinite(n) && n > 0 ? Math.round(n) : def));
+}
+function ctReadVals() {
+  return {
+    focusMin: ctClamp($("#ctFocus").value, DEFAULT_SETTINGS.focusMin),
+    shortBreakMin: ctClamp($("#ctShort").value, DEFAULT_SETTINGS.shortBreakMin),
+    longBreakMin: ctClamp($("#ctLong").value, DEFAULT_SETTINGS.longBreakMin)
+  };
+}
+/* 加减微调：只按用户当前填的值 ±1，不套用任何预设 */
+function ctStepValue(input, delta) {
+  var v = ctClamp(input.value, 1) + delta;
+  input.value = Math.min(CT_MAX, Math.max(1, v));
+}
+function openCustomTimer() {
+  closeAllModals();
+  var v = activeDurations();
+  $("#ctFocus").value = v.focusMin;
+  $("#ctShort").value = v.shortBreakMin;
+  $("#ctLong").value = v.longBreakMin;
+  $("#ctSaveDefault").checked = true;
+  $("#ctRunningTip").hidden = (timer.state === "idle");
+  /* 已经是系统默认、又没有临时自定义时，不必显示「重置」 */
+  $("#ctReset").hidden = !customOnce && !customPending &&
+    v.focusMin === DEFAULT_SETTINGS.focusMin &&
+    v.shortBreakMin === DEFAULT_SETTINGS.shortBreakMin &&
+    v.longBreakMin === DEFAULT_SETTINGS.longBreakMin;
+  $("#modalOverlay").classList.add("open");
+  $("#customTimerModal").classList.add("open");
+  setTimeout(function () { $("#ctFocus").focus(); $("#ctFocus").select(); }, 30);
+}
+/* 提交排队中的自定义值。必须在计算新阶段 remainingMs 之前调用，
+   这样当前阶段的 durMs 不变，进度环就不会跳。 */
+function commitPendingCustom() {
+  if (!customPending) return;
+  var p = customPending; customPending = null;
+  if (p.saveDefault) {
+    settings.focusMin = p.vals.focusMin;
+    settings.shortBreakMin = p.vals.shortBreakMin;
+    settings.longBreakMin = p.vals.longBreakMin;
+    saveSettings(); renderSettings(); customOnce = null;
+  } else {
+    customOnce = p.vals;
+  }
+  renderCustomBtn();
+}
+function ctWriteVals(vals, saveDefault) {
+  if (saveDefault) {
+    settings.focusMin = vals.focusMin;
+    settings.shortBreakMin = vals.shortBreakMin;
+    settings.longBreakMin = vals.longBreakMin;
+    saveSettings(); renderSettings(); customOnce = null;
+  } else {
+    customOnce = vals;
+  }
+}
+function applyCustomTimer() {
+  var vals = ctReadVals(), saveDefault = $("#ctSaveDefault").checked;
+  $("#ctFocus").value = vals.focusMin;
+  $("#ctShort").value = vals.shortBreakMin;
+  $("#ctLong").value = vals.longBreakMin;
+  closeAllModals();
+  if (timer.state !== "idle") {
+    /* 计时进行中：排队到下一阶段，当前番茄完全不受影响 */
+    customPending = { vals: vals, saveDefault: saveDefault };
+    renderCustomBtn();
+    showToast("已设置，将在下一阶段生效");
+    return;
+  }
+  ctWriteVals(vals, saveDefault);
+  timer.remainingMs = durMs(timer.mode);
+  updateTimerUI(timer.remainingMs);
+  renderCustomBtn();
+  showToast(saveDefault ? "默认时长已更新" : "自定义时长已生效（本次会话）");
+}
+function resetCustomTimer() {
+  var vals = {
+    focusMin: DEFAULT_SETTINGS.focusMin,
+    shortBreakMin: DEFAULT_SETTINGS.shortBreakMin,
+    longBreakMin: DEFAULT_SETTINGS.longBreakMin
+  };
+  closeAllModals();
+  if (timer.state !== "idle") {
+    customPending = { vals: vals, saveDefault: true };
+    renderCustomBtn();
+    showToast("已恢复默认时长，将在下一阶段生效");
+    return;
+  }
+  customOnce = null; customPending = null;
+  ctWriteVals(vals, true);
+  timer.remainingMs = durMs(timer.mode);
+  updateTimerUI(timer.remainingMs);
+  renderCustomBtn();
+  showToast("已恢复默认时长");
+}
+
+/* ============================================================
+   数据导入导出
+   ============================================================ */
+function exportJSON() {
+  var payload = {
+    app: "pomo-todo",
+    exportedAt: new Date().toISOString(),
+    settings: settings,
+    data: data
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  var d = new Date();
+  a.href = url;
+  a.download = "pomo-backup-" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  showToast("已导出 JSON 文件");
+}
+function importJSON(file) {
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var parsed = JSON.parse(reader.result);
+      var d = null;
+      if (parsed && typeof parsed === "object") {
+        if (parsed.data && Array.isArray(parsed.data.tasks)) d = parsed.data;
+        else if (Array.isArray(parsed.tasks)) d = parsed;
+      }
+      if (!d || !Array.isArray(d.tasks)) {
+        showToast("文件格式不正确，未导入");
+        return;
+      }
+      data = Object.assign(defaultData(), d);
+      if (!Array.isArray(data.tasks)) data.tasks = [];
+      if (!Array.isArray(data.sessions)) data.sessions = [];
+      if (!data.stats || typeof data.stats !== "object") data.stats = defaultData().stats;
+      migrateData(data);  // 旧版本 JSON 走同一套迁移函数
+      if (parsed && parsed.settings && typeof parsed.settings === "object") {
+        settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+        if (!Array.isArray(settings.presetOffsets)) settings.presetOffsets = DEFAULT_SETTINGS.presetOffsets.slice();
+        saveSettings();
+        renderSettings();
+        applyTheme();
+      }
+      saveData();
+      renderAll();
+      showToast("导入成功，已恢复数据");
+    } catch (e) {
+      showToast("文件格式不正确，未导入");
+    }
+  };
+  reader.onerror = function () { showToast("文件读取失败"); };
+  reader.readAsText(file);
+}
+function clearAllData() {
+  confirmModal("清空全部数据", "将清空所有任务与专注记录（设置保留），此操作不可恢复。确定继续吗？", function () {
+    data = defaultData();
+    saveData();
+    renderAll();
+    showToast("已清空全部数据");
+  });
+}
+
+/* ============================================================
+   统计模块
+   ============================================================ */
+function focusSessions() {
+  return data.sessions.filter(function (s) { return s.mode === "focus"; });
+}
+function calcStreak() {
+  var days = {};
+  focusSessions().forEach(function (s) { days[dayKey(s.endAt)] = true; });
+  var d = new Date();
+  if (!days[dayKey(d.getTime())]) {
+    d.setDate(d.getDate() - 1);
+    if (!days[dayKey(d.getTime())]) return 0;
+  }
+  var streak = 0;
+  while (days[dayKey(d.getTime())]) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+/* 准时率：有截止日且已完成的任务中，在截止前完成的比例 */
+function onTimeRate() {
+  var done = data.tasks.filter(function (t) {
+    if (!t.done || !t.dueDate || typeof t.completedAt !== "number") return false;
+    return taskDueTs(t) !== null;
+  });
+  if (done.length === 0) return -1;
+  var onTime = done.filter(function (t) { return t.completedAt <= taskDueTs(t); }).length;
+  return Math.round(onTime / done.length * 100);
+}
+function statCard(label, value, unit) {
+  return '<div class="stat-card"><div class="label">' + label + '</div><div class="value">' + value +
+    (unit ? '<span class="unit">' + unit + "</span>" : "") + "</div></div>";
+}
+function renderStats() {
+  var today = todayKey();
+  var focus = focusSessions();
+  var todayPomos = 0, todayMin = 0;
+  var weekPomos = 0;
+  var weekAgo = Date.now() - 7 * 86400000;
+  focus.forEach(function (s) {
+    if (isSameDay(s.endAt, today)) { todayPomos++; todayMin += s.durationMin || 0; }
+    if (s.endAt >= weekAgo) weekPomos++;
+  });
+  var rate = onTimeRate();
+  $("#statCards").innerHTML =
+    statCard("今日番茄数", todayPomos, "") +
+    statCard("今日专注时长", todayMin, "分钟") +
+    statCard("本周番茄数", weekPomos, "") +
+    statCard("连续打卡", calcStreak(), "天") +
+    statCard("准时率", rate < 0 ? "—" : rate + "%", "");
+
+  var body = $("#statsBody");
+  if (data.sessions.length === 0) {
+    body.innerHTML = '<div class="empty-state card"><span class="emoji">📊</span>还没有数据，去专注一次吧！</div>';
+    return;
+  }
+
+  /* --- 近 7 天柱状图 --- */
+  var days = [];
+  for (var i = 6; i >= 0; i--) {
+    var ts = Date.now() - i * 86400000;
+    days.push({ key: dayKey(ts), label: pad2(new Date(ts).getMonth() + 1) + "/" + pad2(new Date(ts).getDate()), count: 0, today: i === 0 });
+  }
+  focus.forEach(function (s) {
+    days.forEach(function (d) { if (d.key === dayKey(s.endAt)) d.count++; });
+  });
+  var maxCnt = Math.max(1, Math.max.apply(null, days.map(function (d) { return d.count; })));
+  var barsHtml = days.map(function (d) {
+    var h = Math.round((d.count / maxCnt) * 85); // 上限 85%，给底部日期标签留空间
+    return '<div class="bar-col' + (d.today ? " today" : "") + '" data-tip="' + d.label + "：" + d.count + ' 个番茄">' +
+      '<div class="bar" style="height:' + Math.max(2, h) + '%"></div>' +
+      '<span class="bar-label">' + (d.today ? "今天" : d.label) + "</span></div>";
+  }).join("");
+
+  /* --- 近 30 天热力图（7 列 × 5 行） --- */
+  var heatCounts = {};
+  focus.forEach(function (s) {
+    var k = dayKey(s.endAt);
+    heatCounts[k] = (heatCounts[k] || 0) + 1;
+  });
+  var heatHtml = "";
+  for (var j = 29; j >= 0; j--) {
+    var ts2 = Date.now() - j * 86400000;
+    var k2 = dayKey(ts2);
+    var n = heatCounts[k2] || 0;
+    var level = n === 0 ? 0 : n <= 2 ? 1 : n <= 4 ? 2 : n <= 6 ? 3 : n <= 9 ? 4 : 5;
+    var dt = new Date(ts2);
+    heatHtml += '<div class="heat-cell" data-level="' + level + '" data-tip="' + (dt.getMonth() + 1) + " 月 " + dt.getDate() + " 日：" + n + ' 个番茄"></div>';
+  }
+  for (var p = 0; p < 5; p++) heatHtml += '<div class="heat-cell" style="background:transparent;border:none"></div>';
+
+  /* --- 专注时段分布 --- */
+  var segs = [
+    { name: "上午", from: 6, to: 12, color: "var(--safe)", count: 0 },
+    { name: "下午", from: 12, to: 18, color: "var(--accent)", count: 0 },
+    { name: "晚上", from: 18, to: 24, color: "var(--info)", count: 0 },
+    { name: "深夜", from: 0, to: 6, color: "var(--warn)", count: 0 }
+  ];
+  focus.forEach(function (s) {
+    var h = new Date(s.startAt || s.endAt).getHours();
+    segs.forEach(function (sg) { if (h >= sg.from && h < sg.to) sg.count++; });
+  });
+  var segMax = Math.max(1, Math.max.apply(null, segs.map(function (s) { return s.count; })));
+  var distHtml = segs.map(function (sg) {
+    var w = Math.round((sg.count / segMax) * 100);
+    return '<div class="dist-row"><span class="dist-label">' + sg.name + '</span>' +
+      '<div class="dist-track"><div class="dist-fill" style="width:' + w + "%;background:" + sg.color + '"></div></div>' +
+      '<span class="dist-num">' + sg.count + " 个</span></div>";
+  }).join("");
+
+  body.innerHTML =
+    '<div class="chart-grid">' +
+      '<div class="card"><h3>📅 近 7 天专注番茄</h3><div class="bar-chart">' + barsHtml + "</div></div>" +
+      '<div class="card"><h3>🔥 近 30 天热力图</h3><div class="heatmap">' + heatHtml + "</div>" +
+        '<div class="muted" style="font-size:12px;margin-top:10px">浅 → 深：0 / 1-2 / 3-4 / 5-6 / 7-9 / 10+ 个番茄</div></div>' +
+    "</div>" +
+    '<div class="card" style="margin-top:20px"><h3>🕐 专注时段分布</h3>' + distHtml + "</div>";
+}
+
+/* ============================================================
+   专注页局部渲染
+   ============================================================ */
+function renderTodayOverview() {
+  var today = todayKey();
+  var pomos = 0, minutes = 0;
+  focusSessions().forEach(function (s) {
+    if (isSameDay(s.endAt, today)) { pomos++; minutes += s.durationMin || 0; }
+  });
+  var doneTasks = data.tasks.filter(function (t) { return t.done && t.doneAt && isSameDay(t.doneAt, today); }).length;
+  $("#todayPomos").textContent = pomos;
+  $("#todayMinutes").textContent = minutes;
+  $("#todayDoneTasks").textContent = doneTasks;
+}
+function renderCurrentTask() {
+  var body = $("#currentTaskBody");
+  var task = getTask(data.currentTaskId);
+  if (!task) {
+    body.innerHTML = '<p class="muted" style="font-size:14px;margin-bottom:12px">未选择任务，点击去任务页选择</p>' +
+      '<button class="btn" id="gotoTasksBtn" aria-label="去任务页选择任务">去选择任务 →</button>';
+    var b = $("#gotoTasksBtn");
+    if (b) b.addEventListener("click", function () { switchTab("tasks"); });
+    return;
+  }
+  var over = task.completedPomodoros > task.estimatedPomodoros;
+  var pct = Math.min(100, Math.round((task.completedPomodoros / Math.max(1, task.estimatedPomodoros)) * 100));
+  body.innerHTML =
+    '<div class="task-name">' + esc(task.title) + "</div>" +
+    (task.dueDate ? '<div style="margin-bottom:8px">' + dueChipHtml(task) + "</div>" : "") +
+    '<div class="task-progress' + (over ? " over" : "") + '">🍅 ' + task.completedPomodoros + " / " + task.estimatedPomodoros +
+    (over ? ' <span class="over-hint">已超出预估</span>' : "") + "</div>" +
+    '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div style="margin-top:14px"><button class="link-btn" id="changeTaskBtn" aria-label="更换当前任务">更换任务 →</button></div>';
+  var cb = $("#changeTaskBtn");
+  if (cb) cb.addEventListener("click", function () { switchTab("tasks"); });
+}
+
+/* ============================================================
+   截止输入辅助：快捷 chips + 相对时间提示
+   ============================================================ */
+function applyQuickDate(which, dateInputId) {
+  var now = new Date();
+  var d;
+  if (which === "today") d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  else if (which === "tomorrow") d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  else if (which === "week") d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+  else if (which === "sunday") {
+    /* 本周日：以本周一为基准 */
+    var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var ts = today0 - ((now.getDay() + 6) % 7) * 86400000 + 6 * 86400000;
+    if (ts < today0) ts += 7 * 86400000;
+    d = new Date(ts);
+  } else { // nextmon 下周一
+    var diff = (1 - now.getDay() + 7) % 7;
+    if (diff === 0) diff = 7;
+    d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  }
+  $("#" + dateInputId).value = isoOfDay(d);
+}
+/* 相对时间提示（颜色随紧急度变化：宽松灰绿 / 临近橙 / 逾期红） */
+function updateDueHint(dateId, timeId, hintId) {
+  var hint = $("#" + hintId);
+  var dateVal = $("#" + dateId).value;
+  if (!dateVal) {
+    hint.textContent = "";
+    hint.className = "due-hint";
+    return;
+  }
+  var timeVal = $("#" + timeId).value || "";
+  var ts = Date.parse(dateVal + "T" + (timeVal || "23:59") + ":00");
+  if (!isFinite(ts)) {
+    hint.textContent = "日期格式无效";
+    hint.className = "due-hint h-danger";
+    return;
+  }
+  var d = new Date(ts);
+  var base = fmtDueLong(ts);
+  var today0 = new Date();
+  today0.setHours(0, 0, 0, 0);
+  var diff = ts - Date.now();
+  var text;
+  if (d.getTime() < today0.getTime()) {
+    text = base + " · ⚠️ 早于今天，请留意（仍可保存）";
+    hint.className = "due-hint h-danger";
+  } else {
+    text = base + " · " + relTime(diff);
+    if (dayKey(ts) === todayKey()) hint.className = "due-hint h-danger";
+    else if (diff <= 24 * 3600000) hint.className = "due-hint h-warn";
+    else if (diff <= 48 * 3600000) hint.className = "due-hint h-warn";
+    else hint.className = "due-hint h-safe";
+  }
+  hint.textContent = text;
+}
+
+/* ============================================================
+   全量渲染
+   ============================================================ */
+function renderAll() {
+  applyModeClass();
+  renderModeButtons();
+  renderTimerButtons();
+  updateTimerUI();
+  renderTodayOverview();
+  renderCurrentTask();
+  renderTasks();
+  renderTodayView();
+  renderStats();
+  renderSettings();
+  renderCustomBtn();
+  renderBell();
+  switchTab(ui.activeTab);
+}
+/* ============================================================
+   事件绑定（集中绑定 + 事件委托）
+   ============================================================ */
+function bindEvents() {
+  /* --- 页面切换 --- */
+  document.querySelectorAll("[data-tab]").forEach(function (b) {
+    b.addEventListener("click", function () { switchTab(b.dataset.tab); });
+  });
+  $("#themeBtn").addEventListener("click", cycleTheme);
+  $("#settingsBtn").addEventListener("click", openDrawer);
+  $("#closeDrawerBtn").addEventListener("click", closeAllDrawers);
+  $("#drawerOverlay").addEventListener("click", closeAllDrawers);
+
+  /* --- 通知中心 --- */
+  $("#bellBtn").addEventListener("click", openBellDrawer);
+  $("#closeBellBtn").addEventListener("click", closeAllDrawers);
+  $("#markAllReadBtn").addEventListener("click", function () {
+    data.notifyLog.forEach(function (n) { n.read = true; });
+    saveData(); renderBell(); showToast("已全部标为已读");
+  });
+  $("#clearNotifyBtn").addEventListener("click", function () {
+    confirmModal("清空通知", "确定清空全部通知记录吗？", function () {
+      data.notifyLog = [];
+      saveData(); renderBell();
+      if ($("#bellDrawer").classList.contains("open")) renderBellList();
+      showToast("通知已清空");
+    });
+  });
+  $("#gotoRemindSettingBtn").addEventListener("click", openSettingsToReminder);
+  $("#bellList").addEventListener("click", function (e) {
+    var item = e.target.closest(".bell-item");
+    if (!item) return;
+    var n = data.notifyLog.filter(function (x) { return x.id === item.dataset.nid; })[0];
+    if (!n) return;
+    n.read = true;
+    saveData();
+    renderBell();
+    if (n.taskId) openTask(n.taskId);
+    else switchTab("tasks");
+  });
+
+  /* --- 计时器按钮 --- */
+  $("#mainBtn").addEventListener("click", function () {
+    if (timer.state === "running") pauseTimer();
+    else startTimer();
+  });
+  $("#resetBtn").addEventListener("click", resetTimer);
+  $("#skipBtn").addEventListener("click", skipPhase);
+  document.querySelectorAll(".mode-btn").forEach(function (b) {
+    b.addEventListener("click", function () { switchMode(b.dataset.mode); });
+  });
+
+  /* --- 新建任务 --- */
+  $("#addTaskBtn").addEventListener("click", submitNewTask);
+
+  /* —— 番茄加号：点一下展开/收起新建表单 —— */
+  function setNewTaskOpen(open, focus) {
+    var form = $("#newTaskForm"), btn = $("#newTaskToggle"), card = $("#newTaskCard");
+    if (!form || !btn) return;
+    form.hidden = !open;
+    btn.classList.toggle("open", open);
+    if (card) card.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    var b = btn.querySelector(".ta-text b"), em = btn.querySelector(".ta-text em");
+    if (b) b.textContent = open ? "收起添加框" : "加一件要做的事";
+    if (em) em.textContent = open ? "点一下收起，接着去忙别的" : "写「明天下午3点交报告」会自动识别截止时间";
+    if (open && focus) setTimeout(function () { $("#taskTitleInput").focus(); }, 40);
+  }
+  $("#newTaskToggle").addEventListener("click", function () {
+    setNewTaskOpen($("#newTaskForm").hidden, true);
+  });
+  /* 首次进入若一条任务都没有，默认把表单展开，降低上手成本 */
+  setNewTaskOpen(data.tasks.length === 0, false);
+
+  $("#taskTitleInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") submitNewTask();
+  });
+  /* 智能解析：边打字边识别截止日期时间 */
+  $("#taskTitleInput").addEventListener("input", function () {
+    var parsed = parseDueText(this.value);
+    if (parsed) {
+      if (parsed.date && !$("#dueDateInput").value) $("#dueDateInput").value = parsed.date;
+      if (parsed.time && !$("#dueTimeInput").value) $("#dueTimeInput").value = parsed.time;
+    }
+    updateDueHint("dueDateInput", "dueTimeInput", "dueHint");
+  });
+  $("#dueDateInput").addEventListener("change", function () { updateDueHint("dueDateInput", "dueTimeInput", "dueHint"); });
+  $("#dueTimeInput").addEventListener("change", function () { updateDueHint("dueDateInput", "dueTimeInput", "dueHint"); });
+  document.querySelectorAll("[data-q]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      applyQuickDate(b.dataset.q, "dueDateInput");
+      updateDueHint("dueDateInput", "dueTimeInput", "dueHint");
+    });
+  });
+  document.querySelectorAll(".stepper button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      ui.estPomos = Math.min(99, Math.max(1, ui.estPomos + Number(b.dataset.step)));
+      $("#estNum").textContent = ui.estPomos;
+    });
+  });
+  document.querySelectorAll("#prioritySeg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      ui.newPriority = b.dataset.priority;
+      document.querySelectorAll("#prioritySeg button").forEach(function (x) {
+        x.classList.toggle("active", x === b);
+      });
+    });
+  });
+
+  /* --- 今日聚焦：任务行事件委托 --- */
+  var list = $("#todayBody");
+  list.addEventListener("click", function (e) {
+    var actionEl = e.target.closest("[data-action]");
+    if (!actionEl) return;
+    var id = actionEl.dataset.id;
+    var action = actionEl.dataset.action;
+    if (action === "toggle") toggleTaskDone(id);
+    else if (action === "delete") deleteTask(id);
+    else if (action === "focus") setCurrentTask(id);
+    else if (action === "edit-btn") openEditModal(id);
+    else if (action === "edit") { ui.editingTaskId = id; renderTasks(); }
+  });
+  list.addEventListener("keydown", function (e) {
+    /* 键盘也能折叠分组 */
+    var ghead = e.target.closest && e.target.closest(".today-group-head");
+    if (ghead && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      ghead.click();
+      return;
+    }
+    if (e.target.classList && e.target.classList.contains("task-edit-input")) {
+      if (e.key === "Enter") {
+        var t = getTask(ui.editingTaskId);
+        if (t) {
+          var v = e.target.value.trim();
+          if (v) { t.title = v; saveData(); showToast("任务已更新"); }
+        }
+        ui.editingTaskId = null;
+        renderTasks();
+      } else if (e.key === "Escape") {
+        ui.editingTaskId = null;
+        renderTasks();
+      }
+      e.stopPropagation();
+    }
+    if (e.key === "Enter" && e.target.dataset && e.target.dataset.action === "edit") {
+      openEditModal(e.target.dataset.id);
+    }
+  });
+  list.addEventListener("focusout", function (e) {
+    if (e.target.classList && e.target.classList.contains("task-edit-input")) {
+      var t = getTask(ui.editingTaskId);
+      if (t) {
+        var v = e.target.value.trim();
+        if (v && v !== t.title) { t.title = v; saveData(); }
+      }
+      if (ui.editingTaskId) { ui.editingTaskId = null; renderTasks(); }
+    }
+  });
+  /* 拖拽排序 */
+  list.addEventListener("dragstart", handleDragStart);
+  list.addEventListener("dragover", handleDragOver);
+  list.addEventListener("drop", handleDrop);
+  list.addEventListener("dragend", handleDragEnd);
+
+  /* --- 今日聚焦整体折叠（连同工具栏一起收起） --- */
+  $("#todayHead").addEventListener("click", function () {
+    ui.todayViewOpen = !ui.todayViewOpen;
+    $("#todayBody").hidden = !ui.todayViewOpen;
+    $("#taskToolbar").hidden = !ui.todayViewOpen || data.tasks.length === 0;
+    $("#todayToggle").classList.toggle("collapsed", !ui.todayViewOpen);
+  });
+  $("#todayBody").addEventListener("click", function (e) {
+    var head = e.target.closest(".today-group-head");
+    if (head) {
+      var key = head.dataset.gkey;
+      ui.todayGroupOpen[key] = !ui.todayGroupOpen[key];
+      var arrow = head.querySelector(".g-arrow");
+      var bodyEl = head.nextElementSibling;
+      if (arrow) arrow.classList.toggle("collapsed", !ui.todayGroupOpen[key]);
+      if (bodyEl) bodyEl.classList.toggle("collapsed", !ui.todayGroupOpen[key]);
+      return;
+    }
+  });
+
+  /* --- 筛选 / 排序 --- */
+  $("#filterGroup").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-filter]");
+    if (!b) return;
+    ui.taskFilter = b.dataset.filter;
+    syncFilterChips();
+    renderTasks();
+  });
+  $("#sortGroup").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-sort]");
+    if (!b) return;
+    ui.taskSort = b.dataset.sort;
+    syncFilterChips();
+    renderTasks();
+  });
+
+  /* --- 自定义番茄计时弹窗 --- */
+  $("#customTimerBtn").addEventListener("click", openCustomTimer);
+  $("#ctCancel").addEventListener("click", closeAllModals);
+  $("#ctApply").addEventListener("click", applyCustomTimer);
+  $("#ctReset").addEventListener("click", resetCustomTimer);
+  /* 加减按钮：事件委托，按当前填写值 ±1 */
+  $("#ctList").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-ct-step]");
+    if (!b) return;
+    var input = $("#" + b.dataset.ctTarget);
+    if (input) ctStepValue(input, Number(b.dataset.ctStep));
+  });
+  /* 输入时即时把超出范围/非法的值收回到合法区间，避免应用时数值突变 */
+  ["ctFocus", "ctShort", "ctLong"].forEach(function (id) {
+    var el = $("#" + id);
+    el.addEventListener("change", function () { el.value = ctClamp(el.value, 1); });
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        ctStepValue(el, e.key === "ArrowUp" ? 1 : -1);
+      }
+    });
+  });
+  $("#customTimerModal").addEventListener("keydown", function (e) {
+    /* 只在数字输入框里回车提交；按钮上的回车交还给按钮自己的 click */
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type === "number") {
+      e.preventDefault();
+      applyCustomTimer();
+    }
+  });
+
+  /* --- 编辑任务弹窗 --- */
+  $("#editCancel").addEventListener("click", closeAllModals);
+  $("#editSave").addEventListener("click", saveEditModal);
+  $("#editDueDate").addEventListener("change", function () { updateDueHint("editDueDate", "editDueTime", "editDueHint"); });
+  $("#editDueTime").addEventListener("change", function () { updateDueHint("editDueDate", "editDueTime", "editDueHint"); });
+  document.querySelectorAll("[data-edq]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      applyQuickDate(b.dataset.edq, "editDueDate");
+      updateDueHint("editDueDate", "editDueTime", "editDueHint");
+    });
+  });
+  $("#editPrioSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-ep]");
+    if (!b) return;
+    document.querySelectorAll("#editPrioSeg button").forEach(function (x) { x.classList.toggle("active", x === b); });
+  });
+  $("#editPolicySeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-epl]");
+    if (!b) return;
+    document.querySelectorAll("#editPolicySeg button").forEach(function (x) { x.classList.toggle("active", x === b); });
+  });
+
+  /* --- 弹窗 --- */
+  $("#modalOk").addEventListener("click", function () {
+    var cb = modalConfirmCb;
+    closeAllModals();
+    if (cb) cb();
+  });
+  $("#modalCancel").addEventListener("click", closeAllModals);
+  $("#modalOverlay").addEventListener("click", closeAllModals);
+
+  /* --- 设置：时长 --- */
+  $("#setFocusMin").addEventListener("change", function () { changeDuration("focusMin", this.value, 1, CT_MAX, "专注时长"); });
+  $("#setShortMin").addEventListener("change", function () { changeDuration("shortBreakMin", this.value, 1, CT_MAX, "短休息时长"); });
+  $("#setLongMin").addEventListener("change", function () { changeDuration("longBreakMin", this.value, 1, CT_MAX, "长休息时长"); });
+  $("#setLongEvery").addEventListener("change", function () { changeDuration("longBreakEvery", this.value, 2, 8, "长休息循环数"); });
+
+  /* --- 设置：提醒分区 --- */
+  $("#swReminder").addEventListener("click", function () {
+    settings.reminderOn = !settings.reminderOn; saveSettings(); setSwitch("#swReminder", settings.reminderOn);
+    checkReminders();
+  });
+  $("#permBtn").addEventListener("click", function () {
+    if (!("Notification" in window)) { showToast("当前浏览器不支持桌面通知"); return; }
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then(function (p) {
+        renderPermStatus();
+        showToast(p === "granted" ? "桌面通知已授权" : "未授权，将仅使用页面内提醒");
+      }).catch(function () { renderPermStatus(); });
+    } else if (Notification.permission === "denied") {
+      renderPermStatus();
+      showToast("请在浏览器地址栏设置里允许通知");
+    } else {
+      renderPermStatus();
+      showToast("桌面通知已授权 ✅");
+    }
+  });
+  $("#swChannelPage").addEventListener("click", function () {
+    settings.remindChannelPage = !settings.remindChannelPage; saveSettings(); setSwitch("#swChannelPage", settings.remindChannelPage);
+  });
+  $("#swChannelDesktop").addEventListener("click", function () {
+    settings.remindChannelDesktop = !settings.remindChannelDesktop; saveSettings(); setSwitch("#swChannelDesktop", settings.remindChannelDesktop);
+    if (settings.remindChannelDesktop && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().then(function (p) { renderPermStatus(); });
+    }
+  });
+  $("#swRemindSound").addEventListener("click", function () {
+    settings.remindSound = !settings.remindSound; saveSettings(); setSwitch("#swRemindSound", settings.remindSound);
+    if (settings.remindSound) { ensureAudio(); playReminderChime(); }
+  });
+  $("#rpolicySeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-rp]");
+    if (!b) return;
+    settings.remindPolicy = b.dataset.rp; saveSettings(); renderSettings();
+    showToast("新任务的默认提醒策略已更新");
+  });
+  document.querySelectorAll(".tier-check").forEach(function (c) {
+    c.addEventListener("change", function () {
+      var arr = [];
+      document.querySelectorAll(".tier-check").forEach(function (x) {
+        if (x.checked) arr.push(Number(x.value));
+      });
+      settings.presetOffsets = arr;
+      saveSettings();
+    });
+  });
+  $("#swSilentRunning").addEventListener("click", function () {
+    settings.remindSilentRunning = !settings.remindSilentRunning; saveSettings(); setSwitch("#swSilentRunning", settings.remindSilentRunning);
+    if (!settings.remindSilentRunning && timer.state !== "running") flushSilentQueue();
+  });
+  $("#overdueSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-freq]");
+    if (!b) return;
+    settings.overdueFreq = b.dataset.freq; saveSettings(); renderSettings();
+  });
+  $("#swDaily").addEventListener("click", function () {
+    settings.dailyStartOn = !settings.dailyStartOn; saveSettings(); setSwitch("#swDaily", settings.dailyStartOn);
+    if (settings.dailyStartOn) dailyStartCheck();
+  });
+  $("#dailyTime").addEventListener("change", function () {
+    settings.dailyStartTime = /^\d{2}:\d{2}$/.test(this.value) ? this.value : "09:00";
+    saveSettings(); renderSettings();
+  });
+
+  /* --- 设置：行为 --- */
+  $("#swAutoStart").addEventListener("click", function () {
+    settings.autoStartNext = !settings.autoStartNext; saveSettings(); setSwitch("#swAutoStart", settings.autoStartNext);
+  });
+  $("#swSound").addEventListener("click", function () {
+    settings.soundOn = !settings.soundOn; saveSettings(); setSwitch("#swSound", settings.soundOn);
+    if (settings.soundOn) { ensureAudio(); playBeeps(timer.mode); }
+  });
+  $("#swNotify").addEventListener("click", function () {
+    settings.notifyOn = !settings.notifyOn;
+    if (settings.notifyOn && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().then(function (p) {
+        if (p !== "granted") { settings.notifyOn = false; showToast("通知权限未授予，已保持关闭"); }
+        else showToast("桌面通知已开启");
+        saveSettings(); setSwitch("#swNotify", settings.notifyOn);
+      }).catch(function () {
+        settings.notifyOn = false; saveSettings(); setSwitch("#swNotify", false);
+      });
+    } else {
+      saveSettings(); setSwitch("#swNotify", settings.notifyOn);
+      if (settings.notifyOn) showToast("桌面通知已开启");
+    }
+  });
+  $("#swNoise").addEventListener("click", function () {
+    settings.noiseOn = !settings.noiseOn; saveSettings(); setSwitch("#swNoise", settings.noiseOn);
+    if (settings.noiseOn) { ensureAudio(); if (timer.state === "running") startNoise(); showToast("白噪音已开启（专注运行时播放）"); }
+    else stopNoise();
+  });
+  $("#volRange").addEventListener("input", function () {
+    settings.volume = Number(this.value);
+    if (masterGain) masterGain.gain.value = (settings.volume / 100) * 0.5;
+    saveSettings();
+  });
+
+  /* --- 设置：主题 --- */
+  $("#themeSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-theme-opt]");
+    if (!b) return;
+    settings.theme = b.dataset.themeOpt;
+    saveSettings();
+    applyTheme();
+  });
+
+  /* --- 数据管理 --- */
+  $("#exportBtn").addEventListener("click", exportJSON);
+  $("#exportBtn2").addEventListener("click", exportJSON);
+  $("#importBtn").addEventListener("click", function () { $("#importFile").click(); });
+  $("#importFile").addEventListener("change", function () {
+    if (this.files && this.files[0]) importJSON(this.files[0]);
+    this.value = "";
+  });
+  $("#clearBtn").addEventListener("click", clearAllData);
+
+  /* --- 新手引导 ---
+     退出路径：开始使用（跳任务页并聚焦输入框）/ 跳过引导 / 右上角 ✕ / 点遮罩空白 / Esc
+     注意：这里是「显式设置 hidden + 全局 [hidden]{display:none!important}」双保险，
+     避免元素自身 display 覆盖 hidden 导致浮层关不掉。 */
+  function closeOnboard(goTasks) {
+    data.onboarded = true;
+    try { saveData(); } catch (err) { /* 存储异常（隐私模式/配额满）不影响关闭浮层 */ }
+    var ov = $("#onboard");
+    ov.hidden = true;
+    ov.style.display = "";               // 清掉可能残留的内联样式
+    if (goTasks) {
+      switchTab("tasks");
+      var inp = $("#taskTitleInput");
+      if (inp) setTimeout(function () { inp.focus(); }, 60);
+    }
+  }
+  /* 统一走遮罩上的事件委托：任何一个按钮/✕/空白处点击都能正确退出，
+     即使某个子按钮的 listener 因异常没绑上也兜得住 */
+  $("#onboard").addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.closest("#onboardDone")) { closeOnboard(true); return; }
+    if (t.closest("#onboardSkip") || t.closest("#onboardClose")) { closeOnboard(false); return; }
+    if (t === this) closeOnboard(false);           // 点遮罩空白处也关闭
+  });
+
+  /* --- 全局快捷键（输入框聚焦时失效） --- */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      /* 引导浮层优先级最高：Esc 先关它，避免后面被其它遮罩吃掉 */
+      if (!$("#onboard").hidden) { closeOnboard(false); return; }
+      closeAllModals(); closeAllDrawers(); return;
+    }
+    var tag = e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target.isContentEditable) return;
+    if (!$("#onboard").hidden) return;   // 引导浮层打开时，快捷键让位给浮层内的按钮
+    if ($("#confirmModal").classList.contains("open") ||
+        $("#editModal").classList.contains("open") ||
+        $("#customTimerModal").classList.contains("open")) return;
+    if (e.key === " ") { e.preventDefault(); timer.state === "running" ? pauseTimer() : startTimer(); }
+    else if (e.key === "r" || e.key === "R") { e.preventDefault(); resetTimer(); }
+    else if (e.key === "s" || e.key === "S") { e.preventDefault(); skipPhase(); }
+    else if (e.key === "1") switchMode("focus");
+    else if (e.key === "2") switchMode("short");
+    else if (e.key === "3") switchMode("long");
+    else if (e.key === "n" || e.key === "N") {
+      e.preventDefault();
+      switchTab("tasks");
+      /* 表单收着的时候先点开番茄加号，再聚焦输入框 */
+      if ($("#newTaskForm") && $("#newTaskForm").hidden) $("#newTaskToggle").click();
+      $("#taskTitleInput").focus();
+    }
+  });
+
+  /* --- 后台唤醒补检：离开超过 5 分钟先全量补检再恢复计时显示 --- */
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      ui.hiddenAt = Date.now();
+    } else {
+      var away = ui.hiddenAt ? Date.now() - ui.hiddenAt : 0;
+      if (away > 5 * 60000) catchUpCheck();
+      else if (timer.state === "running") tick();
+      renderDueBanner();
+    }
+  });
+}
+
+/* 新建任务提交（含智能解析剥离） */
+function submitNewTask() {
+  var input = $("#taskTitleInput");
+  var title = input.value.trim();
+  if (!title) { input.focus(); showToast("请输入任务标题"); return; }
+  var dueDate = $("#dueDateInput").value || null;
+  var dueTime = $("#dueTimeInput").value || "";
+  /* 智能解析：从标题抽取日期时间并剥离 */
+  var parsed = parseDueText(title);
+  if (parsed) {
+    if (!dueDate && parsed.date) dueDate = parsed.date;
+    if (!dueTime && parsed.time) dueTime = parsed.time;
+    if (parsed.rest) title = parsed.rest;
+  }
+  if (!title) { showToast("请输入任务标题"); return; }
+  var tags = $("#taskTagsInput").value.split(/[,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  addTask(title, ui.estPomos, ui.newPriority, tags, dueDate, dueTime);
+  input.value = "";
+  $("#taskTagsInput").value = "";
+  $("#dueDateInput").value = "";
+  $("#dueTimeInput").value = "";
+  updateDueHint("dueDateInput", "dueTimeInput", "dueHint");
+  ui.estPomos = 1;
+  $("#estNum").textContent = "1";
+  input.focus();
+  showToast("任务已添加" + (dueDate ? "，截止 " + fmtDueLong(Date.parse(dueDate + "T" + (dueTime || "23:59") + ":00")) : ""));
+}
+
+/* ============================================================
+   初始化：迁移 → 恢复计时器现场 → 补检 → 启动提醒引擎
+   ============================================================ */
+function init() {
+  var t = data.timer;
+  timer.mode = (t && MODE_META[t.mode]) ? t.mode : "focus";
+  timer.cycleCount = (t && typeof t.cycleCount === "number") ? t.cycleCount : 0;
+
+  if (t && t.state === "running") {
+    var total = durMs(timer.mode);
+    timer.sessionStartAt = t.sessionStartAt || (Date.now() - total);
+    if (t.endTimestamp > Date.now()) {
+      /* 正常恢复运行中的计时器 */
+      timer.state = "running";
+      timer.endTimestamp = t.endTimestamp;
+      timer.ranMs = Math.max(0, total - (t.endTimestamp - Date.now()));
+      timer.resumeAt = Date.now();
+    } else {
+      /* 已过期：视为该阶段已结束并结算 */
+      timer.state = "running";
+      timer.endTimestamp = t.endTimestamp;
+      timer.remainingMs = 0;
+      timer.resumeAt = Date.now();
+      timer.ranMs = total;
+      finishPhase(false);
+    }
+  } else if (t && t.state === "paused") {
+    timer.state = "paused";
+    timer.remainingMs = (typeof t.remainingMs === "number" && t.remainingMs > 0) ? t.remainingMs : durMs(timer.mode);
+    timer.ranMs = t.ranMs || 0;
+    timer.sessionStartAt = t.sessionStartAt || 0;
+  } else {
+    timer.state = "idle";
+    timer.remainingMs = durMs(timer.mode);
+  }
+
+  bindEvents();
+  renderAll();
+
+  /* 离开期间补检 + 提醒引擎启动 */
+  catchUpCheck();
+  setInterval(function () {
+    checkReminders();
+    dailyStartCheck();
+    if (timer.state === "running") renderDueBanner();
+  }, 30000);
+
+  /* 新用户引导：只出现一次，展示后把焦点给主按钮，方便回车直接进入 */
+  if (!data.onboarded) {
+    $("#onboard").hidden = false;
+    var obBtn = $("#onboardDone");
+    if (obBtn) setTimeout(function () { obBtn.focus(); }, 120);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

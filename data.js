@@ -169,6 +169,60 @@ window.SITE_DATA = {
           shots:    ['works/weather-cover.webp'],
           retro:    '从看市面 APP、让 DSH 分析优缺点，到明确天气 API、用 TRAE 创作，再反复调排版和功能，这条 Vibe Coding 的路基本跑通了。'
         }
+      },
+      {
+        id: 'mdnotes',
+        no: '04',
+        name: 'Markdown 笔记助手',
+        brief: '左侧笔记列表、中间书写、右侧实时预览',
+        tags: ['元宝', '提示词迭代', '三栏布局'],
+        status: '已上线',
+        cover: 'works/md-notes-cover.webp',
+        link: 'works/md-notes/',
+        detail: {
+          oneliner: '一个三栏布局的 Markdown 笔记助手：左侧笔记列表与搜索，中间书写，右侧实时预览。',
+          why:      '这个是实战项目里面的一个作品，想做一个自己顺手的 Markdown 笔记助手。',
+          role:     '我主要是先和元宝交流，得到现在市面上这类产品的优点与缺点，然后让它给我写提示词，不断优化做出来的。',
+          stack:    '元宝 · 提示词迭代',
+          shots:    ['works/md-notes-cover.webp'],
+          retro:    '先把市面产品的优缺点摸清楚，再让元宝写提示词、不断优化，三栏布局就是这样一步步磨出来的。'
+        }
+      },
+      {
+        id: 'tomato',
+        no: '05',
+        name: '番茄 Todo',
+        brief: '番茄计时器 × 待办事项清单',
+        tags: ['WorkBuddy', '单文件', '本地存储'],
+        status: '已上线',
+        cover: 'works/tomato-cover.webp',
+        link: 'works/tomato/',
+        detail: {
+          oneliner: '结合番茄计时器与待办事项清单，具备现在主流功能的番茄 Todo。',
+          why:      '这个是实战项目里的作品，主要想结合番茄计时器与待办事项清单，具备现在的主流功能。',
+          role:     '我先告诉 AI 我对产品的功能需求、风格要求，生成提示词让 WorkBuddy 进行工作，然后不断找出我还不满意的点，不断优化迭代。',
+          stack:    'WorkBuddy · 单文件应用',
+          shots:    ['works/tomato-cover.webp'],
+          retro:    '功能需求、风格要求先讲清楚，再让 WorkBuddy 开工，之后就是不断找不满意的地方、不断迭代。'
+        }
+      },
+      {
+        id: 'lumen',
+        no: '06',
+        name: 'LUMEN 博客',
+        brief: '暗黑霓虹风的个人博客 · 数码杂志感',
+        tags: ['全栈', 'Railway', '暗黑霓虹'],
+        status: '已上线',
+        cover: 'works/blog-cover.webp',
+        link: 'https://fabulous-sparkle-production-4759.up.railway.app/',
+        detail: {
+          oneliner: '一个暗黑霓虹风格、呈现数码杂志感的个人博客。',
+          why:      '这个是全栈应用开发里面的个人博客项目。',
+          role:     '我主要采用的是暗黑霓虹风格，呈现数码杂志的感觉。我先让 AI 学习课程文档里面的要求，然后找了相关风格的博客系统让它进行学习（比如排版、功能），最后再让它完善一下后端部分的开发以及公网部署。',
+          stack:    '全栈 · Railway 部署',
+          shots:    ['works/blog-cover.webp'],
+          retro:    '从课程要求到参考同类博客的排版与功能，再到补齐后端、做公网部署，这个项目是完整走了一遍全栈流程。'
+        }
       }
     ]
   },
