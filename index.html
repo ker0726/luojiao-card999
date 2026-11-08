@@ -77,7 +77,9 @@ img{max-width:100%;}
    ============================================================ */
 .site-header{
   position:fixed;top:0;left:0;right:0;z-index:60;
-  background:rgba(10,20,34,.9);
+  background:rgba(9,17,30,.34);
+  -webkit-backdrop-filter:blur(12px) saturate(1.15);
+  backdrop-filter:blur(12px) saturate(1.15);
   border-bottom:1px solid rgba(245,230,200,.10);
 }
 .nav-wrap{
@@ -88,7 +90,7 @@ img{max-width:100%;}
 .nav-links a{
   display:block;padding:7px 14px;border-radius:999px;
   font-size:.86rem;letter-spacing:.08em;color:var(--ink-on-dark);
-  text-decoration:none;opacity:.82;
+  text-decoration:none;opacity:.82;text-shadow:0 1px 8px rgba(4,10,20,.75);
   transition:opacity .25s,background-color .25s;
 }
 .nav-links a:hover{opacity:1;background:rgba(245,230,200,.10);}
@@ -212,15 +214,15 @@ body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);
 .vig{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   background:
-    radial-gradient(circle at 50% 34%, transparent 44%, rgba(9,18,32,.55) 100%),
-    linear-gradient(180deg, rgba(9,18,32,.30), transparent 22%);
+    radial-gradient(circle at 50% 40%, transparent 62%, rgba(9,18,32,.30) 100%),
+    linear-gradient(180deg, rgba(9,18,32,.10), transparent 18%);
 }
 /* 板块内容背后整体压一层，保证阅读对比度（WCAG AA） */
 .read-veil{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(180deg,
-    rgba(13,27,42,.30) 0%, rgba(13,27,42,.55) 30%,
-    rgba(13,27,42,.62) 60%, rgba(13,27,42,.66) 100%);
+    rgba(13,27,42,.12) 0%, rgba(13,27,42,.42) 30%,
+    rgba(13,27,42,.50) 60%, rgba(13,27,42,.56) 100%);
 }
 
 /* ============================================================
@@ -230,6 +232,14 @@ body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);
   position:relative;z-index:5;min-height:100vh;min-height:100svh;
   display:flex;align-items:center;justify-content:center;
   padding:110px 24px 90px;text-align:center;
+}
+/* 只在文字区域压一层柔光暗底，避免整屏压暗、保住插画边缘的通透 */
+.hero::before{
+  content:'';position:absolute;left:50%;top:50%;
+  width:min(820px,92vw);height:min(460px,64vh);
+  transform:translate(-50%,-50%);pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse at center,
+    rgba(8,16,30,.60) 0%, rgba(8,16,30,.42) 42%, rgba(8,16,30,.12) 66%, rgba(8,16,30,0) 78%);
 }
 .hero-inner{max-width:760px;position:relative;}
 .hero .planet-tag{
