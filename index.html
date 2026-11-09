@@ -77,10 +77,8 @@ img{max-width:100%;}
    ============================================================ */
 .site-header{
   position:fixed;top:0;left:0;right:0;z-index:60;
-  background:rgba(9,17,30,.34);
-  -webkit-backdrop-filter:blur(12px) saturate(1.15);
-  backdrop-filter:blur(12px) saturate(1.15);
-  border-bottom:1px solid rgba(245,230,200,.10);
+  background:linear-gradient(180deg,rgba(9,17,30,.62) 0%,rgba(9,17,30,.26) 72%,rgba(9,17,30,0) 100%);
+  border-bottom:0;
 }
 .nav-wrap{
   max-width:1180px;margin:0 auto;padding:0 24px;
@@ -117,40 +115,44 @@ img{max-width:100%;}
 #bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background:url('bg.webp') center 40% / cover no-repeat;
-  filter:brightness(1.17) saturate(1.08) contrast(1.02);
   transform:scale(1.05);transform-origin:50% 42%;
   animation:bgBreath 44s ease-in-out infinite alternate;
   will-change:transform;
 }
-/* 银河流动：同图叠一层随呼吸缓慢旋进的星云，让画面里的银河真的在转 */
+/* 银河流动：叠一层随呼吸缓慢旋进的星云（去掉混合模式，避免逐帧回读背景） */
 .galaxy-live{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background:url('bg.webp') center 40% / cover no-repeat;
-  opacity:.4;mix-blend-mode:screen;
+  opacity:.16;
   -webkit-mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
   mask-image:radial-gradient(ellipse 54% 46% at 50% 42%,#000 0%,rgba(0,0,0,.62) 52%,transparent 78%);
   animation:galaxySwirl 28s ease-in-out infinite alternate;
   will-change:transform;
 }
-/* 星云光带：极缓的极光式环流，混合模式叠加 */
+/* 星云光带：极缓环流。用渐变本身的柔边代替大半径 blur，省掉每帧的模糊重绘 */
 .galaxy-flow{
   position:fixed;left:50%;top:40%;width:118vmax;height:118vmax;
   margin:-59vmax 0 0 -59vmax;z-index:0;border-radius:50%;pointer-events:none;
-  background:conic-gradient(from 0deg,
-    transparent 0deg, rgba(130,170,225,.16) 42deg, rgba(246,220,160,.13) 96deg,
-    transparent 150deg, rgba(190,150,210,.13) 218deg, rgba(150,200,235,.10) 266deg, transparent 320deg);
-  filter:blur(30px);opacity:.5;mix-blend-mode:screen;
+  background:radial-gradient(circle closest-side,
+    rgba(130,170,225,.20) 0%, rgba(150,200,235,.13) 34%,
+    rgba(190,150,210,.09) 58%, rgba(246,220,160,.05) 74%, transparent 88%);
+  opacity:.42;
   animation:galaxySpin 72s linear infinite;
   will-change:transform;transform:translateZ(0);
 }
 .galaxy-flow.b{
   width:88vmax;height:88vmax;margin:-44vmax 0 0 -44vmax;top:50%;
-  background:conic-gradient(from 180deg,
-    transparent 0deg, rgba(232,160,168,.12) 70deg, transparent 130deg,
-    rgba(246,220,160,.11) 210deg, transparent 300deg);
-  filter:blur(42px);opacity:.38;
+  background:radial-gradient(circle closest-side,
+    rgba(246,220,160,.20) 0%, rgba(232,160,168,.14) 40%,
+    rgba(190,150,210,.07) 66%, transparent 88%);
+  opacity:.34;
   animation:galaxySpin 118s linear infinite reverse;
   transform:translateZ(0);
+}
+/* 小屏放弃第二层光带，少一层全屏合成 */
+@media (max-width:760px){
+  .galaxy-flow.b{display:none;}
+  .galaxy-live{opacity:.10;}
 }
 /* 星球内容页背景：暖金玫瑰油画（与首页蓝调星空明确区分） */
 .planet-bg{
@@ -1087,7 +1089,7 @@ main{position:relative;z-index:5;}
             <div class="about-intro" id="aboutIntro"></div>
           </div>
           <figure class="pc-avatar">
-            <img src="avatar.jpg" alt="罗娇的微信头像" loading="lazy" decoding="async" />
+            <img src="avatar.webp" alt="罗娇的微信头像" loading="lazy" decoding="async" />
             <figcaption>LUOJIAO · B-612</figcaption>
           </figure>
         </div>
@@ -1138,7 +1140,7 @@ main{position:relative;z-index:5;}
               <circle cx="158.4" cy="217.4" r="6" />
             </g>
           </svg>
-          <img class="star-hub" src="skills/prince.jpg" alt="小王子坐在玫瑰上" loading="lazy" decoding="async" />
+          <img class="star-hub" src="skills/prince.webp" alt="小王子坐在玫瑰上" loading="lazy" decoding="async" />
         </div>
         <div class="skill-dims" id="skillDims"></div>
       </div>
@@ -1762,8 +1764,8 @@ document.querySelectorAll('.envelope').forEach(function(env){
 var canvas = $('sky'), ctx = canvas.getContext('2d');
 var W = 0, H = 0, stars = [], dust = [], ambMeteors = [];
 function resize(){
-  // 星空画布按 1.5 倍上限渲染：视觉几乎无差别，显存与填充开销明显下降
-  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  // 星空画布按 1.25 倍上限渲染：视觉几乎无差别，显存与填充开销明显下降
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.25);
   W = window.innerWidth; H = window.innerHeight;
   canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
@@ -1773,7 +1775,7 @@ function resize(){
 function rand(a,b){ return a + Math.random() * (b - a); }
 function buildStars(){
   stars = [];
-  var n = Math.floor(W * H / 12000);
+  var n = Math.floor(W * H / 16000);
   for (var i = 0; i < n; i++) {
     stars.push({ x:Math.random()*W, y:Math.random()*H, r:rand(.4,1.5), p:Math.random()*Math.PI*2, s:rand(1.0,2.2), a:rand(.55,1), flare:Math.random()<.09 });
   }
@@ -1871,8 +1873,9 @@ function loop(t){
   if (!skyRunning) return;
   rafId = requestAnimationFrame(loop);
   if (document.hidden) return;
-  // 限到约 30fps：星星闪烁的观感不变，绘制开销减半
-  if (t - lastPaint < 32) return;
+  // 首屏约 30fps；滚动离开首屏后降到约 15fps，闪烁观感几乎不变，开销再减半
+  var frame = (window.scrollY > window.innerHeight) ? 64 : 32;
+  if (t - lastPaint < frame) return;
   lastPaint = t;
   if (t >= nextAmb) {
     nextAmb = t + rand(1100, 2600);

@@ -46,15 +46,15 @@ window.SITE_DATA = {
     ],
     /* 明信片 02 · 我的爱好（img 填图片路径即可显示，留空则保留虚线空框） */
     hobbies: [
-      { name: '烹饪',   icon: 'pot',      img: 'hobbies/cooking.jpg' },
-      { name: '打麻将', icon: 'tile',     img: 'hobbies/mahjong.jpg' },
-      { name: '搞抽象', icon: 'abstract', img: 'hobbies/abstract.jpg' }
+      { name: '烹饪',   icon: 'pot',      img: 'hobbies/cooking.webp' },
+      { name: '打麻将', icon: 'tile',     img: 'hobbies/mahjong.webp' },
+      { name: '搞抽象', icon: 'abstract', img: 'hobbies/abstract.webp' }
     ],
     /* 明信片 03 · 我的生活碎片：把朋友圈图片路径填进 photos 数组即可 */
     moments: {
       photos: [
-        'moments/01.jpg', 'moments/02.jpg', 'moments/03.jpg',
-        'moments/04.jpg', 'moments/05.jpg', 'moments/06.jpg'
+        'moments/01.webp', 'moments/02.webp', 'moments/03.webp',
+        'moments/04.webp', 'moments/05.webp', 'moments/06.webp'
       ]
     }
   },
