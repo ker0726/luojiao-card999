@@ -4,7 +4,7 @@
  *  留空则整站走本地 data.js，不会报错。
  * ========================================================== */
 window.SUPABASE_CONFIG = {
-  url: '',        // 例：'https://abcdefghijklm.supabase.co'
-  anonKey: '',    // 例：'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....'
+  url: 'https://ffjhzplbmdsghwrvejbw.supabase.co',
+  anonKey: 'sb_publishable_J3-qI-IrDIj3W_aL3Q7WwQ_r39o449q',
   bucket: 'media' // 图片存储桶名，与 schema.sql 保持一致
 };
