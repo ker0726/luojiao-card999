@@ -243,7 +243,7 @@ body.planet-view .sec-sub{color:#d8c7a2;text-shadow:0 1px 8px rgba(8,16,30,.85);
   background:radial-gradient(ellipse at center,
     rgba(8,16,30,.60) 0%, rgba(8,16,30,.42) 42%, rgba(8,16,30,.12) 66%, rgba(8,16,30,0) 78%);
 }
-.hero-inner{max-width:760px;position:relative;}
+.hero-inner{width:100%;max-width:760px;position:relative;}
 .hero .planet-tag{
   font-family:var(--deco);font-size:.78rem;letter-spacing:.42em;
   color:var(--wheat);opacity:.85;margin-bottom:22px;
@@ -381,7 +381,7 @@ body.planet-view .hero{display:none;}
 /* —— 五颗金色许愿星（用户创意核心）：手绘水彩金星，按序对应五个板块 —— */
 .sky-star{
   position:absolute;z-index:6;border:0;background:none;cursor:pointer;
-  width:98px;height:126px;padding:0;
+  width:132px;height:164px;padding:0;
   /* 入场：缩放+旋转弹入（--ed 错峰），落定后缓慢浮动 */
   animation:
     starIn .9s var(--ease) var(--ed,1s) both,
@@ -389,29 +389,34 @@ body.planet-view .hero{display:none;}
 }
 /* 星辉光晕（独立图层做呼吸，避免动 filter 触发重绘开销） */
 .sky-star .s-glow{
-  position:absolute;left:50%;top:40px;width:122px;height:122px;
+  position:absolute;left:50%;top:54px;width:168px;height:168px;
   transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(240,207,126,.5) 0%,rgba(240,207,126,.14) 45%,transparent 70%);
+  background:radial-gradient(circle,rgba(244,212,132,.60) 0%,rgba(240,207,126,.20) 45%,transparent 72%);
   animation:starTwinkle 3.4s ease-in-out calc(var(--ed,1s) + .9s) infinite;
 }
 .sky-star .s-star{
-  position:absolute;left:50%;top:40px;width:74px;height:74px;
+  position:absolute;left:50%;top:54px;width:100px;height:100px;
   transform:translate(-50%,-50%);
-  filter:drop-shadow(0 0 10px rgba(240,207,126,.55));
+  filter:drop-shadow(0 0 14px rgba(246,214,138,.75)) drop-shadow(0 2px 6px rgba(6,12,24,.6));
   pointer-events:none;
 }
+/* 星球名：常显，深色胶囊衬底保证任何背景上都清晰可读 */
 .sky-star .m-label{
-  position:absolute;top:84px;left:50%;transform:translateX(-50%);white-space:nowrap;
-  font-family:var(--kai);font-size:.95rem;letter-spacing:.18em;color:var(--star);
-  opacity:.55;transition:opacity .3s;
-  text-shadow:0 1px 8px rgba(9,17,30,.9);
+  position:absolute;top:112px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--kai);font-size:1.08rem;letter-spacing:.16em;color:#fff2cf;
+  opacity:1;transition:color .3s,background-color .3s,border-color .3s;
+  padding:5px 18px;border-radius:999px;
+  background:rgba(7,15,28,.76);
+  border:1px solid rgba(230,196,104,.48);
+  box-shadow:0 4px 16px rgba(4,10,20,.55),inset 0 0 12px rgba(230,196,104,.10);
+  text-shadow:0 1px 6px rgba(4,10,20,.95);
 }
 /* 五颗星从左到右依次点亮：关于我 / 能力 / 经历与成绩 / 作品 / 联系 */
-.sky-star.s1{left:7%;  top:21%;--ed:.9s;}
-.sky-star.s2{left:26%; top:10%;--ed:1.5s;}
-.sky-star.s3{left:45%; top:7%; --ed:2.1s;}
-.sky-star.s4{left:64%; top:11%;--ed:2.7s;}
-.sky-star.s5{left:82%; top:21%;--ed:3.3s;}
+.sky-star.s1{left:6%;  top:19%;--ed:.9s;}
+.sky-star.s2{left:25%; top:8%; --ed:1.5s;}
+.sky-star.s3{left:45%; top:5%; --ed:2.1s;}
+.sky-star.s4{left:65%; top:9%; --ed:2.7s;}
+.sky-star.s5{left:81%; top:19%;--ed:3.3s;}
 
 /* 入场：像被点亮一样弹出来 */
 @keyframes starIn{
@@ -427,20 +432,30 @@ body.planet-view .hero{display:none;}
   animation:starFloat 5.2s ease-in-out infinite;
 }
 
-/* 悬停：星星放大 + 星辉变亮 + 标签浮现 */
-.sky-star:hover,.sky-star:focus-visible{scale:1.14;}
+/* 悬停：星星放大 + 星辉变亮 + 标签转金 */
+.sky-star:hover,.sky-star:focus-visible{scale:1.10;}
 .sky-star:hover .s-glow,.sky-star:focus-visible .s-glow{opacity:1;}
-.sky-star:hover .m-label,.sky-star:focus-visible .m-label{opacity:1;}
+.sky-star:hover .m-label,.sky-star:focus-visible .m-label{
+  color:#0d1b2a;background:linear-gradient(135deg,var(--star),var(--wheat));
+  border-color:rgba(245,230,200,.9);
+}
 @media (max-width:760px){
-  .sky-star{width:74px;height:100px;}
-  .sky-star .s-star{width:54px;height:54px;top:30px;}
-  .sky-star .s-glow{width:88px;height:88px;top:30px;}
-  .sky-star .m-label{top:64px;font-size:.8rem;opacity:1;} /* 移动端常显标签，保证可达 */
-  .sky-star.s1{left:2%; top:9%;}
-  .sky-star.s2{left:32%;top:5%;}
-  .sky-star.s3{left:62%;top:10%;}
-  .sky-star.s4{left:5%;top:18%;}
-  .sky-star.s5{left:61%;top:18%;}
+  /* 小屏改为弹性网格排布：上三下二，彻底避免星与标签互相压住或溢出屏幕 */
+  #skyMeteors{
+    position:absolute;left:0;right:0;top:0;
+    display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;
+    gap:2px 0;padding:64px 6px 0;pointer-events:none;
+  }
+  .sky-star{
+    position:relative;left:auto;top:auto;flex:0 0 33.3333%;
+    width:33.3333%;max-width:33.3333%;height:106px;pointer-events:auto;
+  }
+  .sky-star.s1,.sky-star.s2,.sky-star.s3,.sky-star.s4,.sky-star.s5{left:auto;top:auto;}
+  .sky-star .s-star{width:64px;height:64px;top:36px;}
+  .sky-star .s-glow{width:108px;height:108px;top:36px;}
+  .sky-star .m-label{top:73px;font-size:.86rem;letter-spacing:.05em;padding:3px 10px;}
+  /* 星星区固定占顶部，正文从星星下方开始，避免互相压住 */
+  .hero{align-items:flex-start;padding:286px 22px 56px;}
 }
 
 /* ============================================================
