@@ -174,7 +174,10 @@ a{color:inherit;}
 </div>
 
 <script src="data.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/content-bridge.js"></script>
 <script>
+window.__contentReady.then(function(){
 (function(){
 'use strict';
 // 子作品页统一模板：从 data.js 取数，地址栏 ?id= 决定展示哪个作品
@@ -231,6 +234,7 @@ if (work.link) {
 }
 paper.hidden = false;
 })();
+});
 </script>
 </body>
 </html>

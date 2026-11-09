@@ -1309,7 +1309,10 @@ main{position:relative;z-index:5;}
 </div>
 
 <script src="data.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/content-bridge.js"></script>
 <script>
+window.__contentReady.then(function(){
 (function(){
 'use strict';
 var D = window.SITE_DATA;
@@ -1904,6 +1907,7 @@ else { startSky(); }
 var hashKey = (location.hash || '').replace('#', '');
 if (planetOrder.indexOf(hashKey) !== -1) goToSection(hashKey, true);
 })();
+});
 </script>
 </body>
 </html>
