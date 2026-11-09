@@ -301,6 +301,42 @@ body.planet-view .hero{display:none;}
 .back-sky:hover{background:rgba(245,230,200,.14);transform:translateY(-2px);}
 .back-sky[hidden]{display:none;}
 
+/* 管理员星球：站内唯一入口，常驻右下角，低调但随时可点 */
+.admin-planet{
+  position:fixed;right:24px;bottom:24px;z-index:70;
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;text-decoration:none;
+  opacity:.5;
+  background:radial-gradient(circle at 34% 28%,#f7dfae,#dfa862 58%,#a26f3c);
+  box-shadow:0 8px 22px rgba(0,0,0,.42),
+             inset -7px -9px 16px rgba(94,54,22,.38),
+             0 0 0 1px rgba(245,230,200,.22);
+  transition:opacity .25s var(--ease),transform .25s var(--ease),box-shadow .25s var(--ease);
+}
+/* 一圈略微倾斜的轨道环，呼应星球主题 */
+.admin-planet::before{
+  content:'';position:absolute;inset:-9px -15px;border-radius:50%;
+  border:1px solid rgba(245,230,200,.30);
+  transform:rotate(-22deg);pointer-events:none;
+}
+.admin-planet svg{width:21px;height:21px;color:#40260e;}
+.admin-planet .ap-label{
+  position:absolute;right:0;bottom:-26px;
+  font-size:.72rem;letter-spacing:.16em;color:var(--star);
+  opacity:0;white-space:nowrap;text-shadow:0 1px 8px rgba(8,16,30,.9);
+  transition:opacity .25s;
+}
+.admin-planet:hover,.admin-planet:focus-visible{
+  opacity:1;transform:translateY(-3px);
+  box-shadow:0 12px 26px rgba(0,0,0,.46),inset -7px -9px 16px rgba(94,54,22,.38),0 0 0 1px rgba(245,230,200,.4);
+}
+.admin-planet:hover .ap-label,.admin-planet:focus-visible .ap-label{opacity:.92;}
+@media (max-width:760px){
+  .admin-planet{width:44px;height:44px;right:14px;bottom:14px;opacity:.62;}
+  .admin-planet::before{inset:-7px -11px;}
+  .admin-planet .ap-label{display:none;}
+}
+
 /* 星球底部「继续前行」按钮：前往下一颗星球 */
 .continue-btn{
   display:inline-flex;align-items:center;gap:10px;
@@ -1301,6 +1337,15 @@ main{position:relative;z-index:5;}
 
 <!-- 回到星空：只在星球视图里出现 -->
 <button class="back-sky" id="backSky" type="button" hidden>← 回到星空</button>
+
+<!-- 管理员星球：点开就是后台登录，登录后直接改内容 -->
+<a class="admin-planet" href="admin.html" title="管理员登录 · 内容后台" aria-label="管理员登录，进入内容后台">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="3.1"/>
+    <path d="M12 3v2.3M12 18.7v2.3M3 12h2.3M18.7 12H21M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/>
+  </svg>
+  <span class="ap-label">管理员入口</span>
+</a>
 
 <!-- 星球之门转场层：只保留小王子与狐狸的星球由远及近的动效 -->
 <div id="meteor-transition" hidden role="dialog" aria-label="星球之门转场动画">
